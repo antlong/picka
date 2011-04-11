@@ -1,0 +1,504 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Picka’s documentation! &mdash; Picka v0.7.8 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.7.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Picka v0.7.8 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Picka v0.7.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-picka-s-documentation">
+<h1>Welcome to Picka&#8217;s documentation!<a class="headerlink" href="#welcome-to-picka-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-picka.english"></span><p>Picka is a data generation and randomization module which aims to increase
+coverage by increasing the amount of tests you _dont_ have to write
+by hand.
+By: Anthony Long</p>
+<dl class="function">
+<dt id="picka.english.age">
+<tt class="descclassname">picka.english.</tt><tt class="descname">age</tt><big>(</big><em>min=''</em>, <em>max=''</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#age"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random age, from a range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>min: (integer)</dt>
+<dd><p class="first last">The lowest integer to use in the range</p>
+</dd>
+<dt>max: (integer)</dt>
+<dd><p class="first last">The highest integer to use in the range</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If min and max are empty, 1 and 100 will be used.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.apartment_number">
+<tt class="descclassname">picka.english.</tt><tt class="descname">apartment_number</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#apartment_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.apartment_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an apartment type, with a number.</p>
+<p>There are many different types which could be returned. If you are looking     for a specific format, you might be interested in using string formatting     instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.business_title">
+<tt class="descclassname">picka.english.</tt><tt class="descname">business_title</tt><big>(</big><em>abbreviated=False</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#business_title"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.business_title" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body"><p class="first">This will produce a random business title.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters :</th><td class="field-body"><dl class="first last docutils">
+<dt>abbreviated: (boolean)</dt>
+<dd><p class="first last">Do you want abbreviated titles?</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This function will return business titles.     They are generic business titles.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.calling_code_with_country">
+<tt class="descclassname">picka.english.</tt><tt class="descname">calling_code_with_country</tt><big>(</big><em>formatting=''</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#calling_code_with_country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.calling_code_with_country" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body">Returns a country, with a calling code as a single string. If a format is passed in,</td>
+</tr>
+</tbody>
+</table>
+<p>a 2 item object of your choosing will be returned. For example, if you pass in:
+calling_code_with_country(list), we will return a list of 2 items.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.city">
+<tt class="descclassname">picka.english.</tt><tt class="descname">city</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#city"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.city" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will produce a city.
+ie - city() = &#8216;Brooklyn&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.city_with_state">
+<tt class="descclassname">picka.english.</tt><tt class="descname">city_with_state</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#city_with_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.city_with_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function produces a city with a state.
+ie - city_with_state() = &#8216;New York, NY&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.country">
+<tt class="descclassname">picka.english.</tt><tt class="descname">country</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.country" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a random country.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.cvv">
+<tt class="descclassname">picka.english.</tt><tt class="descname">cvv</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#cvv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.cvv" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary:</th><td class="field-body">Returns a cvv, based on the length you provide.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Usage: picka.cvv(3) or picka.cvv(4)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.email">
+<tt class="descclassname">picka.english.</tt><tt class="descname">email</tt><big>(</big><em>length=8</em>, <em>domain='&#64;example.com'</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.email" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body">Created a randomized email.</td>
+</tr>
+<tr class="field"><th class="field-name">Usage :</th><td class="field-body">picka.email(length=8, <a class="reference external" href="mailto:domain='&#37;&#52;&#48;antlong&#46;com">domain='<span>&#64;</span>antlong<span>&#46;</span>com</a>&#8216;) &gt;&gt;&gt; <a class="reference external" href="mailto:'aijf39ss&#37;&#52;&#48;antlong&#46;com">'aijf39ss<span>&#64;</span>antlong<span>&#46;</span>com</a>&#8216;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.fax_number">
+<tt class="descclassname">picka.english.</tt><tt class="descname">fax_number</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#fax_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.fax_number" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body">Returns a fax (phone) number.</td>
+</tr>
+<tr class="field"><th class="field-name">Usage :</th><td class="field-body">picka.fax_number() &gt;&gt;&gt; 755-463-6544</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.female_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">female_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#female_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.female_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body">Returns a random female name.</td>
+</tr>
+<tr class="field"><th class="field-name">Usage :</th><td class="field-body">picka.female_name() &gt;&gt;&gt; &#8216;Christy&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.gender">
+<tt class="descclassname">picka.english.</tt><tt class="descname">gender</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#gender"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.gender" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random gender.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.hyphenated_last_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">hyphenated_last_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#hyphenated_last_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.hyphenated_last_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will pick 2 random last names and hyphenate them.
+ie - hyphenated_last_name() = &#8216;Perry-Jenkins&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.initial">
+<tt class="descclassname">picka.english.</tt><tt class="descname">initial</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a capitalized letter with a &#8216;.&#8217;
+ie - A.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.language">
+<tt class="descclassname">picka.english.</tt><tt class="descname">language</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#language"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Picks a random language.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.last_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">last_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#last_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.last_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a last name from a list.
+ie - last_name() = &#8216;Smith&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.male_full_name_w_middle_initial">
+<tt class="descclassname">picka.english.</tt><tt class="descname">male_full_name_w_middle_initial</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#male_full_name_w_middle_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.male_full_name_w_middle_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns name, middile initial and last name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.male_middle_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">male_middle_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#male_middle_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.male_middle_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Picks a middle name from a list of male names.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.male_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">male_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#male_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.male_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a male first name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.month">
+<tt class="descclassname">picka.english.</tt><tt class="descname">month</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.month" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects a month for you.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.month_and_day">
+<tt class="descclassname">picka.english.</tt><tt class="descname">month_and_day</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#month_and_day"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.month_and_day" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects and month and day for you.
+There is logic to handle the days in the month correctly.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.month_and_day_and_year">
+<tt class="descclassname">picka.english.</tt><tt class="descname">month_and_day_and_year</tt><big>(</big><em>start=1900</em>, <em>end=2010</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#month_and_day_and_year"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.month_and_day_and_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects a monday, day and year for you.
+Logic built in to handle day in month.
+To change month do (a, b). b has +1 so the
+last year in your range can be selected. Default is 1900, 2010.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Picks a random name. Could be male, could be female.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.number">
+<tt class="descclassname">picka.english.</tt><tt class="descname">number</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will produce a random number with as many
+characters as you wish.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.password_alphabetical">
+<tt class="descclassname">picka.english.</tt><tt class="descname">password_alphabetical</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#password_alphabetical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.password_alphabetical" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a randomized password consisting of letters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.password_alphanumeric">
+<tt class="descclassname">picka.english.</tt><tt class="descname">password_alphanumeric</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#password_alphanumeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.password_alphanumeric" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return an alphanumeric password.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.password_numerical">
+<tt class="descclassname">picka.english.</tt><tt class="descname">password_numerical</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#password_numerical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.password_numerical" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a random password consisting of numbers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.phone_number">
+<tt class="descclassname">picka.english.</tt><tt class="descname">phone_number</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#phone_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.phone_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will produce a phone number randomnly, with &#8216;-&#8216;s.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.postal_code">
+<tt class="descclassname">picka.english.</tt><tt class="descname">postal_code</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#postal_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.postal_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will pick a zipcode randomnly from a list.
+ie - zipcode() = &#8216;11221&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.random_string">
+<tt class="descclassname">picka.english.</tt><tt class="descname">random_string</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#random_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.random_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will allow you to enter an integer, and create &#8216;i&#8217; amount
+of characters. ie: random_string(7) = DsEIzCd</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.salutation">
+<tt class="descclassname">picka.english.</tt><tt class="descname">salutation</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#salutation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.salutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a &#8216;Mr.&#8217; or &#8216;Mrs.&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.screename">
+<tt class="descclassname">picka.english.</tt><tt class="descname">screename</tt><big>(</big><em>service=''</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#screename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.screename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes screenames for the service you pick.
+The screenames conform to their rules, such as
+aol screenames are 3-16 in length with &#64;aol.com on the end.
+Options include: nil, aol, aim, skype, google</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.set_of_initials">
+<tt class="descclassname">picka.english.</tt><tt class="descname">set_of_initials</tt><big>(</big><em>i=3</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#set_of_initials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.set_of_initials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns initials with period seperators.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.social_security_number">
+<tt class="descclassname">picka.english.</tt><tt class="descname">social_security_number</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#social_security_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.social_security_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will produce a Mock Social Security Number.
+ie - social_security_number() = &#8216;112-32-3322&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.special_characters">
+<tt class="descclassname">picka.english.</tt><tt class="descname">special_characters</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#special_characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.special_characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will pick x amount of special chars from the list below.
+ie - picka.special_characters() = &#8216;&#64;%^$&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.state_abbreviated">
+<tt class="descclassname">picka.english.</tt><tt class="descname">state_abbreviated</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#state_abbreviated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.state_abbreviated" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function produces just a state abbreviation.
+ie - state_abbreviated() = &#8216;NY&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.street_address">
+<tt class="descclassname">picka.english.</tt><tt class="descname">street_address</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#street_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.street_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will produce a complete street address.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.street_name">
+<tt class="descclassname">picka.english.</tt><tt class="descname">street_name</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#street_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.street_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will create a street name from either
+a male or female name, plus a street type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.street_type">
+<tt class="descclassname">picka.english.</tt><tt class="descname">street_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#street_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.street_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will return a random street type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.suffix">
+<tt class="descclassname">picka.english.</tt><tt class="descname">suffix</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a suffix from a small list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.timestamp">
+<tt class="descclassname">picka.english.</tt><tt class="descname">timestamp</tt><big>(</big><em>style=False</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a convenience function for creating timestamps.
+Default when empty, is &#8220;12:28:59PM 07/20/10&#8221; or &#8220;%H:%M:%S%p %D&#8221;.
+To change this, pass in your format as an arg.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.timezone_offset">
+<tt class="descclassname">picka.english.</tt><tt class="descname">timezone_offset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#timezone_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.timezone_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will select the value of a timezone offsets,
+such as GMT, GMT+4, etc.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.timezone_offset_country">
+<tt class="descclassname">picka.english.</tt><tt class="descname">timezone_offset_country</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/picka/english.html#timezone_offset_country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.timezone_offset_country" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will select the country part of a timezone.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.trash">
+<tt class="descclassname">picka.english.</tt><tt class="descname">trash</tt><big>(</big><em>function</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#trash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.trash" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Summary :</th><td class="field-body">This method takes a function you pass in, and joins the output with random punctuation.</td>
+</tr>
+<tr class="field"><th class="field-name">Date :</th><td class="field-body">Tue Feb 22 15:31:12 EST 2011.</td>
+</tr>
+<tr class="field"><th class="field-name">Usage :</th><td class="field-body">picka.trash(picka.name) &gt;&gt;&gt; &#8216;D#o}y&gt;l~e^&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="picka.english.url">
+<tt class="descclassname">picka.english.</tt><tt class="descname">url</tt><big>(</big><em>i</em>, <em>extension='.com'</em><big>)</big><a class="reference internal" href="_modules/picka/english.html#url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#picka.english.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will create a website url, with a default of .com
+To use another extension, do picka.url(10, &#8221;.net&#8221;)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Picka&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Picka v0.7.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Anthony Long.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

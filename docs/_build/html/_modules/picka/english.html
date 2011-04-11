@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>picka.english &mdash; Picka v0.7.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.7.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Picka v0.7.8 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Picka v0.7.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for picka.english</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Picka is a data generation and randomization module which aims to increase</span>
+<span class="sd">coverage by increasing the amount of tests you _dont_ have to write</span>
+<span class="sd">by hand.</span>
+<span class="sd">By: Anthony Long</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext en&quot;</span>
+<span class="n">connect</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)),</span> <span class="s">&#39;db.sqlite&#39;</span><span class="p">))</span>
+<span class="n">cursor</span> <span class="o">=</span> <span class="n">connect</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+<span class="n">_QUERIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;us_male_first_names&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_male_names ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;us_female_first_names&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_female_names ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;us_cities&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_cities_with_states ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;countries&quot;</span><span class="p">:</span> <span class="s">&quot;select * from global_countries ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;us_postal_codes&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_postal_codes ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;us_street_types&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_street_types ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;us_surnames&quot;</span><span class="p">:</span> <span class="s">&quot;select * from american_surnames ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+    <span class="s">&quot;countries_and_calling_codes&quot;</span><span class="p">:</span> <span class="s">&quot;select * from global_countries_and_calling_codes ORDER BY RANDOM();&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">_memoized</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the function&#39;s docstring.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">__doc__</span>
+    
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">objtype</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Support instance methods.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__call__</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+    
+
+
+<span class="nd">@_memoized</span>
+<span class="k">def</span> <span class="nf">_query</span><span class="p">(</span><span class="n">sql</span><span class="p">):</span>
+    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="age"><a class="viewcode-back" href="../../index.html#picka.english.age">[docs]</a><span class="k">def</span> <span class="nf">age</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a random age, from a range.</span>
+<span class="sd">    </span>
+<span class="sd">    :parameters:</span>
+<span class="sd">        min: (integer)</span>
+<span class="sd">            The lowest integer to use in the range</span>
+<span class="sd">        max: (integer)</span>
+<span class="sd">            The highest integer to use in the range</span>
+<span class="sd">    </span>
+<span class="sd">    If min and max are empty, 1 and 100 will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&quot;%.i&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">min</span> <span class="ow">and</span> <span class="nb">max</span> <span class="k">else</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="apartment_number"><a class="viewcode-back" href="../../index.html#picka.english.apartment_number">[docs]</a><span class="k">def</span> <span class="nf">apartment_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns an apartment type, with a number.</span>
+<span class="sd">    </span>
+<span class="sd">    There are many different types which could be returned. If you are looking \</span>
+<span class="sd">    for a specific format, you might be interested in using string formatting \</span>
+<span class="sd">    instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">&quot;Apt.&quot;</span><span class="p">,</span> <span class="s">&quot;Apartment&quot;</span><span class="p">,</span> <span class="s">&quot;Suite&quot;</span><span class="p">,</span> <span class="s">&quot;Ste.&quot;</span><span class="p">])</span>
+    <span class="n">letter</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+    <span class="n">directions</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;E&quot;</span><span class="p">,</span> <span class="s">&quot;W&quot;</span><span class="p">,</span> <span class="s">&quot;N&quot;</span><span class="p">,</span> <span class="s">&quot;S&quot;</span><span class="p">,</span> <span class="p">]</span>
+    <span class="n">short</span> <span class="o">=</span> <span class="s">&quot;{} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">999</span><span class="p">))</span>
+    <span class="nb">long</span> <span class="o">=</span> <span class="s">&quot;{} {}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">999</span><span class="p">),</span> <span class="n">letter</span><span class="p">)</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="s">&quot;{} {}-{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">directions</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">999</span><span class="p">),</span> <span class="n">letter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">short</span><span class="p">,</span> <span class="nb">long</span><span class="p">,</span> <span class="n">alt</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="business_title"><a class="viewcode-back" href="../../index.html#picka.english.business_title">[docs]</a><span class="k">def</span> <span class="nf">business_title</span><span class="p">(</span><span class="n">abbreviated</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :summary: This will produce a random business title.</span>
+<span class="sd">    </span>
+<span class="sd">    :parameters:</span>
+<span class="sd">        abbreviated: (boolean)</span>
+<span class="sd">            Do you want abbreviated titles?</span>
+<span class="sd">    </span>
+<span class="sd">    This function will return business titles. \</span>
+<span class="sd">    They are generic business titles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">abbreviations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">&quot;COO&quot;</span><span class="p">,</span> <span class="s">&quot;CEO&quot;</span><span class="p">,</span> <span class="s">&quot;CFO&quot;</span><span class="p">,</span> <span class="s">&quot;VP&quot;</span><span class="p">,</span> <span class="s">&quot;EVP&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">primary</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">&quot;Lead&quot;</span><span class="p">,</span> <span class="s">&quot;Senior&quot;</span><span class="p">,</span> <span class="s">&quot;Direct&quot;</span><span class="p">,</span> <span class="s">&quot;Corporate&quot;</span><span class="p">,</span> <span class="s">&quot;Dynamic&quot;</span><span class="p">,</span> <span class="s">&quot;Future&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Product&quot;</span><span class="p">,</span> <span class="s">&quot;National&quot;</span><span class="p">,</span> <span class="s">&quot;Global&quot;</span><span class="p">,</span> <span class="s">&quot;Customer&quot;</span><span class="p">,</span> <span class="s">&quot;Investor&quot;</span><span class="p">,</span> <span class="s">&quot;Dynamic&quot;</span><span class="p">,</span>
+        <span class="s">&quot;International&quot;</span><span class="p">,</span> <span class="s">&quot;Principal&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">secondary</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">&quot;Supervisor&quot;</span><span class="p">,</span> <span class="s">&quot;Associate&quot;</span><span class="p">,</span> <span class="s">&quot;Executive&quot;</span><span class="p">,</span> <span class="s">&quot;Liason&quot;</span><span class="p">,</span> <span class="s">&quot;Officer&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Manager&quot;</span><span class="p">,</span> <span class="s">&quot;Engineer&quot;</span><span class="p">,</span> <span class="s">&quot;Specialist&quot;</span><span class="p">,</span> <span class="s">&quot;Director&quot;</span><span class="p">,</span> <span class="s">&quot;Coordinator&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Assistant&quot;</span><span class="p">,</span> <span class="s">&quot;Facilitator&quot;</span><span class="p">,</span> <span class="s">&quot;Agent&quot;</span><span class="p">,</span> <span class="s">&quot;Representative&quot;</span><span class="p">,</span> <span class="s">&quot;Strategist&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">)</span> <span class="k">if</span> <span class="n">abbreviated</span> <span class="k">else</span> <span class="s">&#39;{} {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">primary</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">secondary</span><span class="p">)),</span>
+    <span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">calling_code</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&#39;countries_and_calling_codes&#39;</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="calling_code_with_country"><a class="viewcode-back" href="../../index.html#picka.english.calling_code_with_country">[docs]</a><span class="k">def</span> <span class="nf">calling_code_with_country</span><span class="p">(</span><span class="n">formatting</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: Returns a country, with a calling code as a single string. If a format is passed in,</span>
+<span class="sd">     a 2 item object of your choosing will be returned. For example, if you pass in:</span>
+<span class="sd">     calling_code_with_country(list), we will return a list of 2 items.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">country</span><span class="p">,</span> <span class="n">calling_code</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&#39;countries_and_calling_codes&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">formatting</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">formatting</span><span class="p">({</span><span class="n">country</span><span class="p">:</span> <span class="n">calling_code</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">formatting</span><span class="p">([</span><span class="n">country</span><span class="p">,</span> <span class="n">calling_code</span><span class="p">])</span> <span class="k">if</span> <span class="n">formatting</span> <span class="k">else</span> <span class="s">&quot;{} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">calling_code</span><span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">chu</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span>
+        <span class="s">&quot;Bulbasaur&quot;</span><span class="p">,</span> <span class="s">&quot;Charmander&quot;</span><span class="p">,</span> <span class="s">&quot;Charizard&quot;</span><span class="p">,</span> <span class="s">&quot;Squirtle&quot;</span><span class="p">,</span> <span class="s">&quot;Blastoise&quot;</span><span class="p">,</span> <span class="s">&quot;Rattata&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Spearow&quot;</span><span class="p">,</span> <span class="s">&quot;Pikachu&quot;</span><span class="p">,</span> <span class="s">&quot;Sandslash&quot;</span><span class="p">,</span> <span class="s">&quot;Nidorina&quot;</span><span class="p">,</span> <span class="s">&quot;Clefairy&quot;</span><span class="p">,</span> <span class="s">&quot;Vulpix&quot;</span><span class="p">,</span> <span class="s">&quot;Jigglypuff&quot;</span><span class="p">,</span> <span class="s">&quot;Mewtwo&quot;</span><span class="p">,</span> <span class="s">&quot;Mew&quot;</span><span class="p">,</span> <span class="p">])</span>
+
+<div class="viewcode-block" id="city"><a class="viewcode-back" href="../../index.html#picka.english.city">[docs]</a><span class="k">def</span> <span class="nf">city</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will produce a city.</span>
+<span class="sd">    ie - city() = &#39;Brooklyn&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">city_with_state</span><span class="p">()[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="city_with_state"><a class="viewcode-back" href="../../index.html#picka.english.city_with_state">[docs]</a><span class="k">def</span> <span class="nf">city_with_state</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function produces a city with a state.</span>
+<span class="sd">    ie - city_with_state() = &#39;New York, NY&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_cities&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="country"><a class="viewcode-back" href="../../index.html#picka.english.country">[docs]</a><span class="k">def</span> <span class="nf">country</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will return a random country.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;countries&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</div>
+<span class="k">def</span> <span class="nf">creditcard</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;visa&#39;</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;40240071&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;amex&#39;</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;34&#39;</span><span class="p">,</span> <span class="s">&#39;37&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;discover&#39;</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;6011&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;mastercard&#39;</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;51&#39;</span><span class="p">,</span> <span class="s">&#39;52&#39;</span><span class="p">,</span> <span class="s">&#39;53&#39;</span><span class="p">,</span> <span class="s">&#39;54&#39;</span><span class="p">,</span> <span class="s">&#39;55&#39;</span><span class="p">]</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">15</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;0&quot;</span>
+
+<div class="viewcode-block" id="cvv"><a class="viewcode-back" href="../../index.html#picka.english.cvv">[docs]</a><span class="k">def</span> <span class="nf">cvv</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: Returns a cvv, based on the length you provide.</span>
+<span class="sd">    </span>
+<span class="sd">    Usage: picka.cvv(3) or picka.cvv(4)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="p">(</span><span class="mi">999</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">9999</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="email"><a class="viewcode-back" href="../../index.html#picka.english.email">[docs]</a><span class="k">def</span> <span class="nf">email</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s">&quot;@example.com&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: Created a randomized email.</span>
+<span class="sd">     :Usage: picka.email(length=8, domain=&#39;@antlong.com&#39;) &gt;&gt;&gt; &#39;aijf39ss@antlong.com&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">length</span><span class="p">))</span> <span class="o">+</span> <span class="n">domain</span>
+</div>
+<div class="viewcode-block" id="fax_number"><a class="viewcode-back" href="../../index.html#picka.english.fax_number">[docs]</a><span class="k">def</span> <span class="nf">fax_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: Returns a fax (phone) number.</span>
+<span class="sd">     :Usage: picka.fax_number() &gt;&gt;&gt; 755-463-6544</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">phone_number</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="female_name"><a class="viewcode-back" href="../../index.html#picka.english.female_name">[docs]</a><span class="k">def</span> <span class="nf">female_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: Returns a random female name.</span>
+<span class="sd">     :Usage: picka.female_name() &gt;&gt;&gt; &#39;Christy&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_female_first_names&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<span class="k">def</span> <span class="nf">_foreign_characters</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will pick x amount of foreign chars</span>
+<span class="sd">    from the list below, where a is min, and b is max.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="trash"><a class="viewcode-back" href="../../index.html#picka.english.trash">[docs]</a><span class="k">def</span> <span class="nf">trash</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     :Summary: This method takes a function you pass in, and joins the output with random punctuation.</span>
+<span class="sd">     :Date: Tue Feb 22 15:31:12 EST 2011.</span>
+<span class="sd">     :Usage: picka.trash(picka.name) &gt;&gt;&gt; &#39;D#o}y&gt;l~e^&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">char</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">function</span><span class="p">()])</span>
+</div>
+<div class="viewcode-block" id="male_name"><a class="viewcode-back" href="../../index.html#picka.english.male_name">[docs]</a><span class="k">def</span> <span class="nf">male_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will return a male first name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<span class="k">def</span> <span class="nf">male_full_name</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;{} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_surnames&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="male_full_name_w_middle_initial"><a class="viewcode-back" href="../../index.html#picka.english.male_full_name_w_middle_initial">[docs]</a><span class="k">def</span> <span class="nf">male_full_name_w_middle_initial</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns name, middile initial and last name.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">])</span>
+        <span class="n">surnames</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_surnames&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">. </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">names</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">surnames</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="gender"><a class="viewcode-back" href="../../index.html#picka.english.gender">[docs]</a><span class="k">def</span> <span class="nf">gender</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a random gender.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">&quot;Male&quot;</span><span class="p">,</span> <span class="s">&quot;Female&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="hyphenated_last_name"><a class="viewcode-back" href="../../index.html#picka.english.hyphenated_last_name">[docs]</a><span class="k">def</span> <span class="nf">hyphenated_last_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will pick 2 random last names and hyphenate them.</span>
+<span class="sd">    ie - hyphenated_last_name() = &#39;Perry-Jenkins&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;{}-{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">last_name</span><span class="p">(),</span> <span class="n">last_name</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="initial"><a class="viewcode-back" href="../../index.html#picka.english.initial">[docs]</a><span class="k">def</span> <span class="nf">initial</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return a capitalized letter with a &#39;.&#39;</span>
+<span class="sd">    ie - A.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;{}.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="language"><a class="viewcode-back" href="../../index.html#picka.english.language">[docs]</a><span class="k">def</span> <span class="nf">language</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Picks a random language.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">&quot;English&quot;</span><span class="p">,</span> <span class="s">&quot;Spanish&quot;</span><span class="p">,</span> <span class="s">&quot;French&quot;</span><span class="p">,</span> <span class="s">&quot;Chinese&quot;</span><span class="p">,</span> <span class="s">&quot;Japanese&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="last_name"><a class="viewcode-back" href="../../index.html#picka.english.last_name">[docs]</a><span class="k">def</span> <span class="nf">last_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return a last name from a list.</span>
+<span class="sd">    ie - last_name() = &#39;Smith&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">us_surnames</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_surnames&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">us_surnames</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="male_middle_name"><a class="viewcode-back" href="../../index.html#picka.english.male_middle_name">[docs]</a><span class="k">def</span> <span class="nf">male_middle_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Picks a middle name from a list of male names.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">us_male_first_names</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">us_male_first_names</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="month"><a class="viewcode-back" href="../../index.html#picka.english.month">[docs]</a><span class="k">def</span> <span class="nf">month</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects a month for you.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;January&quot;</span><span class="p">,</span> <span class="s">&quot;February&quot;</span><span class="p">,</span> <span class="s">&quot;March&quot;</span><span class="p">,</span> <span class="s">&quot;April&quot;</span><span class="p">,</span>
+                <span class="s">&quot;May&quot;</span><span class="p">,</span> <span class="s">&quot;June&quot;</span><span class="p">,</span> <span class="s">&quot;July&quot;</span><span class="p">,</span> <span class="s">&quot;August&quot;</span><span class="p">,</span> <span class="s">&quot;September&quot;</span><span class="p">,</span>
+                <span class="s">&quot;October&quot;</span><span class="p">,</span> <span class="s">&quot;November&quot;</span><span class="p">,</span> <span class="s">&quot;December&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">months</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="month_and_day"><a class="viewcode-back" href="../../index.html#picka.english.month_and_day">[docs]</a><span class="k">def</span> <span class="nf">month_and_day</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects and month and day for you.</span>
+<span class="sd">    There is logic to handle the days in the month correctly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">month_choice</span> <span class="o">=</span> <span class="n">month</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">month_choice</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;January&quot;</span><span class="p">,</span> <span class="s">&quot;March&quot;</span><span class="p">,</span> <span class="s">&quot;May&quot;</span><span class="p">,</span>
+            <span class="s">&quot;July&quot;</span><span class="p">,</span> <span class="s">&quot;August&quot;</span><span class="p">,</span> <span class="s">&quot;October&quot;</span><span class="p">,</span> <span class="s">&quot;December&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month_choice</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">month_choice</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;February&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month_choice</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">29</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month_choice</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="month_and_day_and_year"><a class="viewcode-back" href="../../index.html#picka.english.month_and_day_and_year">[docs]</a><span class="k">def</span> <span class="nf">month_and_day_and_year</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">1900</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2010</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects a monday, day and year for you.</span>
+<span class="sd">    Logic built in to handle day in month.</span>
+<span class="sd">    To change month do (a, b). b has +1 so the</span>
+<span class="sd">    last year in your range can be selected. Default is 1900, 2010.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">month_and_day_choice</span> <span class="o">=</span> <span class="n">month_and_day</span><span class="p">()</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month_and_day_choice</span><span class="p">,</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),)</span>
+</div>
+<div class="viewcode-block" id="name"><a class="viewcode-back" href="../../index.html#picka.english.name">[docs]</a><span class="k">def</span> <span class="nf">name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Picks a random name. Could be male, could be female.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">])</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_female_first_names&quot;</span><span class="p">]))</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">names</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="number"><a class="viewcode-back" href="../../index.html#picka.english.number">[docs]</a><span class="k">def</span> <span class="nf">number</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will produce a random number with as many</span>
+<span class="sd">    characters as you wish.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="password_alphabetical"><a class="viewcode-back" href="../../index.html#picka.english.password_alphabetical">[docs]</a><span class="k">def</span> <span class="nf">password_alphabetical</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return a randomized password consisting of letters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="password_numerical"><a class="viewcode-back" href="../../index.html#picka.english.password_numerical">[docs]</a><span class="k">def</span> <span class="nf">password_numerical</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return a random password consisting of numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="password_alphanumeric"><a class="viewcode-back" href="../../index.html#picka.english.password_alphanumeric">[docs]</a><span class="k">def</span> <span class="nf">password_alphanumeric</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return an alphanumeric password.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="phone_number"><a class="viewcode-back" href="../../index.html#picka.english.phone_number">[docs]</a><span class="k">def</span> <span class="nf">phone_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will produce a phone number randomnly, with &#39;-&#39;s.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">6</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">y</span>
+</div>
+<div class="viewcode-block" id="random_string"><a class="viewcode-back" href="../../index.html#picka.english.random_string">[docs]</a><span class="k">def</span> <span class="nf">random_string</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This will allow you to enter an integer, and create &#39;i&#39; amount</span>
+<span class="sd">    of characters. ie: random_string(7) = DsEIzCd</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="salutation"><a class="viewcode-back" href="../../index.html#picka.english.salutation">[docs]</a><span class="k">def</span> <span class="nf">salutation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will return a &#39;Mr.&#39; or &#39;Mrs.&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">salutations</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Mr.&quot;</span><span class="p">,</span> <span class="s">&quot;Mrs.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">salutations</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="screename"><a class="viewcode-back" href="../../index.html#picka.english.screename">[docs]</a><span class="k">def</span> <span class="nf">screename</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Makes screenames for the service you pick.</span>
+<span class="sd">    The screenames conform to their rules, such as</span>
+<span class="sd">    aol screenames are 3-16 in length with @aol.com on the end.</span>
+<span class="sd">    Options include: nil, aol, aim, skype, google</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_make_name</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">,</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))))</span>
+    <span class="k">if</span> <span class="n">service</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;aim&quot;</span><span class="p">,</span> <span class="s">&quot;aol&quot;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_make_name</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service</span> <span class="o">==</span> <span class="s">&quot;aol&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;@aol.com&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span>
+    <span class="k">elif</span> <span class="n">service</span> <span class="ow">is</span> <span class="s">&quot;skype&quot;</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_make_name</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span>
+    <span class="k">elif</span> <span class="n">service</span> <span class="ow">is</span> <span class="s">&quot;google&quot;</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_make_name</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;@google.com&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_make_name</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span>
+</div>
+<span class="k">def</span> <span class="nf">sentence</span><span class="p">(</span><span class="n">num_words</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="n">word_list</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;/book_sherlock.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">word_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">num_words</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">words</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">chars</span> <span class="k">else</span> <span class="n">words</span><span class="p">[:</span><span class="n">chars</span><span class="p">]</span>
+
+<div class="viewcode-block" id="set_of_initials"><a class="viewcode-back" href="../../index.html#picka.english.set_of_initials">[docs]</a><span class="k">def</span> <span class="nf">set_of_initials</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns initials with period seperators.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">))]</span>
+</div>
+<div class="viewcode-block" id="social_security_number"><a class="viewcode-back" href="../../index.html#picka.english.social_security_number">[docs]</a><span class="k">def</span> <span class="nf">social_security_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will produce a Mock Social Security Number.</span>
+<span class="sd">    ie - social_security_number() = &#39;112-32-3322&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="si">%.3i</span><span class="s">-</span><span class="si">%.2i</span><span class="s">-</span><span class="si">%.4i</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">999</span><span class="p">),</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">99</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">9999</span><span class="p">),)</span>
+</div>
+<div class="viewcode-block" id="special_characters"><a class="viewcode-back" href="../../index.html#picka.english.special_characters">[docs]</a><span class="k">def</span> <span class="nf">special_characters</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will pick x amount of special chars from the list below.</span>
+<span class="sd">    ie - picka.special_characters() = &#39;@%^$&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="street_type"><a class="viewcode-back" href="../../index.html#picka.english.street_type">[docs]</a><span class="k">def</span> <span class="nf">street_type</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will return a random street type.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">us_street_types</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_street_types&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">us_street_types</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="street_name"><a class="viewcode-back" href="../../index.html#picka.english.street_name">[docs]</a><span class="k">def</span> <span class="nf">street_name</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will create a street name from either</span>
+<span class="sd">    a male or female name, plus a street type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">us_street_types</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_street_types&quot;</span><span class="p">])</span>
+        <span class="n">us_female_first_names</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_female_first_names&quot;</span><span class="p">])</span>
+        <span class="n">us_male_first_names</span> <span class="o">=</span> <span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_male_first_names&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Key missing.&quot;</span>
+    <span class="n">us_male_and_female_first_names</span> <span class="o">=</span> <span class="n">us_female_first_names</span> <span class="o">+</span> <span class="n">us_male_first_names</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">us_male_and_female_first_names</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">us_street_types</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="street_address"><a class="viewcode-back" href="../../index.html#picka.english.street_address">[docs]</a><span class="k">def</span> <span class="nf">street_address</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will produce a complete street address.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span>
+            <span class="s">&#39;</span><span class="si">%d</span><span class="s">-</span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">999</span><span class="p">),</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">999</span><span class="p">),</span> <span class="n">street_name</span><span class="p">()),</span>
+            <span class="s">&#39;</span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">999</span><span class="p">),</span> <span class="n">street_name</span><span class="p">()),</span>
+            <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%d</span><span class="s">, </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;P.O. Box&quot;</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">999</span><span class="p">),</span> <span class="n">street_name</span><span class="p">()),</span>
+            <span class="p">])</span>
+</div>
+<div class="viewcode-block" id="suffix"><a class="viewcode-back" href="../../index.html#picka.english.suffix">[docs]</a><span class="k">def</span> <span class="nf">suffix</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This returns a suffix from a small list.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">&quot;Sr.&quot;</span><span class="p">,</span> <span class="s">&quot;Jr.&quot;</span><span class="p">,</span> <span class="s">&quot;II&quot;</span><span class="p">,</span> <span class="s">&quot;III&quot;</span><span class="p">,</span> <span class="s">&quot;IV&quot;</span><span class="p">,</span> <span class="s">&quot;V&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="timestamp"><a class="viewcode-back" href="../../index.html#picka.english.timestamp">[docs]</a><span class="k">def</span> <span class="nf">timestamp</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a convenience function for creating timestamps.</span>
+<span class="sd">    Default when empty, is &quot;12:28:59PM 07/20/10&quot; or &quot;%H:%M:%S%p %D&quot;.</span>
+<span class="sd">    To change this, pass in your format as an arg.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">style</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%H:%M:%S%p %D&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="timezone_offset"><a class="viewcode-back" href="../../index.html#picka.english.timezone_offset">[docs]</a><span class="k">def</span> <span class="nf">timezone_offset</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will select the value of a timezone offsets,</span>
+<span class="sd">    such as GMT, GMT+4, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([[</span><span class="s">&quot;GMT+&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">))],</span> <span class="p">[</span><span class="s">&quot;GMT&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s">&quot;GMT&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))]])</span>
+</div>
+<div class="viewcode-block" id="timezone_offset_country"><a class="viewcode-back" href="../../index.html#picka.english.timezone_offset_country">[docs]</a><span class="k">def</span> <span class="nf">timezone_offset_country</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will select the country part of a timezone.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">&quot;Eniwetoa&quot;</span><span class="p">,</span> <span class="s">&quot;Hawaii&quot;</span><span class="p">,</span> <span class="s">&quot;Alaska&quot;</span><span class="p">,</span> <span class="s">&quot;Pacific&quot;</span><span class="p">,</span> <span class="s">&quot;Mountain&quot;</span><span class="p">,</span> <span class="s">&quot;Central&quot;</span><span class="p">,</span> 
+        <span class="s">&quot;Eastern&quot;</span><span class="p">,</span> <span class="s">&quot;Atlantic&quot;</span><span class="p">,</span> <span class="s">&quot;Canada&quot;</span><span class="p">,</span> <span class="s">&quot;Brazilia&quot;</span><span class="p">,</span> <span class="s">&quot;Buenos Aries&quot;</span><span class="p">,</span> <span class="s">&quot;Mid-Atlantic&quot;</span><span class="p">,</span> <span class="s">&quot;Cape Verdes&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Greenwich Mean Time&quot;</span><span class="p">,</span> <span class="s">&quot;Dublin&quot;</span><span class="p">,</span> <span class="s">&quot;Berlin&quot;</span><span class="p">,</span> <span class="s">&quot;Rome&quot;</span><span class="p">,</span> <span class="s">&quot;Israel&quot;</span><span class="p">,</span> <span class="s">&quot;Cairo&quot;</span><span class="p">,</span> <span class="s">&quot;Moscow&quot;</span><span class="p">,</span> <span class="s">&quot;Kuwait&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Abu Dhabi&quot;</span><span class="p">,</span> <span class="s">&quot;Muscat&quot;</span><span class="p">,</span> <span class="s">&quot;Islamabad&quot;</span><span class="p">,</span> <span class="s">&quot;Karachi&quot;</span><span class="p">,</span> <span class="s">&quot;Almaty&quot;</span><span class="p">,</span> <span class="s">&quot;Dhaka&quot;</span><span class="p">,</span> <span class="s">&quot;Bangkok, Jakarta&quot;</span><span class="p">,</span> 
+        <span class="s">&quot;Hong Kong&quot;</span><span class="p">,</span> <span class="s">&quot;Beijing&quot;</span><span class="p">,</span> <span class="s">&quot;Tokyo&quot;</span><span class="p">,</span> <span class="s">&quot;Osaka&quot;</span><span class="p">,</span> <span class="s">&quot;Sydney&quot;</span><span class="p">,</span> <span class="s">&quot;Melbourne&quot;</span><span class="p">,</span> <span class="s">&quot;Guam&quot;</span><span class="p">,</span> <span class="s">&quot;Magadan&quot;</span><span class="p">,</span>
+        <span class="s">&quot;Soloman Islands&quot;</span><span class="p">,</span> <span class="s">&quot;Fiji&quot;</span><span class="p">,</span> <span class="s">&quot;Wellington&quot;</span><span class="p">,</span> <span class="s">&quot;Auckland&quot;</span><span class="p">,])</span>
+</div>
+<div class="viewcode-block" id="url"><a class="viewcode-back" href="../../index.html#picka.english.url">[docs]</a><span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s">&quot;.com&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will create a website url, with a default of .com</span>
+<span class="sd">    To use another extension, do picka.url(10, &quot;.net&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">email</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">extension</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="state_abbreviated"><a class="viewcode-back" href="../../index.html#picka.english.state_abbreviated">[docs]</a><span class="k">def</span> <span class="nf">state_abbreviated</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function produces just a state abbreviation.</span>
+<span class="sd">    ie - state_abbreviated() = &#39;NY&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_cities&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+</div>
+<div class="viewcode-block" id="postal_code"><a class="viewcode-back" href="../../index.html#picka.english.postal_code">[docs]</a><span class="k">def</span> <span class="nf">postal_code</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function will pick a zipcode randomnly from a list.</span>
+<span class="sd">    ie - zipcode() = &#39;11221&#39;.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">_query</span><span class="p">(</span><span class="n">_QUERIES</span><span class="p">[</span><span class="s">&quot;us_postal_codes&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Picka v0.7.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Anthony Long.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
