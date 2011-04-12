@@ -3,3 +3,5 @@
 dist/
 build/
 picka.egg-info/
+.gitignore
+MANIFEST
