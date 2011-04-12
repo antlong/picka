@@ -1,0 +1,6 @@
+*.pyc
+.DS_Store
+dist/
+build/
+picka.egg-info/
+MANIFEST
