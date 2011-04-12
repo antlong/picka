@@ -1,4 +1,3 @@
-import os
 from setuptools import setup
 
 setup(
@@ -10,7 +9,7 @@ setup(
     url='http://github.com/antlong/picka',
     packages=["picka"],
     package_data={
-        'picka': ['*.sqlite', '*.txt', ], },
+        'picka': ['*.sqlite', '*.txt', '*.json', ], },
     include_package_data=True,
     install_requires=['setuptools'],
     classifiers=[
