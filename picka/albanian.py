@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 """
 Picka is a data generation and randomization module which aims to increase
 coverage by increasing the amount of tests you _dont_ have to write

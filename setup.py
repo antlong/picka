@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(
     name='picka',
@@ -6,14 +6,13 @@ setup(
     description="picka generates randomized, realistic data for use in any application.",
     author="Anthony Long",
     author_email="antlong@gmail.com",
-    url='http://github.com/antlong/picka',
     packages=["picka"],
-    package_data={
-        'picka': ['*.sqlite', '*.txt', '*.json', ], },
     include_package_data=True,
-    install_requires=['setuptools'],
+    package_data={'picka': ['*.sqlite', '*.txt', '*.json', ], },
+    install_requires=['jsonlib'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Programming Language :: Python', ],
+    zip_safe=False,
 )
