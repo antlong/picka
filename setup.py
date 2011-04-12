@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='picka',
-    version="0.7.8",
+    version="0.7.9",
     description="picka generates randomized, realistic data for use in any application.",
     author="Anthony Long",
     url='http://github.com/antlong/picka',
