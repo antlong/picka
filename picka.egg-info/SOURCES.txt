@@ -1,0 +1,9 @@
+setup.py
+picka/__init__.py
+picka/albanian.py
+picka/english.py
+picka.egg-info/PKG-INFO
+picka.egg-info/SOURCES.txt
+picka.egg-info/dependency_links.txt
+picka.egg-info/requires.txt
+picka.egg-info/top_level.txt
