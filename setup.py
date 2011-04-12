@@ -6,6 +6,7 @@ setup(
     version="0.7.9",
     description="picka generates randomized, realistic data for use in any application.",
     author="Anthony Long",
+    author_email="antlong@gmail.com",
     url='http://github.com/antlong/picka',
     packages=["picka"],
     package_data={

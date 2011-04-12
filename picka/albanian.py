@@ -4,49 +4,12 @@ coverage by increasing the amount of tests you _dont_ have to write
 by hand.
 By: Anthony Long
 """
-import sqlite3
-import functools
 import os
 import random
+import string
+import jsonlib as json
 __docformat__ = "restructuredtext en"
-connect = sqlite3.connect(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'db.sqlite'))
-cursor = connect.cursor()
-
-_QUERIES = {
-    "albanian_male_names": "select male from albanian where male is not null;",
-    "albanian_female_names": "select female from albanian where female is not null;",
-    "albanian_surnames": "select surname from albanian where surname is not null;",
-}
-
-
-class _memoized(object):
-    def __init__(self, func):
-        self.func = func
-        self.cache = {}
-    
-    def __call__(self, *args):
-        try:
-            return self.cache[args]
-        except KeyError:
-            value = self.func(*args)
-            self.cache[args] = value
-            return value
-        except TypeError:
-            return self.func(*args)
-    
-    def __repr__(self):
-        """Return the function's docstring."""
-        return self.func.__doc__
-    
-    def __get__(self, obj, objtype):
-        """Support instance methods."""
-        return functools.partial(self.__call__, obj)
-
-
-@_memoized
-def _query(sql):
-    cursor.execute(sql)
-    return cursor.fetchall()
+albanian_names = json.loads(open(os.path.join(os.path.dirname(__file__), 'picka.json')).read())['albanian']
 
 
 def age(min=1, max=99):
@@ -54,7 +17,7 @@ def age(min=1, max=99):
 
 
 def apartment_number():
-    pass
+    return ' '.join([random.choice(["apartament", "pas", "dhomë"]), str(random.randint(1, 100))])
 
 
 def business_title():
@@ -97,8 +60,12 @@ def fax_number():
     pass
 
 
+def _female():
+    return random.choice(albanian_names['female'])
+
+
 def female_name():
-    return random.choice(_query(_QUERIES['albanian_female_names']))[0]
+    return _female()
 
 
 def trash():
@@ -106,11 +73,19 @@ def trash():
 
 
 def male_full_name():
-    return random.choice(_query(_QUERIES['albanian_male_names']))[0] + random.choice(_query(_QUERIES['albanian_surnames']))[0]
+    return ' '.join([_male(), _male()])
+
+
+def _male():
+    return random.choice(albanian_names['male'])
+
+
+def new_male_name():
+    return _male()
 
 
 def male_full_name_w_middle_initial():
-    pass
+    return ' '.join([_male(), random.choice(string.uppercase) + '.', _male()])
 
 
 def gender():
@@ -129,16 +104,20 @@ def language():
     pass
 
 
+def _last_name():
+    return random.choice(albanian_names['surname'])
+
+
 def last_name():
-    return random.choice(_query(_QUERIES['albanian_surnames']))[0]
+    return _last_name()
 
 
 def male_middle_name():
-    return random.choice(_query(_QUERIES['albanian_male_names']))[0]
+    return _male()
 
 
 def male_name():
-    return random.choice(_query(_QUERIES['albanian_male_names']))[0]
+    return _male()
 
 
 def month():
