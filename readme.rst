@@ -2,7 +2,18 @@ Picka: Data Generation, and Randomization.
 ==========================================
 :Title: Picka
 :Author: Anthony Long
-:Modified: 2/5/2010
+:Modified: 4/12/2010
+
+What's New?
+-----------
+Internationalization is underway, with albanian names currently working. Be aware, some names have foreign characters.
+Using the albanian module is as simple as,
+
+::
+    
+    import picka # or from picka import albanian
+    picka.albanian.name() # or albanian.name()
+
 
 What is Picka?
 --------------
