@@ -10,7 +10,7 @@ import random
 import string
 import jsonlib as json
 __docformat__ = "restructuredtext en"
-albanian_names = json.loads(open(os.path.join(os.path.dirname(__file__), 'picka.json')).read())['albanian']
+albanian_names = json.loads(open(os.path.join(os.path.dirname(__file__), 'albanian.json')).read())['albanian']
 
 
 def age(min=1, max=99):
