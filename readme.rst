@@ -76,8 +76,11 @@ MySQL / SQLite
 ______________
 
 ::
-
-	cursor.execute("insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)", (pick.male_first_name, picka.last_name, picka.age))
+    first, last, age = picka.first_name(), picka.last_name(), picka.age()
+	cursor.execute(
+	    "insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
+	    (first, last, age)
+	)
 
 
 HTTP
@@ -85,22 +88,11 @@ ____
 
 ::
 
-	def post(host, path, data, type=None):
+	def post(host, data):
 	    http = httplib.HTTP(host)
-	    http.putrequest("PUT", path)
-	    http.putheader("User-Agent", USER_AGENT)
-	    http.putheader("Host", host)
-	    if type:
-	        http.putheader("Content-Type", type)
-	    http.putheader("Content-Length", str(len(data)))
-	    http.endheaders()
 	    http.send(data)
 	
 	def test_post_result():
-	    post("www.spam.egg", "/bacon.htm", picka.random_string(10), "text/plain")
-		errcode, errmsg, headers = http.getreply()
-	    if errcode != 200:
-	        raise Error(errcode, errmsg, headers)
-	    file = http.getfile()
-	    return file.read()
+	    post("www.spam.egg/bacon.htm", picka.random_string(10))
+
 
