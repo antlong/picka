@@ -39,6 +39,13 @@ But this is just the beginning. Other ways to implement this, include using dict
 		"password": picka.password_numerical(6),
 	}
 
+This would provide:
+
+::
+    
+    {"first_name": "Anthony", "last_name": "Long", "email_address", "uragn@getit.com", "password": "485444"}
+
+
 Examples:
 ---------
 
