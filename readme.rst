@@ -79,9 +79,8 @@ ______________
     first, last, age = picka.first_name(), picka.last_name(), picka.age()
 	cursor.execute(
 	    "insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
-	    (first, last, age)
-	)
-
+	    (first, last, age))
+    
 
 HTTP
 ____
