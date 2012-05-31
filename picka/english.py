@@ -8,71 +8,80 @@ import string
 import random
 import time
 import sqlite3
-import functools
 import os
+import calendar
 __docformat__ = "restructuredtext en"
-connect = sqlite3.connect(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'db.sqlite'))
+connect = sqlite3.connect(os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'db.sqlite')
+)
 cursor = connect.cursor()
 
-_QUERIES = {
-    "us_male_first_names": "select * from american_male_names ORDER BY RANDOM();",
-    "us_female_first_names": "select * from american_female_names ORDER BY RANDOM();",
-    "us_cities": "select * from american_cities_with_states ORDER BY RANDOM();",
-    "countries": "select * from global_countries ORDER BY RANDOM();",
-    "us_postal_codes": "select * from american_postal_codes ORDER BY RANDOM();",
-    "us_street_types": "select * from american_street_types ORDER BY RANDOM();",
-    "us_surnames": "select * from american_surnames ORDER BY RANDOM();",
-    "countries_and_calling_codes": "select * from global_countries_and_calling_codes ORDER BY RANDOM();",
-}
+class Names(object):
+    """This class contains name related functions."""
+    def initial(self, with_trailing_period=False):
+        """
+        Returns a randomly chosen letter, with a trailing period
+        if desired.
+        
+        :parameters:
+            with_trailing_period: (bool)
+                Whether or not to add a trailing period.
+        """
+        letter = random.choice(string.letters).upper()
+        return letter if not with_trailing_period else letter + "."
+    
+    def female_first(self):
+        """Returns a randomly chosen female first name."""
+        cursor.execute("SELECT * FROM american_female_names order by RANDOM() limit 1")
+        return cursor.fetchone()[0]
+    
+    def female_middle(self):
+        """Returns a randomly chosen female middle name."""
+        return self.female_first()
+    
+    def male_first(self):
+        """Returns a randomly chosen male first name."""
+        cursor.execute("SELECT * FROM american_male_names order by RANDOM() limit 1")
+        return cursor.fetchone()[0]
+    
+    def male_middle(self):
+        """Returns a randomly chosen male middle name."""
+        return self.male_first()[0]
+    
+    def surnames(self):
+        """Returns a randomly chosen surname."""
+        cursor.execute("SELECT * FROM american_surnames order by RANDOM() limit 1")
+        return cursor.fetchone()[0]
 
 
-class _memoized(object):
-    def __init__(self, func):
-        self.func = func
-        self.cache = {}
-    
-    def __call__(self, *args):
-        try:
-            return self.cache[args]
-        except KeyError:
-            value = self.func(*args)
-            self.cache[args] = value
-            return value
-        except TypeError:
-            return self.func(*args)
-    
-    def __repr__(self):
-        """Return the function's docstring."""
-        return self.func.__doc__
-    
-    def __get__(self, obj, objtype):
-        """Support instance methods."""
-        return functools.partial(self.__call__, obj)
-    
 
-@_memoized
-def _query(sql):
-    cursor.execute(sql)
-    return cursor.fetchall()
-
-
-def age(min=1, max=100):
-    """
-    Returns a random age, from a range.
+class Dates(object):
+    def age(min=1, max=99):
+        """
+        Returns a random age, from a range.
     
-    :parameters:
-        min: (integer)
-            The lowest integer to use in the range
-        max: (integer)
-            The highest integer to use in the range
+        :parameters:
+            min: (integer)
+                The lowest integer to use in the range
+            max: (integer)
+                The highest integer to use in the range
     
-    :tip:
-        If min and max are empty, 1 and 100 will be used.
+        :tip:
+            If min and max are empty, 1 and 99 will be used.
     
-    """
-    return "%.i" % (random.randint(min, max + 1) if min and max else random.randint(1, 100))
+        """
+        return "%.i" % (random.randint(min, max + 1) if min and max else random.randint(1, 100))
 
-
+    def month(self):
+        return random.choice(calendar.month_name)
+    
+    def birthday(min_year=1900, max_year=2012):
+        _randomized_numeric_month = random.randrange(1, 13)
+        birthday_month = calendar.month_name[_randomized_numeric_month]
+        birthday_year = random.randrange(min_year, max_year + 1)
+        birthday_day = calendar.monthrange(birthday_year, _randomized_numeric_month)[1]
+        return birthday_month, birthday_day, birthday_year
+        
 def apartment_number():
     """
     Returns an apartment type, with a number.

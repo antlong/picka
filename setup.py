@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='picka',
-    version="0.7.9",
+    version="0.8-dev",
     description="picka generates randomized, realistic data for use in any application.",
     author="Anthony Long",
     author_email="antlong@gmail.com",
