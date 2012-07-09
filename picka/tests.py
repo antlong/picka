@@ -1,9 +1,8 @@
-import english
-import albanian
+import picka
 import timeit
 
-alb = timeit.Timer(albanian.male_full_name).timeit()
-eng = timeit.Timer(english.male_full_name).timeit()
+ma = timeit.Timer(picka.male_full_name).timeit()
+fe = timeit.Timer(picka.female_full_name).timeit()
 
-print "Albanian: " + str(alb)
-print "English: " + str(eng)
+print "Albanian: " + str(ma)
+print "English: " + str(fe)

@@ -5,107 +5,125 @@ coverage by increasing the amount of tests you _dont_ have to write
 by hand.
 By: Anthony Long
 """
-import string, random, time, sqlite3, os, calendar
+import string
+import random
+import time
+import sqlite3
+import os
+import calendar
 __docformat__ = "restructuredtext en"
 connect = sqlite3.connect(os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'db.sqlite')
-)
+    os.path.abspath(os.path.dirname(__file__)), 'db.sqlite'))
 cursor = connect.cursor()
+
 
 def initial(with_trailing_period=False):
     """
     Returns a randomly chosen letter, with a trailing period if desired.
-    
+
         :parameters: with_trailing_period: (bool)
             Whether or not to add a trailing period.
     """
     letter = random.choice(string.letters).upper()
     return letter if not with_trailing_period else letter + "."
 
+
 def female_first():
     """Returns a randomly chosen female first name."""
     cursor.execute("SELECT name FROM female order by RANDOM() limit 1")
     return cursor.fetchone()[0]
 
+
 def female_middle():
     """Returns a randomly chosen female middle name."""
     return female_first()
+
 
 def male_first():
     """Returns a randomly chosen male first name."""
     cursor.execute("SELECT name FROM male order by RANDOM() limit 1")
     return cursor.fetchone()[0]
 
+
 def male_middle():
     """Returns a randomly chosen male middle name."""
     return male_first()
+
 
 def surnames():
     """Returns a randomly chosen surname."""
     cursor.execute("SELECT * FROM surname order by RANDOM() limit 1")
     return cursor.fetchone()[0]
 
+
 def age(min=1, max=99):
     """
     Returns a random age, from a range.
-    
+
     :parameters:
         min: (integer)
             The lowest integer to use in the range
         max: (integer)
             The highest integer to use in the range
-    
+
     :tip:
         If min and max are empty, 1 and 99 will be used.
-    
+
     """
-    return "%.i" % (random.randint(min, max + 1) if min and max else random.randint(1, 100))
+    return "%.i" % (
+        random.randint(min, max + 1) if min and max else random.randint(1, 100)
+    )
+
 
 def month():
     return random.choice(calendar.month_name)
 
+
 def birthday(min_year=1900, max_year=2012):
-    _randomized_numeric_month = random.randrange(1, 13)
-    birthday_month = calendar.month_name[_randomized_numeric_month]
+    rmonth = random.randrange(1, 13)
+    birthday_month = calendar.month_name[rmonth]
     birthday_year = random.randrange(min_year, max_year + 1)
-    birthday_day = calendar.monthrange(birthday_year, _randomized_numeric_month)[1]
+    birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
     return birthday_month, birthday_day, birthday_year
+
 
 def _address_prefix():
     return random.choice([
         random.randrange(0, 999),
-        str(random.randrange(0, 999)) + "-" + str(random.randrange(0,999))
+        str(random.randrange(0, 999)) + "-" + str(random.randrange(0, 999))
     ])
+
 
 def apartment_number():
     """
     Returns an apartment type, with a number.
-    
-    :tip: There are many different types which could be returned. If you are looking \
-    for a specific format, you might be interested in using string formatting \
-    instead.
-    
+
+    :tip: There are many different types which could be returned.
+    If you are looking for a specific format, you might be interested\
+    in using string formatting instead.
+
     """
     type = random.choice(["Apt.", "Apartment", "Suite", "Ste."])
     letter = random.choice(string.ascii_letters).capitalize()
     directions = ["E", "W", "N", "S", ]
     short = "{} {}".format(type, random.randint(1, 999))
     long = "{} {}{}".format(type, random.randint(1, 999), letter)
-    alt = "{} {}-{}{}".format(type, random.choice(directions), random.randint(1, 999), letter)
+    alt = "{} {}-{}{}".format(
+        type, random.choice(directions), random.randint(1, 999), letter)
     return random.choice([short, long, alt])
 
 
 def business_title(abbreviated=False):
     """
     This will produce a random business title.
-    
+
     :parameters:
         abbreviated: (boolean)
             Do you want abbreviated titles?
-    
+
     This function will return business titles. \
     :tip: They are generic business titles.
-    
+
     """
     abbreviations = [
         "COO", "CEO", "CFO", "VP", "EVP",
@@ -124,20 +142,24 @@ def business_title(abbreviated=False):
         random.choice(primary), random.choice(secondary)),
     )
 
+
 def calling_code():
     """
     Returns a calling code from a list of all known calling codes in \
     the world.
     """
-    cursor.execute("SELECT calling_code FROM countries_and_calling_codes order by RANDOM() limit 1;")
+    cursor.execute(
+        "SELECT calling_code FROM countries_and_calling_codes order by RANDOM() limit 1;"
+    )
     return cursor.fetchone()[0]
+
 
 def calling_code_with_country(formatting=''):
     """
     :Summary: Returns a country, with a calling code as a single string.\
     If a format is passed in a 2 item object of your choosing will be returned.\
     For example, if you pass in:
-    
+
     calling_code_with_country(list), we will return a list of 2 items.
     
     """
@@ -147,10 +169,12 @@ def calling_code_with_country(formatting=''):
         return formatting({country: calling_code})
     return formatting([country, calling_code]) if formatting else "{} {}".format(country, calling_code)
 
+
 def city():
     """This function will produce a city."""
     cursor.execute("SELECT city FROM american_cities order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
+
 
 def city_with_state():
     """
@@ -160,10 +184,12 @@ def city_with_state():
     cursor.execute("SELECT city, state FROM american_cities order by RANDOM() limit 1;")
     return cursor.fetchone()
 
+
 def country():
     """This function will return a random country."""
     cursor.execute("SELECT country_names FROM countries order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
+
 
 def creditcard(type):
     if type == 'visa':
@@ -180,11 +206,13 @@ def creditcard(type):
     return ''.join(prefix) + "0"
 
 
+
 def cvv(i):
     """Returns a cvv, based on the length you provide.
     :Usage: picka.cvv(3) or picka.cvv(4)
     """
     return '{}'.format(random.randint(111, (999 if i == 3 else 9999)))
+
 
 def email(length=8, domain="@example.com"):
     """
@@ -192,6 +220,7 @@ def email(length=8, domain="@example.com"):
     :Usage: picka.email(length=8, domain='@foo.com')
     """
     return ''.join(random.choice(string.ascii_lowercase) for i in xrange(length)) + domain
+
 
 
 def fax_number():
@@ -202,6 +231,7 @@ def fax_number():
     return phone_number()
 
 
+
 def female_name():
     """
      :Summary: Returns a random female name.
@@ -210,12 +240,14 @@ def female_name():
     cursor.execute("SELECT name FROM female order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
 
+
 def _foreign_characters(a, b):
     """
     This function will pick x amount of foreign chars\
     from the list below, where a is min, and b is max.
     """
     pass
+
 
 
 def trash(function):
@@ -231,9 +263,11 @@ def trash(function):
 def male_full_name():
     return "{} {}".format(male_first(), surnames())
 
+
 def male_full_name_w_middle_initial(with_period=False):
     """Returns name, middile initial and last name."""
     return "{} {} {}".format(male_first(), initial(with_period), surnames())
+
 
 def gender():
     """
@@ -242,12 +276,14 @@ def gender():
     return random.choice(["Male", "Female"])
 
 
+
 def hyphenated_last_name():
     """
     This function will pick 2 random last names and hyphenate them.
     ie - hyphenated_last_name() = 'Perry-Jenkins'
     """
     return '{}-{}'.format(last_name(), last_name())
+
 
 
 def language():
@@ -426,6 +462,7 @@ def language():
     ])
 
 
+
 def last_name():
     """
     This function will return a last name from a list.
@@ -433,10 +470,10 @@ def last_name():
     """
     return surnames()
 
-
 def male_middle_name():
     """Picks a middle name from a list of male names."""
     return male_first()
+
 
 def month_and_day():
     """
@@ -453,6 +490,7 @@ def month_and_day():
         return '%s %s' % (month_choice, random.randrange(1, 31))
 
 
+
 def month_and_day_and_year(start=1900, end=2010):
     """
     Selects a monday, day and year for you.
@@ -464,11 +502,13 @@ def month_and_day_and_year(start=1900, end=2010):
         random.randrange(start, end + 1),)
 
 
+
 def name():
     """
     Picks a random name. Could be male, could be female.
     """
     return random.choice([male_first(), female_first()])
+
 
 
 def number(x, y):
@@ -479,12 +519,14 @@ def number(x, y):
     return random.randrange(x, y + 1)
 
 
+
 def password_alphabetical(i):
     """
     This function will return a randomized password consisting of letters.
     """
     return ''.join(random.choice(string.ascii_letters)
             for x in range(i))
+
 
 
 def password_numerical(i):
@@ -495,12 +537,14 @@ def password_numerical(i):
             for x in range(i))
 
 
+
 def password_alphanumeric(i):
     """
     This function will return an alphanumeric password.
     """
     chars = string.ascii_letters + string.digits
     return ''.join(random.choice(chars) for x in range(i))
+
 
 
 def phone_number():
@@ -512,6 +556,7 @@ def phone_number():
     return y
 
 
+
 def random_string(i):
     """
     This will allow you to enter an integer, and create 'i' amount
@@ -520,12 +565,14 @@ def random_string(i):
     return ''.join(random.choice(string.ascii_letters) for x in xrange(i))
 
 
+
 def salutation():
     """
     This function will return a 'Mr.' or 'Mrs.'
     """
     salutations = ("Mr.", "Mrs.")
     return random.choice(salutations)
+
 
 
 def screename(service=""):
@@ -555,15 +602,18 @@ def screename(service=""):
         return name
 
 
+
 def sentence(num_words=20, chars=''):
     word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt').read().split()
     words = ' '.join(random.choice(word_list) for x in xrange(num_words))
     return words if not chars else words[:chars]
 
 
+
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
     return [''.join(random.choice(string.ascii_uppercase) + '.' for x in xrange(i))]
+
 
 
 def social_security_number():
@@ -575,6 +625,7 @@ def social_security_number():
         random.randrange(99), random.randrange(9999),)
 
 
+
 def special_characters(i):
     """
     This function will pick x amount of special chars from the list below.
@@ -584,10 +635,12 @@ def special_characters(i):
             for x in xrange(i))
 
 
+
 def street_type():
     """This function will return a random street type."""
     cursor.execute("SELECT * FROM street_types order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
+
 
 def street_name():
     """
@@ -596,6 +649,7 @@ def street_name():
     """
     cursor.execute("SELECT names FROM streets order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
+
 
 def street_address():
     """This function will produce a complete street address."""
@@ -607,9 +661,11 @@ def street_address():
             ])
 
 
+
 def suffix():
     """This returns a suffix from a small list."""
     return random.choice(["Sr.", "Jr.", "II", "III", "IV", "V"])
+
 
 
 def timestamp(style=False):
@@ -624,6 +680,7 @@ def timestamp(style=False):
         return time.strftime(style, time.localtime())
 
 
+
 def timezone_offset():
     """
     This function will select the value of a timezone offsets,
@@ -632,14 +689,20 @@ def timezone_offset():
     return random.choice([["GMT+" + str(random.randint(1, 12))], ["GMT"], ["GMT" + str(random.randint(-12, -1))]])
 
 
+
 def timezone_offset_country():
     """This function will select the country part of a timezone."""
-    return random.choice(["Eniwetoa", "Hawaii", "Alaska", "Pacific", "Mountain", "Central",
-        "Eastern", "Atlantic", "Canada", "Brazilia", "Buenos Aries", "Mid-Atlantic", "Cape Verdes",
-        "Greenwich Mean Time", "Dublin", "Berlin", "Rome", "Israel", "Cairo", "Moscow", "Kuwait",
-        "Abu Dhabi", "Muscat", "Islamabad", "Karachi", "Almaty", "Dhaka", "Bangkok, Jakarta",
-        "Hong Kong", "Beijing", "Tokyo", "Osaka", "Sydney", "Melbourne", "Guam", "Magadan",
-        "Soloman Islands", "Fiji", "Wellington", "Auckland", ])
+    return random.choice(
+        ["Eniwetoa", "Hawaii", "Alaska", "Pacific", "Mountain", "Central",
+        "Eastern", "Atlantic", "Canada", "Brazilia", "Buenos Aries",
+        "Mid-Atlantic", "Cape Verdes", "Greenwich Mean Time", "Dublin",
+        "Berlin", "Rome", "Israel", "Cairo", "Moscow", "Kuwait",
+        "Abu Dhabi", "Muscat", "Islamabad", "Karachi", "Almaty",
+        "Dhaka", "Bangkok, Jakarta", "Hong Kong", "Beijing", "Tokyo",
+        "Osaka", "Sydney", "Melbourne", "Guam", "Magadan",
+        "Soloman Islands", "Fiji", "Wellington", "Auckland", ]
+    )
+
 
 
 def url(i, extension=".com"):
@@ -650,6 +713,7 @@ def url(i, extension=".com"):
     return email(i, extension)
 
 
+
 def state_abbreviated():
     """
     This function produces just a state abbreviation.
@@ -658,6 +722,7 @@ def state_abbreviated():
     cursor.execute("SELECT * FROM american_cities_with_states order by RANDOM() limit 1;")
     return cursor.fetchone()[0][-2:]
 
+
 def postal_code():
     """
     This function will pick a zipcode randomnly from a list.
@@ -665,40 +730,3 @@ def postal_code():
     """
     cursor.execute("SELECT col_1 FROM zipcodes order by RANDOM() limit 1;")
     return cursor.fetchone()[0]
-
-if __name__ == "__main__":
-    print "initial: ", initial()
-    print "female first:", female_first()
-    print "female middle:", female_middle()
-    print "male first:", male_first()
-    print "male middle:", male_middle()
-    print "surnames:", surnames()
-    print "age: ", age()
-    print "month:", month()
-    print "birthday:", birthday()
-    print "apartment number:", apartment_number()
-    print "business title:", business_title()
-    print "calling_code:", calling_code()
-    print "calling_code_with_country:", calling_code_with_country()
-    print "city:", city()
-    print "city_with_state",city_with_state()
-    print "country",country()
-    print "creditcard",creditcard('visa')
-    print "cvv",cvv(3)
-    print "email",email()
-    print "fax_number",fax_number()
-    print "female_name",female_name()
-    print "male_full_name",male_full_name()
-    print "male_full_name_w_middle_initial",male_full_name_w_middle_initial()
-    print "gender",gender()
-    print hyphenated_last_name()
-    print language()
-    print last_name()
-    print male_middle_name()
-    print month_and_day()
-    print month_and_day_and_year()
-    print name()
-    print number(1,3)
-    print password_numerical(8)
-    print "male full w init:", male_full_name_w_middle_initial()
-    print "language:", language()
