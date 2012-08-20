@@ -1,19 +1,23 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Picka is a data generation and randomization module which aims to increase
 coverage by increasing the amount of tests you _dont_ have to write
 by hand.
 By: Anthony Long
 """
+
 import string
 import random
 import time
 import sqlite3
 import os
 import calendar
-__docformat__ = "restructuredtext en"
-connect = sqlite3.connect(os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'db.sqlite'))
+__docformat__ = 'restructuredtext en'
+connect = \
+    sqlite3.connect(os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), 'db.sqlite'))
 cursor = connect.cursor()
 
 
@@ -24,35 +28,41 @@ def initial(with_trailing_period=False):
         :parameters: with_trailing_period: (bool)
             Whether or not to add a trailing period.
     """
+
     letter = random.choice(string.letters).upper()
-    return letter if not with_trailing_period else letter + "."
+    return (letter if not with_trailing_period else letter + '.')
 
 
 def female_first():
     """Returns a randomly chosen female first name."""
-    cursor.execute("SELECT name FROM female order by RANDOM() limit 1")
+
+    cursor.execute('SELECT name FROM female order by RANDOM() limit 1')
     return cursor.fetchone()[0]
 
 
 def female_middle():
     """Returns a randomly chosen female middle name."""
+
     return female_first()
 
 
 def male_first():
     """Returns a randomly chosen male first name."""
-    cursor.execute("SELECT name FROM male order by RANDOM() limit 1")
+
+    cursor.execute('SELECT name FROM male order by RANDOM() limit 1')
     return cursor.fetchone()[0]
 
 
 def male_middle():
     """Returns a randomly chosen male middle name."""
+
     return male_first()
 
 
 def surnames():
     """Returns a randomly chosen surname."""
-    cursor.execute("SELECT * FROM surname order by RANDOM() limit 1")
+
+    cursor.execute('SELECT * FROM surname order by RANDOM() limit 1')
     return cursor.fetchone()[0]
 
 
@@ -70,9 +80,9 @@ def age(min=1, max=99):
         If min and max are empty, 1 and 99 will be used.
 
     """
-    return "%.i" % (
-        random.randint(min, max + 1) if min and max else random.randint(1, 100)
-    )
+
+    return '%.i' % ((random.randint(min, max + 1) if min
+                    and max else random.randint(1, 100)))
 
 
 def month():
@@ -84,14 +94,13 @@ def birthday(min_year=1900, max_year=2012):
     birthday_month = calendar.month_name[rmonth]
     birthday_year = random.randrange(min_year, max_year + 1)
     birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
-    return birthday_month, birthday_day, birthday_year
+    return (birthday_month, birthday_day, birthday_year)
 
 
 def _address_prefix():
-    return random.choice([
-        random.randrange(0, 999),
-        str(random.randrange(0, 999)) + "-" + str(random.randrange(0, 999))
-    ])
+    return random.choice([random.randrange(0, 999),
+                         str(random.randrange(0, 999)) + '-'
+                         + str(random.randrange(0, 999))])
 
 
 def apartment_number():
@@ -103,13 +112,14 @@ def apartment_number():
     in using string formatting instead.
 
     """
-    type = random.choice(["Apt.", "Apartment", "Suite", "Ste."])
+
+    type = random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
     letter = random.choice(string.ascii_letters).capitalize()
-    directions = ["E", "W", "N", "S", ]
-    short = "{} {}".format(type, random.randint(1, 999))
-    long = "{} {}{}".format(type, random.randint(1, 999), letter)
-    alt = "{} {}-{}{}".format(
-        type, random.choice(directions), random.randint(1, 999), letter)
+    directions = ['E', 'W', 'N', 'S']
+    short = '{} {}'.format(type, random.randint(1, 999))
+    long = '{} {}{}'.format(type, random.randint(1, 999), letter)
+    alt = '{} {}-{}{}'.format(type, random.choice(directions),
+                              random.randint(1, 999), letter)
     return random.choice([short, long, alt])
 
 
@@ -125,22 +135,43 @@ def business_title(abbreviated=False):
     :tip: They are generic business titles.
 
     """
-    abbreviations = [
-        "COO", "CEO", "CFO", "VP", "EVP",
-    ]
+
+    abbs = ['COO', 'CEO', 'CFO', 'VP', 'EVP']
     primary = [
-        "Lead", "Senior", "Direct", "Corporate", "Dynamic", "Future",
-        "Product", "National", "Global", "Customer", "Investor", "Dynamic",
-        "International", "Principal",
-    ]
+        'Lead',
+        'Senior',
+        'Direct',
+        'Corporate',
+        'Dynamic',
+        'Future',
+        'Product',
+        'National',
+        'Global',
+        'Customer',
+        'Investor',
+        'Dynamic',
+        'International',
+        'Principal',
+        ]
     secondary = [
-        "Supervisor", "Associate", "Executive", "Liason", "Officer",
-        "Manager", "Engineer", "Specialist", "Director", "Coordinator",
-        "Assistant", "Facilitator", "Agent", "Representative", "Strategist",
-    ]
-    return (random.choice(abbreviations) if abbreviated else '{} {}'.format(
-        random.choice(primary), random.choice(secondary)),
-    )
+        'Supervisor',
+        'Associate',
+        'Executive',
+        'Liason',
+        'Officer',
+        'Manager',
+        'Engineer',
+        'Specialist',
+        'Director',
+        'Coordinator',
+        'Assistant',
+        'Facilitator',
+        'Agent',
+        'Representative',
+        'Strategist',
+        ]
+    return ((random.choice(abbs) if abbreviated else '{} {}'.format(random.choice(primary),
+            random.choice(secondary))), )
 
 
 def calling_code():
@@ -148,9 +179,9 @@ def calling_code():
     Returns a calling code from a list of all known calling codes in \
     the world.
     """
-    cursor.execute(
-        "SELECT calling_code FROM countries_and_calling_codes order by RANDOM() limit 1;"
-    )
+
+    cursor.execute('SELECT calling_code FROM countries_and_calling_codes order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()[0]
 
 
@@ -163,16 +194,22 @@ def calling_code_with_country(formatting=''):
     calling_code_with_country(list), we will return a list of 2 items.
     
     """
-    cursor.execute("select * from countries_and_calling_codes order by random() limit 1;")
-    country, calling_code = cursor.fetchone()
+
+    cursor.execute('select * from countries_and_calling_codes order by random() limit 1;'
+                   )
+    (country, calling_code) = cursor.fetchone()
     if formatting is dict:
         return formatting({country: calling_code})
-    return formatting([country, calling_code]) if formatting else "{} {}".format(country, calling_code)
+    return (formatting([country,
+            calling_code]) if formatting else '{} {}'.format(country,
+            calling_code))
 
 
 def city():
     """This function will produce a city."""
-    cursor.execute("SELECT city FROM american_cities order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT city FROM american_cities order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()[0]
 
 
@@ -181,13 +218,17 @@ def city_with_state():
     This function produces a city with a state.
     ie - city_with_state() = 'New York, NY'
     """
-    cursor.execute("SELECT city, state FROM american_cities order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT city, state FROM american_cities order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()
 
 
 def country():
     """This function will return a random country."""
-    cursor.execute("SELECT country_names FROM countries order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT country_names FROM countries order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()[0]
 
 
@@ -197,30 +238,31 @@ def creditcard(type):
     elif type == 'amex':
         prefix = ['34', '37']
     elif type == 'discover':
-        prefix = ["6011"]
+        prefix = ['6011']
     elif type == 'mastercard':
         prefix = ['51', '52', '53', '54', '55']
     prefix = random.choice(prefix)
     while len(prefix) < 15:
         prefix = prefix + str(random.randint(0, 9))
-    return ''.join(prefix) + "0"
-
+    return ''.join(prefix) + '0'
 
 
 def cvv(i):
     """Returns a cvv, based on the length you provide.
     :Usage: picka.cvv(3) or picka.cvv(4)
     """
+
     return '{}'.format(random.randint(111, (999 if i == 3 else 9999)))
 
 
-def email(length=8, domain="@example.com"):
+def email(length=8, domain='@example.com'):
     """
     :Summary: Created a randomized email.
     :Usage: picka.email(length=8, domain='@foo.com')
     """
-    return ''.join(random.choice(string.ascii_lowercase) for i in xrange(length)) + domain
 
+    return ''.join(random.choice(string.ascii_lowercase) for i in
+                   xrange(length)) + domain
 
 
 def fax_number():
@@ -228,8 +270,8 @@ def fax_number():
     :Summary: Returns a fax (phone) number.
     :Usage: picka.fax_number() >>> 755-463-6544
     """
-    return phone_number()
 
+    return phone_number()
 
 
 def female_name():
@@ -237,7 +279,8 @@ def female_name():
      :Summary: Returns a random female name.
      :Usage: picka.female_name() >>> 'Christy'
     """
-    cursor.execute("SELECT name FROM female order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT name FROM female order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
@@ -246,35 +289,37 @@ def _foreign_characters(a, b):
     This function will pick x amount of foreign chars\
     from the list below, where a is min, and b is max.
     """
+
     pass
 
 
-
-def trash(function):
+def trash(picka_function):
     """
      :Summary: This method takes a function you pass in, and joins\
      the output with random punctuation.
      :Date: Tue Feb 22 15:31:12 EST 2011.
      :Usage: picka.trash(picka.name) >>> 'D#o}y>l~e^'
     """
-    return ''.join([char + random.choice(string.punctuation) for char in function()])
-
+    return ''.join([str(char) + random.choice(str(string.punctuation))
+                   for char in picka_function()])
 
 def male_full_name():
-    return "{} {}".format(male_first(), surnames())
+    return '{} {}'.format(male_first(), surnames())
 
 
 def male_full_name_w_middle_initial(with_period=False):
     """Returns name, middile initial and last name."""
-    return "{} {} {}".format(male_first(), initial(with_period), surnames())
+
+    return '{} {} {}'.format(male_first(), initial(with_period),
+                             surnames())
 
 
 def gender():
     """
     Returns a random gender.
     """
-    return random.choice(["Male", "Female"])
 
+    return random.choice(['Male', 'Female'])
 
 
 def hyphenated_last_name():
@@ -282,185 +327,185 @@ def hyphenated_last_name():
     This function will pick 2 random last names and hyphenate them.
     ie - hyphenated_last_name() = 'Perry-Jenkins'
     """
-    return '{}-{}'.format(last_name(), last_name())
 
+    return '{}-{}'.format(last_name(), last_name())
 
 
 def language():
     """Picks a random language."""
-    return random.choice([
-        "Acholi",
-        "Afrikaans",
-        "Akan",
-        "Albanian",
-        "American Sign Language",
-        "Amharic",
-        "Arabic",
-        "Armenian",
-        "Assyrian",
-        "Azerbaijani",
-        "Azeri",
-        "Bajuni",
-        "Bambara",
-        "Basque",
-        "Behdini",
-        "Belorussian",
-        "Bengali",
-        "Berber",
-        "Bosnian",
-        "Bravanese",
-        "Bulgarian",
-        "Burmese",
-        "Cantonese",
-        "Catalan",
-        "Chaldean",
-        "Chaochow",
-        "Chamorro",
-        "Chavacano",
-        "Cherokee",
-        "Chuukese",
-        "Croatian",
-        "Czech",
-        "Dakota",
-        "Danish",
-        "Dari",
-        "Dinka",
-        "Diula",
-        "Dutch",
-        "Ewe",
-        "Farsi",
-        "Fijian Hindi",
-        "Finnish",
-        "Flemish",
-        "French",
-        "French Canadian",
-        "Fukienese",
-        "Fula",
-        "Fulani",
-        "Fuzhou",
-        "Gaddang",
-        "Georgian",
-        "German",
-        "Gorani",
-        "Greek",
-        "Gujarati",
-        "Haitian Creole",
-        "Hakka",
-        "Hausa",
-        "Hebrew",
-        "Hindi",
-        "Hmong",
-        "Hunanese",
-        "Hungarian",
-        "Ibanag",
-        "Ibo/Igbo",
-        "Icelandic",
-        "Ilocano",
-        "Indonesian",
-        "Italian",
-        "Jakartanese",
-        "Japanese",
-        "Javanese",
-        "Karen",
-        "Kashmiri",
-        "Kazakh",
-        "Khmer",
-        "Kinyarwanda",
-        "Kirghiz",
-        "Kirundi",
-        "Korean",
-        "Kosovan",
-        "Krio",
-        "Kurdish",
-        "Kurmanji",
-        "Lakota",
-        "Laotian",
-        "Latvian",
-        "Lingala",
-        "Lithuanian",
-        "Luganda",
-        "Luxembourgeois",
-        "Maay",
-        "Macedonian",
-        "Malagasy",
-        "Malay",
-        "Malayalam",
-        "Maltese",
-        "Mandarin",
-        "Mandingo",
-        "Mandinka",
-        "Maninka",
-        "Mankon",
-        "Marathi",
-        "Marshallese",
-        "Mien",
-        "Mina",
-        "Mirpuri",
-        "Mixteco",
-        "Moldavan",
-        "Mongolian",
-        "Montenegrin",
-        "Navajo",
-        "Neapolitan",
-        "Nepali",
-        "Nigerian Pidgin English",
-        "Norwegian",
-        "Nuer",
-        "Oromo",
-        "Pahari",
-        "Pampangan",
-        "Pamgasinan",
-        "Pashto",
-        "Patois",
-        "Pidgin English",
-        "Polish",
-        "Portuguese",
-        "Portuguese Creole",
-        "Punjabi",
-        "Romanian",
-        "Russian",
-        "Samoan",
-        "Serbian",
-        "Shanghainese",
-        "Shona",
-        "Sicilian",
-        "Sinhalese",
-        "Sindhi",
-        "Slovak",
-        "Slovenian",
-        "Somali",
-        "Sorani",
-        "Spanish",
-        "Sudanese Arabic",
-        "Swahili",
-        "Swedish",
-        "Sylhetti",
-        "Tagalog",
-        "Taiwanese",
-        "Tajik",
-        "Tamil",
-        "Telugu",
-        "Thai",
-        "Tibetan",
-        "Tigre",
-        "Tigrinya",
-        "Toishanese",
-        "Tongan",
-        "Tshiluba",
-        "Turkish",
-        "Twi",
-        "Ukrainian",
-        "Urdu",
-        "Uzbek",
-        "Vietnamese",
-        "Visayan",
-        "Welsh",
-        "Wolof",
-        "Yiddish",
-        "Yoruba",
-        "Yupik",
-    ])
 
+    return random.choice([
+        'Acholi',
+        'Afrikaans',
+        'Akan',
+        'Albanian',
+        'American Sign Language',
+        'Amharic',
+        'Arabic',
+        'Armenian',
+        'Assyrian',
+        'Azerbaijani',
+        'Azeri',
+        'Bajuni',
+        'Bambara',
+        'Basque',
+        'Behdini',
+        'Belorussian',
+        'Bengali',
+        'Berber',
+        'Bosnian',
+        'Bravanese',
+        'Bulgarian',
+        'Burmese',
+        'Cantonese',
+        'Catalan',
+        'Chaldean',
+        'Chaochow',
+        'Chamorro',
+        'Chavacano',
+        'Cherokee',
+        'Chuukese',
+        'Croatian',
+        'Czech',
+        'Dakota',
+        'Danish',
+        'Dari',
+        'Dinka',
+        'Diula',
+        'Dutch',
+        'Ewe',
+        'Farsi',
+        'Fijian Hindi',
+        'Finnish',
+        'Flemish',
+        'French',
+        'French Canadian',
+        'Fukienese',
+        'Fula',
+        'Fulani',
+        'Fuzhou',
+        'Gaddang',
+        'Georgian',
+        'German',
+        'Gorani',
+        'Greek',
+        'Gujarati',
+        'Haitian Creole',
+        'Hakka',
+        'Hausa',
+        'Hebrew',
+        'Hindi',
+        'Hmong',
+        'Hunanese',
+        'Hungarian',
+        'Ibanag',
+        'Ibo/Igbo',
+        'Icelandic',
+        'Ilocano',
+        'Indonesian',
+        'Italian',
+        'Jakartanese',
+        'Japanese',
+        'Javanese',
+        'Karen',
+        'Kashmiri',
+        'Kazakh',
+        'Khmer',
+        'Kinyarwanda',
+        'Kirghiz',
+        'Kirundi',
+        'Korean',
+        'Kosovan',
+        'Krio',
+        'Kurdish',
+        'Kurmanji',
+        'Lakota',
+        'Laotian',
+        'Latvian',
+        'Lingala',
+        'Lithuanian',
+        'Luganda',
+        'Luxembourgeois',
+        'Maay',
+        'Macedonian',
+        'Malagasy',
+        'Malay',
+        'Malayalam',
+        'Maltese',
+        'Mandarin',
+        'Mandingo',
+        'Mandinka',
+        'Maninka',
+        'Mankon',
+        'Marathi',
+        'Marshallese',
+        'Mien',
+        'Mina',
+        'Mirpuri',
+        'Mixteco',
+        'Moldavan',
+        'Mongolian',
+        'Montenegrin',
+        'Navajo',
+        'Neapolitan',
+        'Nepali',
+        'Nigerian Pidgin English',
+        'Norwegian',
+        'Nuer',
+        'Oromo',
+        'Pahari',
+        'Pampangan',
+        'Pamgasinan',
+        'Pashto',
+        'Patois',
+        'Pidgin English',
+        'Polish',
+        'Portuguese',
+        'Portuguese Creole',
+        'Punjabi',
+        'Romanian',
+        'Russian',
+        'Samoan',
+        'Serbian',
+        'Shanghainese',
+        'Shona',
+        'Sicilian',
+        'Sinhalese',
+        'Sindhi',
+        'Slovak',
+        'Slovenian',
+        'Somali',
+        'Sorani',
+        'Spanish',
+        'Sudanese Arabic',
+        'Swahili',
+        'Swedish',
+        'Sylhetti',
+        'Tagalog',
+        'Taiwanese',
+        'Tajik',
+        'Tamil',
+        'Telugu',
+        'Thai',
+        'Tibetan',
+        'Tigre',
+        'Tigrinya',
+        'Toishanese',
+        'Tongan',
+        'Tshiluba',
+        'Turkish',
+        'Twi',
+        'Ukrainian',
+        'Urdu',
+        'Uzbek',
+        'Vietnamese',
+        'Visayan',
+        'Welsh',
+        'Wolof',
+        'Yiddish',
+        'Yoruba',
+        'Yupik',
+        ])
 
 
 def last_name():
@@ -468,10 +513,13 @@ def last_name():
     This function will return a last name from a list.
     ie - last_name() = 'Smith'.
     """
+
     return surnames()
+
 
 def male_middle_name():
     """Picks a middle name from a list of male names."""
+
     return male_first()
 
 
@@ -480,15 +528,22 @@ def month_and_day():
     Selects and month and day for you.
     There is logic to handle the days in the month correctly.
     """
+
     month_choice = month()
-    if month_choice in ("January", "March", "May",
-            "July", "August", "October", "December"):
+    if month_choice in (
+        'January',
+        'March',
+        'May',
+        'July',
+        'August',
+        'October',
+        'December',
+        ):
         return '%s %s' % (month_choice, random.randrange(1, 32))
-    if month_choice in ("February"):
+    if month_choice in 'February':
         return '%s %s' % (month_choice, random.randrange(1, 29))
     else:
         return '%s %s' % (month_choice, random.randrange(1, 31))
-
 
 
 def month_and_day_and_year(start=1900, end=2010):
@@ -498,17 +553,16 @@ def month_and_day_and_year(start=1900, end=2010):
     To change month do (a, b). b has +1 so the
     last year in your range can be selected. Default is 1900, 2010.
     """
-    return '%s %s' % (month_and_day(),
-        random.randrange(start, end + 1),)
 
+    return '%s %s' % (month_and_day(), random.randrange(start, end + 1))
 
 
 def name():
     """
     Picks a random name. Could be male, could be female.
     """
-    return random.choice([male_first(), female_first()])
 
+    return random.choice([male_first(), female_first()])
 
 
 def number(x, y):
@@ -516,45 +570,44 @@ def number(x, y):
     This function will produce a random number with as many
     characters as you wish.
     """
-    return random.randrange(x, y + 1)
 
+    return random.randrange(x, y + 1)
 
 
 def password_alphabetical(i):
     """
     This function will return a randomized password consisting of letters.
     """
-    return ''.join(random.choice(string.ascii_letters)
-            for x in range(i))
 
+    return ''.join(random.choice(string.ascii_letters) for x in
+                   range(i))
 
 
 def password_numerical(i):
     """
     This function will return a random password consisting of numbers.
     """
-    return ''.join(random.choice(string.digits)
-            for x in range(i))
 
+    return ''.join(random.choice(string.digits) for x in range(i))
 
 
 def password_alphanumeric(i):
     """
     This function will return an alphanumeric password.
     """
+
     chars = string.ascii_letters + string.digits
     return ''.join(random.choice(chars) for x in range(i))
-
 
 
 def phone_number():
     """
     This function will produce a phone number randomnly, with '-'s.
     """
-    x = ''.join(str(random.randrange(10)) for i in xrange(10))
-    y = "%s-%s-%s" % (x[0:3], x[3:6], x[6:])
-    return y
 
+    x = ''.join(str(random.randrange(10)) for i in xrange(10))
+    y = '%s-%s-%s' % (x[0:3], x[3:6], x[6:])
+    return y
 
 
 def random_string(i):
@@ -562,58 +615,62 @@ def random_string(i):
     This will allow you to enter an integer, and create 'i' amount
     of characters. ie: random_string(7) = DsEIzCd
     """
-    return ''.join(random.choice(string.ascii_letters) for x in xrange(i))
 
+    return ''.join(random.choice(string.ascii_letters) for x in
+                   xrange(i))
 
 
 def salutation():
     """
     This function will return a 'Mr.' or 'Mrs.'
     """
-    salutations = ("Mr.", "Mrs.")
+
+    salutations = ('Mr.', 'Mrs.')
     return random.choice(salutations)
 
 
-
-def screename(service=""):
+def screename(service=''):
     """
     Makes screenames for the service you pick.
     The screenames conform to their rules, such as
     aol screenames are 3-16 in length with @aol.com on the end.
     Options include: nil, aol, aim, skype, google
     """
+
     def _make_name(a, b):
         return ''.join(random.sample(string.ascii_letters,
-            random.choice(range(a, b))))
-    if service in ("", "aim", "aol"):
+                       random.choice(range(a, b))))
+
+    if service in ('', 'aim', 'aol'):
         name = _make_name(3, 16)
-        if service == "aol":
-            return name + "@aol.com"
+        if service == 'aol':
+            return name + '@aol.com'
         else:
             return name
-    elif service is "skype":
+    elif service is 'skype':
         name = _make_name(6, 32)
         return name
-    elif service is "google":
+    elif service is 'google':
         name = _make_name(1, 19)
-        return name + "@google.com"
+        return name + '@google.com'
     else:
         name = _make_name(8, 20)
         return name
 
 
-
 def sentence(num_words=20, chars=''):
-    word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt').read().split()
-    words = ' '.join(random.choice(word_list) for x in xrange(num_words))
-    return words if not chars else words[:chars]
-
+    word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt'
+                     ).read().split()
+    words = ' '.join(random.choice(word_list) for x in
+                     xrange(num_words))
+    return (words if not chars else words[:chars])
 
 
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
-    return [''.join(random.choice(string.ascii_uppercase) + '.' for x in xrange(i))]
 
+    return [''.join(random.choice(string.ascii_uppercase) + '.'
+            for x in xrange(i))]
 
 
 def social_security_number():
@@ -621,9 +678,10 @@ def social_security_number():
     This function will produce a Mock Social Security Number.
     ie - social_security_number() = '112-32-3322'
     """
-    return '%.3i-%.2i-%.4i' % (random.randrange(999),
-        random.randrange(99), random.randrange(9999),)
 
+    return '%.3i-%.2i-%.4i' % (random.randrange(999),
+                               random.randrange(99),
+                               random.randrange(9999))
 
 
 def special_characters(i):
@@ -631,14 +689,15 @@ def special_characters(i):
     This function will pick x amount of special chars from the list below.
     ie - picka.special_characters() = '@%^$'.
     """
-    return ''.join(random.choice(string.punctuation)
-            for x in xrange(i))
 
+    return ''.join(random.choice(string.punctuation) for x in xrange(i))
 
 
 def street_type():
     """This function will return a random street type."""
-    cursor.execute("SELECT * FROM street_types order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT * FROM street_types order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()[0]
 
 
@@ -647,25 +706,31 @@ def street_name():
     This function will create a street name from either
     a male or female name, plus a street type.
     """
-    cursor.execute("SELECT names FROM streets order by RANDOM() limit 1;")
-    return cursor.fetchone()[0]
+
+    return ' '.join((random.choice([male_first(), female_name()]), street_type()))
 
 
 def street_address():
     """This function will produce a complete street address."""
-    return random.choice([
-            '%d-%d %s' % (random.randrange(999),
-                random.randrange(999), street_name()),
-            '%d %s' % (random.randrange(999), street_name()),
-            '%s %d, %s' % ("P.O. Box", random.randrange(999), street_name()),
-            ])
 
+    return random.choice(['%d-%d %s' % (random.randrange(999),
+                         random.randrange(999), street_name()), '%d %s'
+                         % (random.randrange(999), street_name()),
+                         '%s %d, %s' % ('P.O. Box',
+                         random.randrange(999), street_name())])
 
 
 def suffix():
     """This returns a suffix from a small list."""
-    return random.choice(["Sr.", "Jr.", "II", "III", "IV", "V"])
 
+    return random.choice([
+        'Sr.',
+        'Jr.',
+        'II',
+        'III',
+        'IV',
+        'V',
+        ])
 
 
 def timestamp(style=False):
@@ -674,11 +739,11 @@ def timestamp(style=False):
     Default when empty, is "12:28:59PM 07/20/10" or "%H:%M:%S%p %D".
     To change this, pass in your format as an arg.
     """
+
     if not style:
-        return time.strftime("%H:%M:%S%p %D", time.localtime())
+        return time.strftime('%H:%M:%S%p %D', time.localtime())
     else:
         return time.strftime(style, time.localtime())
-
 
 
 def timezone_offset():
@@ -686,32 +751,65 @@ def timezone_offset():
     This function will select the value of a timezone offsets,
     such as GMT, GMT+4, etc.
     """
-    return random.choice([["GMT+" + str(random.randint(1, 12))], ["GMT"], ["GMT" + str(random.randint(-12, -1))]])
 
+    return random.choice([['GMT+' + str(random.randint(1, 12))], ['GMT'
+                         ], ['GMT' + str(random.randint(-12, -1))]])
 
 
 def timezone_offset_country():
     """This function will select the country part of a timezone."""
-    return random.choice(
-        ["Eniwetoa", "Hawaii", "Alaska", "Pacific", "Mountain", "Central",
-        "Eastern", "Atlantic", "Canada", "Brazilia", "Buenos Aries",
-        "Mid-Atlantic", "Cape Verdes", "Greenwich Mean Time", "Dublin",
-        "Berlin", "Rome", "Israel", "Cairo", "Moscow", "Kuwait",
-        "Abu Dhabi", "Muscat", "Islamabad", "Karachi", "Almaty",
-        "Dhaka", "Bangkok, Jakarta", "Hong Kong", "Beijing", "Tokyo",
-        "Osaka", "Sydney", "Melbourne", "Guam", "Magadan",
-        "Soloman Islands", "Fiji", "Wellington", "Auckland", ]
-    )
+
+    return random.choice([
+        'Eniwetoa',
+        'Hawaii',
+        'Alaska',
+        'Pacific',
+        'Mountain',
+        'Central',
+        'Eastern',
+        'Atlantic',
+        'Canada',
+        'Brazilia',
+        'Buenos Aries',
+        'Mid-Atlantic',
+        'Cape Verdes',
+        'Greenwich Mean Time',
+        'Dublin',
+        'Berlin',
+        'Rome',
+        'Israel',
+        'Cairo',
+        'Moscow',
+        'Kuwait',
+        'Abu Dhabi',
+        'Muscat',
+        'Islamabad',
+        'Karachi',
+        'Almaty',
+        'Dhaka',
+        'Bangkok, Jakarta',
+        'Hong Kong',
+        'Beijing',
+        'Tokyo',
+        'Osaka',
+        'Sydney',
+        'Melbourne',
+        'Guam',
+        'Magadan',
+        'Soloman Islands',
+        'Fiji',
+        'Wellington',
+        'Auckland',
+        ])
 
 
-
-def url(i, extension=".com"):
+def url(i, extension='.com'):
     """
     This function will create a website url, with a default of .com
     To use another extension, do picka.url(10, ".net")
     """
-    return email(i, extension)
 
+    return email(i, extension)
 
 
 def state_abbreviated():
@@ -719,8 +817,10 @@ def state_abbreviated():
     This function produces just a state abbreviation.
     ie - state_abbreviated() = 'NY'
     """
-    cursor.execute("SELECT * FROM american_cities_with_states order by RANDOM() limit 1;")
-    return cursor.fetchone()[0][-2:]
+
+    cursor.execute('SELECT * FROM american_cities_with_states order by RANDOM() limit 1;'
+                   )
+    return (cursor.fetchone()[0])[-2:]
 
 
 def postal_code():
@@ -728,5 +828,11 @@ def postal_code():
     This function will pick a zipcode randomnly from a list.
     ie - zipcode() = '11221'.
     """
-    cursor.execute("SELECT col_1 FROM zipcodes order by RANDOM() limit 1;")
+
+    cursor.execute('SELECT col_1 FROM zipcodes order by RANDOM() limit 1;'
+                   )
     return cursor.fetchone()[0]
+
+
+if __name__ == "__main__":
+    import tests
