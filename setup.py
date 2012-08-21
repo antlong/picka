@@ -1,4 +1,4 @@
-#!/usr/bin/pytho1n
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from distutils.core import setup
 
@@ -11,9 +11,8 @@ setup(
     packages=['picka'],
     include_package_data=True,
     package_data={'picka': ['*.sqlite', '*.txt']},
-    install_requires=['jsonlib'],
     classifiers=['Development Status :: 4 - Beta',
                  'Intended Audience :: Developers',
                  'Programming Language :: Python'],
-    zip_safe=False,
+    zip_safe=True,
     )
