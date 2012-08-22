@@ -834,5 +834,3 @@ def postal_code():
     return cursor.fetchone()[0]
 
 
-if __name__ == "__main__":
-    import tests

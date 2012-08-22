@@ -2,7 +2,8 @@
 Picka: A module for data generation and randomization.
 ======================================================
 
-Whats New:
+Whats new in this version:
+	- Removed sentence generator.
 	- Added tests
 	- Reverted back from SQLite to JSON.
 
