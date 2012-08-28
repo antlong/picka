@@ -90,16 +90,14 @@ def test_search_for_garbage_results():
 <p>Pytest (Funcargs)</p>
 
 <hr>
-<pre><code>
-def pytest_generate_tests(metafunc):
+<pre><code>def pytest_generate_tests(metafunc):
 	if "test_string" in metafunc.funcargnames:
 		for i in range(10):
 			metafunc.addcall(funcargs=dict(numiter=picka.random_string(20)))
 
 def test_func(test_string): 
 	assert test_string.isalpha()
-	assert len(test_string) == 20
-</code></pre>
+	assert len(test_string) == 20</code></pre>
 </hr>
 <p>MySQL / SQLite</p>
 
@@ -107,20 +105,18 @@ def test_func(test_string):
 <pre><code>first, last, age = picka.first_name(), picka.last_name(), picka.age()
 cursor.execute(
 	"insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
-    (first, last, age),
-)</code></pre>
+    (first, last, age), )
+</code></pre>
 
 <p>HTTP</p>
 
 <hr>
-<pre><code>
-def post(host, data):
+<pre><code>def post(host, data):
 	http = httplib.HTTP(host)
 	return http.send(data)
 
 def test_post_result():
-	post("www.spam.egg/bacon.htm", picka.random_string(10))
-</code></pre>
+	post("www.spam.egg/bacon.htm", picka.random_string(10))</code></pre>
 </article>
 
 </div>
