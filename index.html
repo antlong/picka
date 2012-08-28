@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Picka</title>
+  <meta name="description" content="Picka is a python based data generation and randomization module which aims to increase coverage by increasing the amount of tests you _dont_ have to write by hand.">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Picka</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Picka is a python based data generation and randomization module which aims to increase coverage by increasing the amount of tests you _dont_ have to write by hand.</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/antlong/picka/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/antlong/picka/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/antlong/picka" class="code">View Picka on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h2>Picka: A Python module for data generation and randomization.</h2>
+
+<p>Author: Anthony Long</p>
+
+<p>Version: 0.91</p>
+
+<ul>
+<li>Removed sentence generator.</li>
+<li>Added tests.</li>
+<li>Reverted back from SQLite to JSON.</li>
+</ul><p>What is Picka?</p>
+
+<hr><p>Picka generates randomized data either from lists of known good data (or bad) stored
+in a sqlite database, or by generating randomized realistic data, using string formatting (behind the scenes). Picka has a function for any field you would need filled in. With <code>selenium</code>, something like would populate the "field-name-here" box for you, 100 times with random names.</p>
+
+<pre><code>for i in xrange(101):
+    self.selenium.type('field-name-here', picka.male_name())
+</code></pre>
+
+<p>But this is just the beginning. Other ways to implement this, include using dicts:</p>
+
+<pre><code>user_information = {
+    "first_name": picka.male_name(),
+    "last_name": picka.last_name(),
+    "email_address": picka.email(extension='.org'),
+    "password": picka.password_numerical(6),
+}
+</code></pre>
+
+<p>This would provide:</p>
+
+<pre><code>{
+    "first_name": "Anthony", 
+    "last_name": "Long", 
+    "email_address", "uragn@getit.com", 
+    "password": "485444"
+}
+</code></pre>
+
+<h2>Examples:</h2>
+
+<p>Selenium</p>
+
+<hr><pre><code>def search_for_garbage():
+    selenium.open('http://yahoo.com')
+    selenium.type('id=search_box', picka.random_string(10))
+    selenium.submit()
+
+def test_search_for_garbage_results():
+    search_for_garbage()
+    selenium.wait_for_page_to_load('30000')
+    assert selenium.get_xpath_count('id=results') == 0
+</code></pre>
+
+<p>Funcargs / pytest</p>
+
+<hr><pre><code>def pytest_generate_tests(metafunc):
+    if "test_string" in metafunc.funcargnames:
+        for i in range(10):
+            metafunc.addcall(funcargs=dict(numiter=picka.random_string(20)))
+
+def test_func(test_string): 
+    assert test_string.isalpha()
+    assert len(test_string) == 20
+</code></pre>
+
+<p>MySQL / SQLite</p>
+
+<hr><pre><code>first, last, age = picka.first_name(), picka.last_name(), picka.age()
+cursor.execute(
+    "insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
+    (first, last, age))
+</code></pre>
+
+<p>HTTP</p>
+
+<hr><pre><code>def post(host, data):
+    http = httplib.HTTP(host)
+    return http.send(data)
+
+def test_post_result():
+    post("www.spam.egg/bacon.htm", picka.random_string(10))
+</code></pre>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/antlong" class="avatar"><img src="https://secure.gravatar.com/avatar/4e983535d27bb87963f03c2fb99f11b8?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/antlong">antlong</a> maintains <a href="https://github.com/antlong/picka">Picka</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/antlong/picka/tarball/master" class="tar">tar</a><a href="https://github.com/antlong/picka/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
