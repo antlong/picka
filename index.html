@@ -75,7 +75,7 @@ user_information = {
 <p>Selenium</p>
 
 <hr>
-<pre><code>
+<code>
 from selenium import selenium
 import unittest
 
@@ -92,7 +92,9 @@ class TestSeleniumAndPicka(unittest.TestCase):
 		assert self.selenium.get_xpath_count('id=results') == 0
 
 	def tearDownClass(self):
-		self.selenium.quit()</code></pre></hr>
+		self.selenium.quit()
+</code>
+</hr>
 
 <p>Pytest (Funcargs)</p>
 
