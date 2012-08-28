@@ -1,1 +1,0 @@
-from picka import *
