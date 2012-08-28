@@ -1,14 +1,19 @@
-======================================================
-Picka: A module for data generation and randomization.
-======================================================
+Picka: A Python module for data generation and randomization.
+-------------------------------------------------------------
 
-Whats new in this version:
+:Author:
+	Anthony Long
+
+:Version:
+	0.91
+	
 	- Removed sentence generator.
-	- Added tests
+	- Added tests.
 	- Reverted back from SQLite to JSON.
 
+
 What is Picka?
---------------
+______________
 
 Picka generates randomized data either from lists of known good data (or bad) stored
 in a sqlite database, or by generating randomized realistic data, using string formatting (behind the scenes). Picka has 
