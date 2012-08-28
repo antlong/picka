@@ -75,8 +75,7 @@ user_information = {
 <p>Selenium</p>
 
 <hr>
-<pre>
-	<code>
+<pre><code>
 def search_for_garbage():
 	selenium.open('http://yahoo.com')
 	selenium.type('id=search_box', picka.random_string(10))
@@ -86,8 +85,7 @@ def test_search_for_garbage_results():
 	search_for_garbage()
 	selenium.wait_for_page_to_load('30000')
 	assert selenium.get_xpath_count('id=results') == 0
-	</code>
-</pre>
+</code></pre>
 </hr>
 
 <p>Pytest (Funcargs)</p>
