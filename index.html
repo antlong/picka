@@ -1,52 +1,44 @@
 <!doctype html>
-<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
-<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
   <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
   <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script type="text/javascript" src="javascripts/script.js"></script>
-
-  <title>Picka</title>
-  <meta name="description" content="Picka is a python based data generation and randomization module which aims to increase coverage by increasing the amount of tests you _dont_ have to write by hand.">
-
+  <title>Picka: Generate Test Data</title>
+  <meta name="description" content="Picka is a Python module for data generation and randomization.">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-
 </head>
 
 <body>
-
   <div class="wrapper">
     <header>
       <h1 class="title">Picka</h1>
     </header>
     <div id="container">
-      <p class="tagline">Picka is a python based data generation and randomization module which aims to increase coverage by increasing the amount of tests you _dont_ have to write by hand.</p>
+      <p class="tagline">Picka is a python module for creating randomized test data.</p>
       <div id="main" role="main">
         <div class="download-bar">
-        <div class="inner">
-          <a href="https://github.com/antlong/picka/tarball/master" class="download-button tar"><span>Download</span></a>
-          <a href="https://github.com/antlong/picka/zipball/master" class="download-button zip"><span>Download</span></a>
-          <a href="https://github.com/antlong/picka" class="code">View Picka on GitHub</a>
-        </div>
+			<div class="inner">
+          	  <a href="https://github.com/antlong/picka/tarball/master" class="download-button tar"><span>Download</span></a>
+			  <a href="https://github.com/antlong/picka/zipball/master" class="download-button zip"><span>Download</span></a>
+			  <a href="https://github.com/antlong/picka" class="code">View Picka on GitHub</a>
+			</div>
         <span class="blc"></span><span class="trc"></span>
-        </div>
+		</div>
         <article class="markdown-body">
-          <h2>Picka: A Python module for data generation and randomization.</h2>
-
+<h2>Picka: A Python module for data generation and randomization.</h2>
 <p>Author: Anthony Long</p>
-
 <p>Version: 0.91</p>
-
-<ul>
-<li>Removed sentence generator.</li>
-<li>Added tests.</li>
-<li>Reverted back from SQLite to JSON.</li>
-</ul><p>What is Picka?</p>
+	<ul>
+		<li>Removed sentence generator.</li>
+		<li>Added tests.</li>
+		<li>Reverted back from SQLite to JSON.</li>
+	</ul>
+	
+<p>What is Picka?</p>
 
 <hr><p>Picka is a Python module which generates randomized data by using a combination of real data stored in a sqlite database, and/or using string formatting.</p>
 
@@ -71,13 +63,13 @@
 </pre>
 
 <p>This would provide:</p>
-
-<pre><code>{
-    "first_name": "Anthony", 
-    "last_name": "Long", 
-    "email_address", "uragn@getit.com", 
-    "password": "485444"
-	}
+<pre>
+	<code>{
+		"first_name": "Anthony", 
+		"last_name": "Long", 
+		"email_address", "uragn@getit.com", 
+		"password": "485444",
+		}
 	</code>
 </pre>
 
@@ -127,24 +119,23 @@ cursor.execute(
 
 <p>HTTP</p>
 
-<hr><pre><code>def post(host, data):
-    http = httplib.HTTP(host)
-    return http.send(data)
+<hr>
+<pre>
+	<code>
+		def post(host, data):
+    		http = httplib.HTTP(host)
+    		return http.send(data)
 
-def test_post_result():
-    post("www.spam.egg/bacon.htm", picka.random_string(10))
-</code></pre>
-        </article>
-      </div>
-    </div>
+		def test_post_result():
+			post("www.spam.egg/bacon.htm", picka.random_string(10))
+	</code>
+</pre>
+	</article>
+	</div>
+</div>
     <footer>
       <div class="owner">
       <p><a href="https://github.com/antlong" class="avatar"><img src="https://secure.gravatar.com/avatar/4e983535d27bb87963f03c2fb99f11b8?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/antlong">antlong</a> maintains <a href="https://github.com/antlong/picka">Picka</a></p>
-
-
-      </div>
-      <div class="creds">
-        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
       </div>
     </footer>
   </div>
@@ -152,8 +143,6 @@ def test_post_result():
     <a href="#top">Scroll to top</a>
     <a href="https://github.com/antlong/picka/tarball/master" class="tar">tar</a><a href="https://github.com/antlong/picka/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
     <p class="name"></p>
-  </div>
-
-  
+  </div>  
 </body>
 </html>
