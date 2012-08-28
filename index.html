@@ -97,14 +97,18 @@ def test_search_for_garbage_results():
 
 def test_func(test_string): 
 	assert test_string.isalpha()
-	assert len(test_string) == 20</code></pre>
+	assert len(test_string) == 20
+</code></pre>
 </hr>
+
 <p>MySQL / SQLite</p>
+
 <hr>
 <pre><code>first, last, age = picka.first_name(), picka.last_name(), picka.age()
 cursor.execute(
 	"insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
-    (first, last, age))</code></pre>
+    (first, last, age), )
+</code></pre>
 </hr>
 
 <p>HTTP</p>
@@ -114,8 +118,10 @@ cursor.execute(
 	return http.send(data)
 
 def test_post_result():
-	post("www.spam.egg/bacon.htm", picka.random_string(10))</code></pre>
+	post("www.spam.egg/bacon.htm", picka.random_string(10))
+</code></pre>
 </hr>
+
 </article>
 
 </div>
