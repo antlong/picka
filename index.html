@@ -1,11 +1,8 @@
 <!doctype html>
-<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
-<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
   <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
   <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -17,13 +14,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
 </head>
-
 <body>
 
-  <div class="wrapper">
-    <header>
-      <h1 class="title">Picka</h1>
-    </header>
+	<div class="wrapper">
+		<header>
+				<h1 class="title">Picka</h1>
+		</header>
     <div id="container">
       <p class="tagline">Picka is a python based data generation and randomization module which aims to increase coverage by increasing the amount of tests you _dont_ have to write by hand.</p>
       <div id="main" role="main">
@@ -34,22 +30,25 @@
           <a href="https://github.com/antlong/picka" class="code">View Picka on GitHub</a>
         </div>
         <span class="blc"></span><span class="trc"></span>
-        </div>
-        <article class="markdown-body">
-          <h2>Picka: A Python module for data generation and randomization.</h2>
+	</div>
 
+<article class="markdown-body">
+
+<h2>Picka: A Python module for data generation and randomization.</h2>
 <p>Author: Anthony Long</p>
-
 <p>Version: 0.91</p>
-
 <ul>
-<li>Removed sentence generator.</li>
-<li>Added tests.</li>
-<li>Reverted back from SQLite to JSON.</li>
-</ul><p>What is Picka?</p>
+	<li>Removed sentence generator.</li>
+	<li>Added tests.</li>
+	<li>Reverted back from SQLite to JSON.</li>
+</ul>
 
-<hr><p>Picka generates randomized data either from lists of known good data (or bad) stored
-in a sqlite database, or by generating randomized realistic data, using string formatting (behind the scenes). Picka has a function for any field you would need filled in. With <code>selenium</code>, something like would populate the "field-name-here" box for you, 100 times with random names.</p>
+<p>What is Picka?</p>
+
+<hr>
+<br>Picka generates and randomizes data by using a sqlite database filled with data, and/or by utilizing string formatting. Picka was designed to provide an almost endless amount of data, produced on the fly for use in testing software, specifically web based forms.</br>
+<p>
+With <code>selenium</code>, something like would populate the "field-name-here" box for you, 100 times with random names.</p>
 
 <pre><code>for i in xrange(101):
     self.selenium.type('field-name-here', picka.male_name())
@@ -57,23 +56,27 @@ in a sqlite database, or by generating randomized realistic data, using string f
 
 <p>But this is just the beginning. Other ways to implement this, include using dicts:</p>
 
-<pre><code>user_information = {
+<pre>
+	<code>user_information = {
     "first_name": picka.male_name(),
     "last_name": picka.last_name(),
     "email_address": picka.email(extension='.org'),
     "password": picka.password_numerical(6),
-}
-</code></pre>
+	}
+	</code>
+</pre>
 
 <p>This would provide:</p>
 
-<pre><code>{
+<pre>
+	<code>{
     "first_name": "Anthony", 
     "last_name": "Long", 
     "email_address", "uragn@getit.com", 
     "password": "485444"
-}
-</code></pre>
+	}
+	</code>
+</pre>
 
 <h2>Examples:</h2>
 
