@@ -82,7 +82,8 @@ import unittest
 
 class TestSeleniumAndPicka(unittest.TestCase):
 	def setUpClass(self):
-		self.selenium = selenium('localhost', 4444, *firefox, 'http://yahoo.com/')
+		self.selenium = selenium(
+			'localhost', 4444, *firefox, 'http://yahoo.com/')
 
 	def test_search_for_garbage(self):
 		self.selenium.open('http://yahoo.com')
@@ -91,9 +92,7 @@ class TestSeleniumAndPicka(unittest.TestCase):
 		assert self.selenium.get_xpath_count('id=results') == 0
 
 	def tearDownClass(self):
-		self.selenium.quit()
-</code></pre>
-</hr>
+		self.selenium.quit()</code></pre></hr>
 
 <p>Pytest (Funcargs)</p>
 
