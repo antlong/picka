@@ -100,14 +100,12 @@ def test_func(test_string):
 	assert len(test_string) == 20</code></pre>
 </hr>
 <p>MySQL / SQLite</p>
-
 <hr>
 <pre><code>first, last, age = picka.first_name(), picka.last_name(), picka.age()
 cursor.execute(
 	"insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
-    (first, last, age), )
-</code></pre>
-
+    (first, last, age), )</code></pre>
+</hr>
 <p>HTTP</p>
 
 <hr>
