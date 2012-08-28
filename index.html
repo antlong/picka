@@ -99,7 +99,8 @@ class TestSeleniumAndPicka(unittest.TestCase):
 <p>Pytest (Funcargs)</p>
 
 <hr>
-<pre><code>def pytest_generate_tests(metafunc):
+<code>
+<pre>def pytest_generate_tests(metafunc):
 	if "test_string" in metafunc.funcargnames:
 		for i in range(10):
 			metafunc.addcall(funcargs=dict(numiter=picka.random_string(20)))
@@ -107,15 +108,17 @@ class TestSeleniumAndPicka(unittest.TestCase):
 def test_func(test_string): 
 	assert test_string.isalpha()
 	assert len(test_string) == 20
-</code></pre>
+</pre></code>
 </hr>
 
 <p>MySQL / SQLite</p>
 
 <hr>
-<pre><code>first, last, age = picka.first_name(), picka.last_name(), picka.age()
+<code>
+<pre>first, last, age = picka.first_name(), picka.last_name(), picka.age()
 cursor.execute("insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
-	(first, last, age),)</code></pre>
+	(first, last, age),)</pre>
+</code>
 </hr>
 
 <p>HTTP</p>
