@@ -170,8 +170,8 @@ def business_title(abbreviated=False):
         'Representative',
         'Strategist',
         ]
-    return ((random.choice(abbs) if abbreviated else '{} {}'.format(random.choice(primary),
-            random.choice(secondary))), )
+    return ((random.choice(abbs) if abbreviated else '{} {}'.format(
+        random.choice(primary), random.choice(secondary))))
 
 
 def calling_code():
@@ -180,23 +180,17 @@ def calling_code():
     the world.
     """
 
-    cursor.execute('SELECT calling_code FROM countries_and_calling_codes order by RANDOM() limit 1;'
-                   )
+    cursor.execute(
+        'SELECT calling_code FROM countries_and_calling_codes \
+        order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
 def calling_code_with_country(formatting=''):
-    """
-    :Summary: Returns a country, with a calling code as a single string.\
-    If a format is passed in a 2 item object of your choosing will be returned.\
-    For example, if you pass in:
+    """Returns a country, with a calling code as a single string."""
 
-    calling_code_with_country(list), we will return a list of 2 items.
-    
-    """
-
-    cursor.execute('select * from countries_and_calling_codes order by random() limit 1;'
-                   )
+    cursor.execute('select * from countries_and_calling_codes \
+        order by random() limit 1;')
     (country, calling_code) = cursor.fetchone()
     if formatting is dict:
         return formatting({country: calling_code})
@@ -208,8 +202,8 @@ def calling_code_with_country(formatting=''):
 def city():
     """This function will produce a city."""
 
-    cursor.execute('SELECT city FROM american_cities order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT city FROM american_cities \
+        order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
@@ -219,16 +213,16 @@ def city_with_state():
     ie - city_with_state() = 'New York, NY'
     """
 
-    cursor.execute('SELECT city, state FROM american_cities order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT city, state FROM american_cities \
+        order by RANDOM() limit 1;')
     return cursor.fetchone()
 
 
 def country():
     """This function will return a random country."""
 
-    cursor.execute('SELECT country_names FROM countries order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT country_names FROM countries \
+        order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
@@ -302,6 +296,7 @@ def trash(picka_function):
     """
     return ''.join([str(char) + random.choice(str(string.punctuation))
                    for char in picka_function()])
+
 
 def male_full_name():
     return '{} {}'.format(male_first(), surnames())
@@ -557,12 +552,17 @@ def month_and_day_and_year(start=1900, end=2010):
     return '%s %s' % (month_and_day(), random.randrange(start, end + 1))
 
 
-def name():
+def name(gender=""):
     """
-    Picks a random name. Could be male, could be female.
+    Picks a name, if a gender is passed in it is used, otherwise it will pick
+        a random name. Could be male, could be female.
     """
-
-    return random.choice([male_first(), female_first()])
+    if gender and gender.startswith(('m', 'M')):
+        return male_first()
+    elif gender and gender.startswith(('f', 'F')):
+        return 'gender and female', female_first()
+    else:
+        return random.choice([male_first(), female_first()])
 
 
 def number(x, y):
@@ -696,8 +696,8 @@ def special_characters(i):
 def street_type():
     """This function will return a random street type."""
 
-    cursor.execute('SELECT * FROM street_types order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT * FROM street_types \
+        order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
@@ -707,7 +707,8 @@ def street_name():
     a male or female name, plus a street type.
     """
 
-    return ' '.join((random.choice([male_first(), female_name()]), street_type()))
+    return ' '.join((random.choice([male_first(),
+        female_name()]), street_type()))
 
 
 def street_address():
@@ -818,8 +819,8 @@ def state_abbreviated():
     ie - state_abbreviated() = 'NY'
     """
 
-    cursor.execute('SELECT * FROM american_cities_with_states order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT * FROM american_cities_with_states \
+        order by RANDOM() limit 1;')
     return (cursor.fetchone()[0])[-2:]
 
 
@@ -832,5 +833,3 @@ def postal_code():
     cursor.execute('SELECT col_1 FROM zipcodes order by RANDOM() limit 1;'
                    )
     return cursor.fetchone()[0]
-
-
