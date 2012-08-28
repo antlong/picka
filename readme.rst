@@ -89,7 +89,7 @@ ____
 
 	def post(host, data):
 	    http = httplib.HTTP(host)
-	    http.send(data)
+	    return http.send(data)
 	
 	def test_post_result():
 	    post("www.spam.egg/bacon.htm", picka.random_string(10))
