@@ -106,8 +106,8 @@ cursor.execute(
 	"insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
     (first, last, age), )</code></pre>
 </hr>
-<p>HTTP</p>
 
+<p>HTTP</p>
 <hr>
 <pre><code>def post(host, data):
 	http = httplib.HTTP(host)
@@ -115,6 +115,7 @@ cursor.execute(
 
 def test_post_result():
 	post("www.spam.egg/bacon.htm", picka.random_string(10))</code></pre>
+</hr>
 </article>
 
 </div>
