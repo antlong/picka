@@ -199,6 +199,13 @@ def calling_code_with_country(formatting=''):
             calling_code))
 
 
+def career():
+    """This function will produce a carrer."""
+    
+    cursor.execute('SELECT name FROM careers order by RANDOM() limit 1;')
+    return cursor.fetchone()[0]
+
+
 def city():
     """This function will produce a city."""
 
@@ -328,7 +335,7 @@ def hyphenated_last_name():
 
 def language():
     """Picks a random language."""
-
+    
     return random.choice([
         'Acholi',
         'Afrikaans',
@@ -833,3 +840,5 @@ def postal_code():
     cursor.execute('SELECT col_1 FROM zipcodes order by RANDOM() limit 1;'
                    )
     return cursor.fetchone()[0]
+
+zipcode = postal_code
