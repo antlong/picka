@@ -24,9 +24,11 @@ Picka: A Python module for data generation and randomization.
 What is Picka?
 ______________
 
-Picka generates randomized data either from lists of known good data (or bad) stored
-in a sqlite database, or by generating randomized realistic data, using string formatting (behind the scenes). Picka has 
-a function for any field you would need filled in. With `selenium`, something like would populate the "field-name-here" 
+Picka generates randomized data for testing. 
+
+Data is generated both from a database of known good data (which is included), or by generating realistic data (valid), using string formatting (behind the scenes). 
+
+Picka has a function for any field you would need filled in. With `selenium`, something like would populate the "field-name-here" 
 box for you, 100 times with random names.
 
 ::
@@ -55,6 +57,8 @@ This would provide:
         "email_address": "uragn@getit.com",
         "password": "485444"
     }
+
+Don't forget, since all of the data is considered "clean" or valid - you can also use it to fill selects and other form fields with pre-defined values. For example, if you were to generate a state; picka.state() the result would be "Alabama". You can use this result to directly select a state in an address drop-down box.
 
 
 Examples:
@@ -130,5 +134,3 @@ ____
 	
 	def test_post_result():
 	    post("www.spam.egg/bacon.htm", picka.random_string(10))
-
-
