@@ -5,7 +5,7 @@ Picka: A Python module for data generation and randomization.
 	Anthony Long
 
 :Version:
-	
+
     0.94
     
     - Over 1,000 company names added.
