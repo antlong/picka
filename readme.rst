@@ -49,7 +49,12 @@ This would provide:
 
 ::
     
-    {"first_name": "Anthony", "last_name": "Long", "email_address", "uragn@getit.com", "password": "485444"}
+    {
+        "first_name": "Jack",
+        "last_name": "Logan",
+        "email_address": "uragn@getit.com",
+        "password": "485444"
+    }
 
 
 Examples:
