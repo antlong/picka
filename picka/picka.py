@@ -97,12 +97,6 @@ def birthday(min_year=1900, max_year=2012):
     return (birthday_month, birthday_day, birthday_year)
 
 
-def _address_prefix():
-    return random.choice([random.randrange(0, 999),
-                         str(random.randrange(0, 999)) + '-'
-                         + str(random.randrange(0, 999))])
-
-
 def apartment_number():
     """
     Returns an apartment type, with a number.
@@ -135,7 +129,6 @@ def business_title(abbreviated=False):
     :tip: They are generic business titles.
 
     """
-
     abbs = ['COO', 'CEO', 'CFO', 'VP', 'EVP']
     primary = [
         'Lead',
@@ -152,7 +145,7 @@ def business_title(abbreviated=False):
         'Dynamic',
         'International',
         'Principal',
-        ]
+    ]
     secondary = [
         'Supervisor',
         'Associate',
@@ -169,7 +162,7 @@ def business_title(abbreviated=False):
         'Agent',
         'Representative',
         'Strategist',
-        ]
+    ]
     return ((random.choice(abbs) if abbreviated else '{} {}'.format(
         random.choice(primary), random.choice(secondary))))
 
@@ -201,14 +194,12 @@ def calling_code_with_country(formatting=''):
 
 def career():
     """This function will produce a carrer."""
-    
     cursor.execute('SELECT name FROM careers order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 
 def city():
     """This function will produce a city."""
-
     cursor.execute('SELECT city FROM american_cities \
         order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
@@ -223,6 +214,14 @@ def city_with_state():
     cursor.execute('SELECT city, state FROM american_cities \
         order by RANDOM() limit 1;')
     return cursor.fetchone()
+
+
+def company_name():
+    """This function will return a company name"""
+
+    cursor.execute('SELECT name from companies \
+        order by RANDOM() limit 1;')
+    return cursor.fetchone()[0]
 
 
 def country():
@@ -335,179 +334,9 @@ def hyphenated_last_name():
 
 def language():
     """Picks a random language."""
-    
-    return random.choice([
-        'Acholi',
-        'Afrikaans',
-        'Akan',
-        'Albanian',
-        'American Sign Language',
-        'Amharic',
-        'Arabic',
-        'Armenian',
-        'Assyrian',
-        'Azerbaijani',
-        'Azeri',
-        'Bajuni',
-        'Bambara',
-        'Basque',
-        'Behdini',
-        'Belorussian',
-        'Bengali',
-        'Berber',
-        'Bosnian',
-        'Bravanese',
-        'Bulgarian',
-        'Burmese',
-        'Cantonese',
-        'Catalan',
-        'Chaldean',
-        'Chaochow',
-        'Chamorro',
-        'Chavacano',
-        'Cherokee',
-        'Chuukese',
-        'Croatian',
-        'Czech',
-        'Dakota',
-        'Danish',
-        'Dari',
-        'Dinka',
-        'Diula',
-        'Dutch',
-        'Ewe',
-        'Farsi',
-        'Fijian Hindi',
-        'Finnish',
-        'Flemish',
-        'French',
-        'French Canadian',
-        'Fukienese',
-        'Fula',
-        'Fulani',
-        'Fuzhou',
-        'Gaddang',
-        'Georgian',
-        'German',
-        'Gorani',
-        'Greek',
-        'Gujarati',
-        'Haitian Creole',
-        'Hakka',
-        'Hausa',
-        'Hebrew',
-        'Hindi',
-        'Hmong',
-        'Hunanese',
-        'Hungarian',
-        'Ibanag',
-        'Ibo/Igbo',
-        'Icelandic',
-        'Ilocano',
-        'Indonesian',
-        'Italian',
-        'Jakartanese',
-        'Japanese',
-        'Javanese',
-        'Karen',
-        'Kashmiri',
-        'Kazakh',
-        'Khmer',
-        'Kinyarwanda',
-        'Kirghiz',
-        'Kirundi',
-        'Korean',
-        'Kosovan',
-        'Krio',
-        'Kurdish',
-        'Kurmanji',
-        'Lakota',
-        'Laotian',
-        'Latvian',
-        'Lingala',
-        'Lithuanian',
-        'Luganda',
-        'Luxembourgeois',
-        'Maay',
-        'Macedonian',
-        'Malagasy',
-        'Malay',
-        'Malayalam',
-        'Maltese',
-        'Mandarin',
-        'Mandingo',
-        'Mandinka',
-        'Maninka',
-        'Mankon',
-        'Marathi',
-        'Marshallese',
-        'Mien',
-        'Mina',
-        'Mirpuri',
-        'Mixteco',
-        'Moldavan',
-        'Mongolian',
-        'Montenegrin',
-        'Navajo',
-        'Neapolitan',
-        'Nepali',
-        'Nigerian Pidgin English',
-        'Norwegian',
-        'Nuer',
-        'Oromo',
-        'Pahari',
-        'Pampangan',
-        'Pamgasinan',
-        'Pashto',
-        'Patois',
-        'Pidgin English',
-        'Polish',
-        'Portuguese',
-        'Portuguese Creole',
-        'Punjabi',
-        'Romanian',
-        'Russian',
-        'Samoan',
-        'Serbian',
-        'Shanghainese',
-        'Shona',
-        'Sicilian',
-        'Sinhalese',
-        'Sindhi',
-        'Slovak',
-        'Slovenian',
-        'Somali',
-        'Sorani',
-        'Spanish',
-        'Sudanese Arabic',
-        'Swahili',
-        'Swedish',
-        'Sylhetti',
-        'Tagalog',
-        'Taiwanese',
-        'Tajik',
-        'Tamil',
-        'Telugu',
-        'Thai',
-        'Tibetan',
-        'Tigre',
-        'Tigrinya',
-        'Toishanese',
-        'Tongan',
-        'Tshiluba',
-        'Turkish',
-        'Twi',
-        'Ukrainian',
-        'Urdu',
-        'Uzbek',
-        'Vietnamese',
-        'Visayan',
-        'Welsh',
-        'Wolof',
-        'Yiddish',
-        'Yoruba',
-        'Yupik',
-        ])
+
+    cursor.execute('SELECT name from languages order by RANDOM() limit 1;')
+    return cursor.fetchone()[0]
 
 
 def last_name():
@@ -532,15 +361,10 @@ def month_and_day():
     """
 
     month_choice = month()
-    if month_choice in (
-        'January',
-        'March',
-        'May',
-        'July',
-        'August',
-        'October',
-        'December',
-        ):
+    if month_choice in [
+        'January', 'March', 'May', 'July', 'August',
+        'October', 'December'
+    ]:
         return '%s %s' % (month_choice, random.randrange(1, 32))
     if month_choice in 'February':
         return '%s %s' % (month_choice, random.randrange(1, 29))
@@ -714,31 +538,40 @@ def street_name():
     a male or female name, plus a street type.
     """
 
-    return ' '.join((random.choice([male_first(),
-        female_name()]), street_type()))
+    return ' '.join((random.choice([male_first(), female_name()]), street_type()))
 
 
 def street_address():
     """This function will produce a complete street address."""
 
-    return random.choice(['%d-%d %s' % (random.randrange(999),
-                         random.randrange(999), street_name()), '%d %s'
-                         % (random.randrange(999), street_name()),
-                         '%s %d, %s' % ('P.O. Box',
-                         random.randrange(999), street_name())])
+    return random.choice(
+        [
+            '%d-%d %s' % (
+                random.randrange(999),
+                random.randrange(999),
+                street_name()
+            ),
+            '%d %s' % (
+                random.randrange(999),
+                street_name()
+            ),
+            '%s %d, %s' % (
+                'P.O. Box',
+                random.randrange(999),
+                street_name()
+            )
+        ]
+    )
 
 
 def suffix():
     """This returns a suffix from a small list."""
 
-    return random.choice([
-        'Sr.',
-        'Jr.',
-        'II',
-        'III',
-        'IV',
-        'V',
-        ])
+    return random.choice(
+        [
+            'Sr.', 'Jr.', 'II', 'III', 'IV', 'V'
+        ]
+    )
 
 
 def timestamp(style=False):
@@ -760,55 +593,68 @@ def timezone_offset():
     such as GMT, GMT+4, etc.
     """
 
-    return random.choice([['GMT+' + str(random.randint(1, 12))], ['GMT'
-                         ], ['GMT' + str(random.randint(-12, -1))]])
+    return random.choice(
+        [
+            [
+                'GMT+' + str(random.randint(1, 12))
+            ],
+            [
+                'GMT'
+            ],
+            [
+                'GMT' + str(random.randint(-12, -1))
+            ]
+        ]
+    )[0]
 
 
 def timezone_offset_country():
     """This function will select the country part of a timezone."""
 
-    return random.choice([
-        'Eniwetoa',
-        'Hawaii',
-        'Alaska',
-        'Pacific',
-        'Mountain',
-        'Central',
-        'Eastern',
-        'Atlantic',
-        'Canada',
-        'Brazilia',
-        'Buenos Aries',
-        'Mid-Atlantic',
-        'Cape Verdes',
-        'Greenwich Mean Time',
-        'Dublin',
-        'Berlin',
-        'Rome',
-        'Israel',
-        'Cairo',
-        'Moscow',
-        'Kuwait',
-        'Abu Dhabi',
-        'Muscat',
-        'Islamabad',
-        'Karachi',
-        'Almaty',
-        'Dhaka',
-        'Bangkok, Jakarta',
-        'Hong Kong',
-        'Beijing',
-        'Tokyo',
-        'Osaka',
-        'Sydney',
-        'Melbourne',
-        'Guam',
-        'Magadan',
-        'Soloman Islands',
-        'Fiji',
-        'Wellington',
-        'Auckland',
-        ])
+    return random.choice(
+        [
+            'Eniwetoa',
+            'Hawaii',
+            'Alaska',
+            'Pacific',
+            'Mountain',
+            'Central',
+            'Eastern',
+            'Atlantic',
+            'Canada',
+            'Brazilia',
+            'Buenos Aries',
+            'Mid-Atlantic',
+            'Cape Verdes',
+            'Greenwich Mean Time',
+            'Dublin',
+            'Berlin',
+            'Rome',
+            'Israel',
+            'Cairo',
+            'Moscow',
+            'Kuwait',
+            'Abu Dhabi',
+            'Muscat',
+            'Islamabad',
+            'Karachi',
+            'Almaty',
+            'Dhaka',
+            'Bangkok, Jakarta',
+            'Hong Kong',
+            'Beijing',
+            'Tokyo',
+            'Osaka',
+            'Sydney',
+            'Melbourne',
+            'Guam',
+            'Magadan',
+            'Soloman Islands',
+            'Fiji',
+            'Wellington',
+            'Auckland',
+        ]
+    )
 
 
 def url(i, extension='.com'):
