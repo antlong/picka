@@ -81,9 +81,15 @@ _________
 ::
 
     driver = webdriver.Firefox()
-    driver.get("http://somesite")
-    driver.find_element_by_css_selector("#name").send_keys(
-        picka.name()
+    driver.get("http://somesite.com")
+    x = {
+        "name": [
+            "#name",
+            picka.name()
+        ]
+    }
+    driver.find_element_by_css_selector(
+        x["name"][0]).send_keys(x["name"][1]
     )
     
 Funcargs / pytest
