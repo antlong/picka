@@ -75,6 +75,17 @@ ________
 		selenium.wait_for_page_to_load('30000')
 		assert selenium.get_xpath_count('id=results') == 0
 	
+Webdriver
+_________
+
+::
+
+    driver = webdriver.Firefox()
+    driver.get("http://somesite")
+    driver.find_element_by_css_selector("#name").send_keys(
+        picka.name()
+    )
+    
 Funcargs / pytest
 _________________
 
