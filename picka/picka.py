@@ -28,34 +28,29 @@ def initial(with_trailing_period=False):
         :parameters: with_trailing_period: (bool)
             Whether or not to add a trailing period.
     """
-
     letter = random.choice(string.letters).upper()
     return (letter if not with_trailing_period else letter + '.')
 
 
 def female_first():
     """Returns a randomly chosen female first name."""
-
     cursor.execute('SELECT name FROM female order by RANDOM() limit 1')
     return cursor.fetchone()[0]
 
 
 def female_middle():
     """Returns a randomly chosen female middle name."""
-
     return female_first()
 
 
 def male_first():
     """Returns a randomly chosen male first name."""
-
     cursor.execute('SELECT name FROM male order by RANDOM() limit 1')
     return cursor.fetchone()[0]
 
 
 def male_middle():
     """Returns a randomly chosen male middle name."""
-
     return male_first()
 
 
@@ -383,26 +378,17 @@ def month_and_day_and_year(start=1900, end=2010):
     return '%s %s' % (month_and_day(), random.randrange(start, end + 1))
 
 
-def name(gender=""):
-    """
-    Picks a name, if a gender is passed in it is used, otherwise it will pick
-        a random name. Could be male, could be female.
-    """
-    if gender and gender.startswith(('m', 'M')):
-        return male_first()
-    elif gender and gender.startswith(('f', 'F')):
-        return 'gender and female', female_first()
-    else:
-        return random.choice([male_first(), female_first()])
+def name():
+    """Picks a random male or female name."""
+    return random.choice([male_first(), female_first()])
 
 
-def number(x, y):
+def number(i):
     """
     This function will produce a random number with as many
     characters as you wish.
     """
-
-    return random.randrange(x, y + 1)
+    return ''.join(str(random.randrange(0, 10)) for x in xrange(i))
 
 
 def password_alphabetical(i):
@@ -433,10 +419,10 @@ def password_alphanumeric(i):
 
 def phone_number():
     """
-    This function will produce a phone number randomnly, with '-'s.
+    This function will produce a phone number randomnly.
     """
 
-    x = ''.join(str(random.randrange(10)) for i in xrange(10))
+    x = ''.join(str(random.randrange(0, 10)) for i in xrange(10))
     y = '%s-%s-%s' % (x[0:3], x[3:6], x[6:])
     return y
 
@@ -538,7 +524,8 @@ def street_name():
     a male or female name, plus a street type.
     """
 
-    return ' '.join((random.choice([male_first(), female_name()]), street_type()))
+    return ' '.join((random.choice([
+        male_first(), female_name()]), street_type()))
 
 
 def street_address():
@@ -688,3 +675,11 @@ def postal_code():
     return cursor.fetchone()[0]
 
 zipcode = postal_code
+
+
+def foreign_characters(i):
+    foreign_chars = (
+        u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛ'
+        u'ÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
+    )
+    return ''.join(random.choice(foreign_chars) for x in xrange(i))
