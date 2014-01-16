@@ -43,3 +43,21 @@ def street_type():
             "Way", "Wharf", "Wood", "Wynd"
         ]
     )
+
+
+def province():
+    """Returns a list, full name and postal abbreviation"""
+    return _random.choice(
+        [
+            ["Ontario", "ON"],
+            ["Quebec", "QC"],
+            ["Nova Scotia", "NS"],
+            ["New Brunswick", "NB"],
+            ["Manitoba", "MB"],
+            ["British Columbia", "BC"],
+            ["Prince Edward Island", "PE"],
+            ["Saskatchewan", "SK"],
+            ["Alberta", "AB"],
+            ["Newfoundland and Labrador", "NL"]
+        ]
+    )
