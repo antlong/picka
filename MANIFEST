@@ -5,3 +5,5 @@ picka/book_sherlock.txt
 picka/db.sqlite
 picka/picka.py
 picka/tests.py
+picka/ca_lat_long.csv
+picka/ca_postal_codes.csv

@@ -11,6 +11,7 @@ By: Anthony Long
 import random as _random
 import sqlite3 as _sqlite3
 import os as _os
+import linecache as _linecache
 
 _connect = \
     _sqlite3.connect(_os.path.join(_os.path.abspath(
@@ -73,11 +74,21 @@ def province():
 
 def postal():
     """Returns a valid postal code"""
-    _cursor.execute('SELECT code FROM ca_postal_codes order by random() limit 1;')
-    return _cursor.fetchone()[0]
+    return _linecache.getline(
+        _os.path.join(_os.path.abspath(_os.path.dirname(__file__)), 'ca_postal_codes.csv'),
+        _random.randrange(0, 917358)
+    ).strip("\n")
 
 
 def city():
     """Returns a valid Canadian city"""
     _cursor.execute('SELECT DISTINCT(name) FROM ca_cities where name is not null order by random() limit 1;')
     return _cursor.fetchone()[0].decode("utf-8")
+
+
+def lat_long():
+    """Returns a valid lat long."""
+    return _linecache.getline(
+        _os.path.join(_os.path.abspath(_os.path.dirname(__file__)), 'ca_lat_long.csv'),
+        _random.randrange(0, 917358)
+    ).strip("\n")
