@@ -14,6 +14,7 @@ import time
 import sqlite3
 import os
 import calendar
+import canadian
 __docformat__ = 'restructuredtext en'
 connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
