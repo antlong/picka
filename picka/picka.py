@@ -684,3 +684,13 @@ def foreign_characters(i):
         u'ÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
     return ''.join(random.choice(foreign_chars) for x in xrange(i))
+
+
+def mac_address():
+    mac = [
+        0x00, 0x16, 0x3e,
+        random.randint(0x00, 0x7f),
+        random.randint(0x00, 0xff),
+        random.randint(0x00, 0xff)
+    ]
+    return ':'.join(map(lambda x: "%02x" % x, mac))
