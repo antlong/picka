@@ -477,10 +477,11 @@ def screename(service=''):
 
 
 def sentence(num_words=20, chars=''):
-    word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt'
-                     ).read().split()
-    words = ' '.join(random.choice(word_list) for x in
+    sherlock_book = os.path.join(os.path.dirname(__file__), 'book_sherlock.txt')
+    word_list = open(sherlock_book).read().split()
+    words = ' '.join(random.choice(word_list).strip(' .!?') for x in
                      xrange(num_words))
+    words = words.capitalize() + "." 
     return (words if not chars else words[:chars])
 
 
