@@ -14,7 +14,7 @@ import time
 import sqlite3
 import os
 import calendar
-import canadian
+
 __docformat__ = 'restructuredtext en'
 connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
@@ -657,7 +657,7 @@ def url(i, extension='.com'):
 def state_abbreviated():
     """
     This function produces just a state abbreviation.
-    ie - state_abbreviated() = 'NY'
+    eg - state_abbreviated() = 'NY'
     """
 
     cursor.execute('SELECT * FROM american_cities_with_states \
@@ -668,7 +668,7 @@ def state_abbreviated():
 def postal_code():
     """
     This function will pick a zipcode randomnly from a list.
-    ie - zipcode() = '11221'.
+    eg - zipcode() = '11221'.
     """
 
     cursor.execute('SELECT col_1 FROM zipcodes order by RANDOM() limit 1;'

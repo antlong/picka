@@ -8,11 +8,12 @@ by hand.
 By: Anthony Long
 """
 
-import random
+import random as _random
 
 
 def street_type():
-    return random.choice(
+    """Returns a Canadian street type."""
+    return _random.choice(
         [
             "Abbey", "Acres", "Allée", "Alley", "Autoroute", "Avenue",
             "Bay", "Beach", "Bend", "Boulevard", "By-pass", "Byway",
