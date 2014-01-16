@@ -9,6 +9,14 @@ By: Anthony Long
 """
 
 import random as _random
+import sqlite3 as _sqlite3
+import os as _os
+
+_connect = \
+    _sqlite3.connect(_os.path.join(_os.path.abspath(
+        _os.path.dirname(__file__)), 'db.sqlite'))
+_connect.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
+_cursor = _connect.cursor()
 
 
 def street_type():
@@ -61,3 +69,21 @@ def province():
             ["Newfoundland and Labrador", "NL"]
         ]
     )
+
+
+def lat_long():
+    """Returns a valid lat and long"""
+    _cursor.execute('SELECT lat, long FROM canadian_geo where city is not null order by random() limit 1;')
+    return _cursor.fetchone()[0]
+
+
+def postal():
+    """Returns a valid postal code"""
+    _cursor.execute('SELECT postal FROM canadian_geo where city is not null order by random() limit 1;')
+    return _cursor.fetchone()[0]
+
+
+def city():
+    """Returns a valid Canadian city"""
+    _cursor.execute('SELECT DISTINCT(city) FROM canadian_geo where city is not null order by random() limit 1;')
+    return _cursor.fetchone()[0].decode('ISO-8859-1').encode('utf-8')
