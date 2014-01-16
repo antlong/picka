@@ -8,11 +8,13 @@ by hand.
 By: Anthony Long
 """
 
+from itertools import izip
 import string
 import random
 import time
 import sqlite3
 import os
+import re
 import calendar
 __docformat__ = 'restructuredtext en'
 connect = \
@@ -476,12 +478,62 @@ def screename(service=''):
 
 
 def sentence(num_words=20, chars=''):
-    word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt'
-                     ).read().split()
+    word_list = _Book.get_text().split()
     words = ' '.join(random.choice(word_list) for x in
                      xrange(num_words))
     return (words if not chars else words[:chars])
 
+
+rewhite = re.compile(r"\s+")
+
+
+def sentence_actual(min_words=3, max_words=1000):
+    sentences = _Book.get_sentences()
+    random.shuffle(sentences)
+    for sentence in sentences:
+        sentence = " ".join(
+            rewhite.sub("", s)
+            for s in rewhite.split(sentence)
+            if rewhite.sub("", s))
+        if sentence.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
+            continue
+        if min_words <= len(sentence.split()) <= max_words:
+            return sentence
+    raise Exception("Couldn't find a sentence between {0} and {1} words long".format(   
+                    min_words, max_words))
+
+
+class _Book:
+    """
+    Keeps the text of a book and the split sentences of a book
+    globally available. This means you don't have to read in 
+    all of a book's text every time you need  a sentence or a set of words.
+    The book will only be read once. The sentences of the book will only
+    be split apart once.
+    """
+    # TODO: I really think Sherlock is a bad source for sentences.
+    # There are just too many weird quotes and fragments. Too much dialog.
+    _path = os.path.join(os.path.dirname(__file__),
+                         "book_sherlock.txt")
+    _text = _sentences = None
+    
+    @classmethod
+    def get_text(cls):
+        if not cls._text:
+            cls._text = open(cls._path).read()
+        return cls._text
+
+    @classmethod
+    def get_sentences(cls, text=None):
+        if not cls._sentences:
+            if text is None:
+                text = cls.get_text()
+            # from pyteaser: https://github.com/xiaoxu193/PyTeaser
+            # see `pyteaser.split_sentences()`
+            fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
+            cls._sentences = map("".join, izip(*[iter(fragments[:-1])] * 2))
+        return cls._sentences
+        
 
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
