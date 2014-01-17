@@ -8,14 +8,18 @@ by hand.
 By: Anthony Long
 """
 
+from itertools import izip
+from functools import partial
 import string
 import random
 import time
 import sqlite3
 import os
+import re
 import calendar
 
 __docformat__ = 'restructuredtext en'
+
 connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
         os.path.dirname(__file__)), 'db.sqlite'))
@@ -477,13 +481,82 @@ def screename(service=''):
 
 
 def sentence(num_words=20, chars=''):
-    word_list = open(os.path.dirname(__file__) + '/book_sherlock.txt'
-                     ).read().split()
+    """
+    Returns a sentence based on random words from The Adventures of
+    Sherlock Holmes that is no more than `chars` characters in length
+    or `num_words` words in length.
+    """
+    word_list = _Book.get_text().split()
     words = ' '.join(random.choice(word_list) for x in
                      xrange(num_words))
     return (words if not chars else words[:chars])
 
 
+_rewhite = re.compile(r"\s+")
+_rewhitesub = partial(_rewhite.sub, "")
+
+
+def sentence_actual(min_words=3, max_words=1000):
+    """
+    Returns a sentence from The Adventures of Sherlock Holmes
+    that contains at least `min_words` and no more than `max_words`.
+    """
+    for sentence in _Book.gen_random_sentences():
+        words = _rewhite.split(sentence)
+        words = filter(None, map(_rewhitesub, words))
+        sentence = " ".join(words)
+        if sentence.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
+            continue
+        if min_words <= len(sentence.split()) <= max_words:
+            return sentence
+    raise Exception("Couldn't find a sentence between {0} and {1} words long".format(   
+                    min_words, max_words))
+
+
+class _Book:
+    """
+    Keeps the text of a book and the split sentences of a book
+    globally available. This means you don't have to read in 
+    all of a book's text every time you need  a sentence or a set of words.
+    The book will only be read once. The sentences of the book will only
+    be split apart once.
+    """
+    # TODO: I really think Sherlock is a bad source for sentences.
+    # There are just too many weird quotes and fragments. Too much dialog.
+    _path = os.path.join(os.path.dirname(__file__),
+                         "book_sherlock.txt")
+    _text = _num_sentences = _sentences = None
+    
+    @classmethod
+    def get_text(cls):
+        if not cls._text:
+            cls._text = open(cls._path).read()
+        return cls._text
+
+    @classmethod
+    def get_sentences(cls):
+        if not cls._sentences:
+            text = cls.get_text()
+            cls._sentences = _split_sentences(text)
+            cls._num_sentences = len(cls._sentences)
+        return cls._sentences
+
+    @classmethod
+    def gen_random_sentences(cls, no_more_than=1000000):
+        sentences = cls.get_sentences()
+        max_index = cls._num_sentences - 1
+        for _ in xrange(no_more_than):
+            i = random.randint(0, max_index)
+            yield sentences[i]
+            
+
+def _split_sentences(text):
+    # from pyteaser: https://github.com/xiaoxu193/PyTeaser
+    # see `pyteaser.split_sentences()`
+    fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
+    return map("".join, izip(*[iter(fragments[:-1])] * 2))
+    
+        
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
 
