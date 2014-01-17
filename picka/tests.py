@@ -6,11 +6,16 @@ print picka.phone_number()
 print picka.last_name()
 print picka.random_string(8)
 print picka.sentence()
+print picka.sentence_actual()
+assert picka.sentence_actual(86, 93)  == (
+"""\
+A shock of orange hair a pale face disfigured by a horrible scar which by its contraction has turned up the outer edge of his upper lip a bulldog chin and a pair of very penetrating dark eyes which present a singular contrast to the colour of his hair all mark him out from amid the common crowd of mendicants and so too does his wit for he is ever ready with a reply to any piece of chaff which may be thrown at him by the passers-by."""
+)
 print picka.timezone_offset()
 print picka.language()
 print picka.timezone_offset_country()
 print picka.screename()
-print picka.number(1, 10)
+print picka.number(10)
 print picka.month()
 print picka.month_and_day_and_year()
 print picka.special_characters(8)
