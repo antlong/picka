@@ -11,12 +11,13 @@ By: Anthony Long
 from itertools import izip
 from functools import partial
 import string
-import random
+import random as _random
 import time
 import sqlite3
 import os
 import re
 import calendar
+import linecache
 
 __docformat__ = 'restructuredtext en'
 
@@ -33,7 +34,7 @@ def initial(with_trailing_period=False):
         :parameters: with_trailing_period: (bool)
             Whether or not to add a trailing period.
     """
-    letter = random.choice(string.letters).upper()
+    letter = _random.choice(string.letters).upper()
     return (letter if not with_trailing_period else letter + '.')
 
 
@@ -81,18 +82,18 @@ def age(min=1, max=99):
 
     """
 
-    return '%.i' % ((random.randint(min, max + 1) if min
-                    and max else random.randint(1, 100)))
+    return '%.i' % ((_random.randint(min, max + 1) if min
+                    and max else _random.randint(1, 100)))
 
 
 def month():
-    return random.choice(calendar.month_name)
+    return _random.choice(calendar.month_name)
 
 
 def birthday(min_year=1900, max_year=2012):
-    rmonth = random.randrange(1, 13)
+    rmonth = _random.randrange(1, 13)
     birthday_month = calendar.month_name[rmonth]
-    birthday_year = random.randrange(min_year, max_year + 1)
+    birthday_year = _random.randrange(min_year, max_year + 1)
     birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
     return (birthday_month, birthday_day, birthday_year)
 
@@ -107,14 +108,14 @@ def apartment_number():
 
     """
 
-    type = random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
-    letter = random.choice(string.ascii_letters).capitalize()
+    type = _random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
+    letter = _random.choice(string.ascii_letters).capitalize()
     directions = ['E', 'W', 'N', 'S']
-    short = '{} {}'.format(type, random.randint(1, 999))
-    long = '{} {}{}'.format(type, random.randint(1, 999), letter)
-    alt = '{} {}-{}{}'.format(type, random.choice(directions),
-                              random.randint(1, 999), letter)
-    return random.choice([short, long, alt])
+    short = '{} {}'.format(type, _random.randint(1, 999))
+    long = '{} {}{}'.format(type, _random.randint(1, 999), letter)
+    alt = '{} {}-{}{}'.format(type, _random.choice(directions),
+                              _random.randint(1, 999), letter)
+    return _random.choice([short, long, alt])
 
 
 def business_title(abbreviated=False):
@@ -163,8 +164,8 @@ def business_title(abbreviated=False):
         'Representative',
         'Strategist',
     ]
-    return ((random.choice(abbs) if abbreviated else '{} {}'.format(
-        random.choice(primary), random.choice(secondary))))
+    return ((_random.choice(abbs) if abbreviated else '{} {}'.format(
+        _random.choice(primary), _random.choice(secondary))))
 
 
 def calling_code():
@@ -241,9 +242,9 @@ def creditcard(type):
         prefix = ['6011']
     elif type == 'mastercard':
         prefix = ['51', '52', '53', '54', '55']
-    prefix = random.choice(prefix)
+    prefix = _random.choice(prefix)
     while len(prefix) < 15:
-        prefix = prefix + str(random.randint(0, 9))
+        prefix = prefix + str(_random.randint(0, 9))
     return ''.join(prefix) + '0'
 
 
@@ -252,7 +253,7 @@ def cvv(i):
     :Usage: picka.cvv(3) or picka.cvv(4)
     """
 
-    return '{}'.format(random.randint(111, (999 if i == 3 else 9999)))
+    return '{}'.format(_random.randint(111, (999 if i == 3 else 9999)))
 
 
 def email(length=8, domain='@example.com'):
@@ -261,7 +262,7 @@ def email(length=8, domain='@example.com'):
     :Usage: picka.email(length=8, domain='@foo.com')
     """
 
-    return ''.join(random.choice(string.ascii_lowercase) for i in
+    return ''.join(_random.choice(string.ascii_lowercase) for i in
                    xrange(length)) + domain
 
 
@@ -284,15 +285,6 @@ def female_name():
     return cursor.fetchone()[0]
 
 
-def _foreign_characters(a, b):
-    """
-    This function will pick x amount of foreign chars\
-    from the list below, where a is min, and b is max.
-    """
-
-    pass
-
-
 def trash(picka_function):
     """
      :Summary: This method takes a function you pass in, and joins\
@@ -300,7 +292,7 @@ def trash(picka_function):
      :Date: Tue Feb 22 15:31:12 EST 2011.
      :Usage: picka.trash(picka.name) >>> 'D#o}y>l~e^'
     """
-    return ''.join([str(char) + random.choice(str(string.punctuation))
+    return ''.join([str(char) + _random.choice(str(string.punctuation))
                    for char in picka_function()])
 
 
@@ -320,7 +312,7 @@ def gender():
     Returns a random gender.
     """
 
-    return random.choice(['Male', 'Female'])
+    return _random.choice(['Male', 'Female'])
 
 
 def hyphenated_last_name():
@@ -365,11 +357,11 @@ def month_and_day():
         'January', 'March', 'May', 'July', 'August',
         'October', 'December'
     ]:
-        return '%s %s' % (month_choice, random.randrange(1, 32))
+        return '%s %s' % (month_choice, _random.randrange(1, 32))
     if month_choice in 'February':
-        return '%s %s' % (month_choice, random.randrange(1, 29))
+        return '%s %s' % (month_choice, _random.randrange(1, 29))
     else:
-        return '%s %s' % (month_choice, random.randrange(1, 31))
+        return '%s %s' % (month_choice, _random.randrange(1, 31))
 
 
 def month_and_day_and_year(start=1900, end=2010):
@@ -380,12 +372,12 @@ def month_and_day_and_year(start=1900, end=2010):
     last year in your range can be selected. Default is 1900, 2010.
     """
 
-    return '%s %s' % (month_and_day(), random.randrange(start, end + 1))
+    return '%s %s' % (month_and_day(), _random.randrange(start, end + 1))
 
 
 def name():
     """Picks a random male or female name."""
-    return random.choice([male_first(), female_first()])
+    return _random.choice([male_first(), female_first()])
 
 
 def number(i):
@@ -393,7 +385,7 @@ def number(i):
     This function will produce a random number with as many
     characters as you wish.
     """
-    return ''.join(str(random.randrange(0, 10)) for x in xrange(i))
+    return ''.join(str(_random.randrange(0, 10)) for x in xrange(i))
 
 
 def password_alphabetical(i):
@@ -401,7 +393,7 @@ def password_alphabetical(i):
     This function will return a randomized password consisting of letters.
     """
 
-    return ''.join(random.choice(string.ascii_letters) for x in
+    return ''.join(_random.choice(string.ascii_letters) for x in
                    range(i))
 
 
@@ -410,7 +402,7 @@ def password_numerical(i):
     This function will return a random password consisting of numbers.
     """
 
-    return ''.join(random.choice(string.digits) for x in range(i))
+    return ''.join(_random.choice(string.digits) for x in range(i))
 
 
 def password_alphanumeric(i):
@@ -419,7 +411,7 @@ def password_alphanumeric(i):
     """
 
     chars = string.ascii_letters + string.digits
-    return ''.join(random.choice(chars) for x in range(i))
+    return ''.join(_random.choice(chars) for x in range(i))
 
 
 def phone_number():
@@ -427,7 +419,7 @@ def phone_number():
     This function will produce a phone number randomnly.
     """
 
-    x = ''.join(str(random.randrange(0, 10)) for i in xrange(10))
+    x = ''.join(str(_random.randrange(0, 10)) for i in xrange(10))
     y = '%s-%s-%s' % (x[0:3], x[3:6], x[6:])
     return y
 
@@ -438,7 +430,7 @@ def random_string(i):
     of characters. ie: random_string(7) = DsEIzCd
     """
 
-    return ''.join(random.choice(string.ascii_letters) for x in
+    return ''.join(_random.choice(string.ascii_letters) for x in
                    xrange(i))
 
 
@@ -448,7 +440,7 @@ def salutation():
     """
 
     salutations = ('Mr.', 'Mrs.')
-    return random.choice(salutations)
+    return _random.choice(salutations)
 
 
 def screename(service=''):
@@ -460,8 +452,8 @@ def screename(service=''):
     """
 
     def _make_name(a, b):
-        return ''.join(random.sample(string.ascii_letters,
-                       random.choice(range(a, b))))
+        return ''.join(_random.sample(string.ascii_letters,
+                       _random.choice(range(a, b))))
 
     if service in ('', 'aim', 'aol'):
         name = _make_name(3, 16)
@@ -487,7 +479,7 @@ def sentence(num_words=20, chars=''):
     or `num_words` words in length.
     """
     word_list = _Book.get_text().split()
-    words = ' '.join(random.choice(word_list) for x in
+    words = ' '.join(_random.choice(word_list) for x in
                      xrange(num_words))
     return (words if not chars else words[:chars])
 
@@ -509,14 +501,14 @@ def sentence_actual(min_words=3, max_words=1000):
             continue
         if min_words <= len(sentence.split()) <= max_words:
             return sentence
-    raise Exception("Couldn't find a sentence between {0} and {1} words long".format(   
+    raise Exception("Couldn't find a sentence between {0} and {1} words long".format(
                     min_words, max_words))
 
 
 class _Book:
     """
     Keeps the text of a book and the split sentences of a book
-    globally available. This means you don't have to read in 
+    globally available. This means you don't have to read in
     all of a book's text every time you need  a sentence or a set of words.
     The book will only be read once. The sentences of the book will only
     be split apart once.
@@ -526,7 +518,7 @@ class _Book:
     _path = os.path.join(os.path.dirname(__file__),
                          "book_sherlock.txt")
     _text = _num_sentences = _sentences = None
-    
+
     @classmethod
     def get_text(cls):
         if not cls._text:
@@ -546,21 +538,21 @@ class _Book:
         sentences = cls.get_sentences()
         max_index = cls._num_sentences - 1
         for _ in xrange(no_more_than):
-            i = random.randint(0, max_index)
+            i = _random.randint(0, max_index)
             yield sentences[i]
-            
+
 
 def _split_sentences(text):
     # from pyteaser: https://github.com/xiaoxu193/PyTeaser
     # see `pyteaser.split_sentences()`
     fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
     return map("".join, izip(*[iter(fragments[:-1])] * 2))
-    
-        
+
+
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
 
-    return [''.join(random.choice(string.ascii_uppercase) + '.'
+    return [''.join(_random.choice(string.ascii_uppercase) + '.'
             for x in xrange(i))]
 
 
@@ -570,9 +562,9 @@ def social_security_number():
     ie - social_security_number() = '112-32-3322'
     """
 
-    return '%.3i-%.2i-%.4i' % (random.randrange(999),
-                               random.randrange(99),
-                               random.randrange(9999))
+    return '%.3i-%.2i-%.4i' % (_random.randrange(999),
+                               _random.randrange(99),
+                               _random.randrange(9999))
 
 
 def special_characters(i):
@@ -581,7 +573,7 @@ def special_characters(i):
     ie - picka.special_characters() = '@%^$'.
     """
 
-    return ''.join(random.choice(string.punctuation) for x in xrange(i))
+    return ''.join(_random.choice(string.punctuation) for x in xrange(i))
 
 
 def street_type():
@@ -598,27 +590,27 @@ def street_name():
     a male or female name, plus a street type.
     """
 
-    return ' '.join((random.choice([
+    return ' '.join((_random.choice([
         male_first(), female_name()]), street_type()))
 
 
 def street_address():
     """This function will produce a complete street address."""
 
-    return random.choice(
+    return _random.choice(
         [
             '%d-%d %s' % (
-                random.randrange(999),
-                random.randrange(999),
+                _random.randrange(999),
+                _random.randrange(999),
                 street_name()
             ),
             '%d %s' % (
-                random.randrange(999),
+                _random.randrange(999),
                 street_name()
             ),
             '%s %d, %s' % (
                 'P.O. Box',
-                random.randrange(999),
+                _random.randrange(999),
                 street_name()
             )
         ]
@@ -628,7 +620,7 @@ def street_address():
 def suffix():
     """This returns a suffix from a small list."""
 
-    return random.choice(
+    return _random.choice(
         [
             'Sr.', 'Jr.', 'II', 'III', 'IV', 'V'
         ]
@@ -654,17 +646,11 @@ def timezone_offset():
     such as GMT, GMT+4, etc.
     """
 
-    return random.choice(
+    return _random.choice(
         [
-            [
-                'GMT+' + str(random.randint(1, 12))
-            ],
-            [
-                'GMT'
-            ],
-            [
-                'GMT' + str(random.randint(-12, -1))
-            ]
+            ['GMT+' + str(_random.randint(1, 12))],
+            ['GMT'],
+            ['GMT' + str(_random.randint(-12, -1))]
         ]
     )[0]
 
@@ -672,7 +658,7 @@ def timezone_offset():
 def timezone_offset_country():
     """This function will select the country part of a timezone."""
 
-    return random.choice(
+    return _random.choice(
         [
             'Eniwetoa',
             'Hawaii',
@@ -756,25 +742,26 @@ def foreign_characters(i):
         u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛ'
         u'ÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
-    return ''.join(random.choice(foreign_chars) for x in xrange(i))
+    return ''.join(_random.choice(foreign_chars) for x in xrange(i))
 
 
 def mac_address():
     mac = [
         0x00, 0x16, 0x3e,
-        random.randint(0x00, 0x7f),
-        random.randint(0x00, 0xff),
-        random.randint(0x00, 0xff)
+        _random.randint(0x00, 0x7f),
+        _random.randint(0x00, 0xff),
+        _random.randint(0x00, 0xff)
     ]
     return ':'.join(map(lambda x: "%02x" % x, mac))
 
 
 def rbg():
-    x = [random.randrange(0, 256) for i in xrange(3)]
+    x = [_random.randrange(0, 256) for i in xrange(3)]
     return tuple(x)
 
+
 def rbga(r=None, b=None, g=None, a=None):
-    x = [random.randrange(0, 256) for i in xrange(4)]
+    x = [_random.randrange(0, 256) for i in xrange(4)]
     return tuple(x)
 
 
@@ -790,7 +777,8 @@ def image(filepath, length=100, width=100):
         :type width: int
     """
     try:
-        import Image, ImageDraw
+        import Image
+        import ImageDraw
     except ImportError as e:
         print e, "Please install PIL to use this functionality."
     im = Image.new('RGBA', tuple((length, width)), tuple((rbga(a=255))))
@@ -800,25 +788,53 @@ def image(filepath, length=100, width=100):
     im.save(filepath)
     return filepath
 
+
 def hex_color():
     def _chkarg(a):
-        if isinstance(a, int): # clamp to range 0--255
+        if isinstance(a, int):
             if a < 0:
                 a = 0
             elif a > 255:
                 a = 255
-        elif isinstance(a, float): # clamp to range 0.0--1.0 and convert to integer 0--255
+        elif isinstance(a, float):
             if a < 0.0:
                 a = 0
             elif a > 1.0:
                 a = 255
             else:
-                a = int(round(a*255))
-        else:
-            raise ValueError('Arguments must be integers or floats.')
+                a = int(round(a * 255))
         return a
-    r,b,g = rbg()
+    r, b, g = rbg()
     r = _chkarg(r)
     g = _chkarg(g)
     b = _chkarg(b)
-    return '#{:02x}{:02x}{:02x}'.format(r,g,b)
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+
+def barcode(specification="EAN-8"):
+    """
+    Based on the standard barcode specifications. Valid options are:
+    EAN-8 - 8 numerical digits.
+    EAN-13 - 13 numerical digits.
+
+    Unsupported, but in-progress:
+
+    UPC-A - Used on products at the point of sale
+    UPC-B - Developed for the US National Drug Code; used to identify drugs
+    UPC-E - Used on smaller products where a traditional 12 digit barcode doesn’t fit
+    UPC-5 - Used as a supplemental code to indicate the price of retail books
+    """
+    if specification == "EAN-8":
+        return '{:02}{:06}'.format(_random.randrange(0, 20), _random.randrange(0, 1000000))
+    if specification == "EAN-13":
+        # For some reason this was returning a space in the third position sometimes.
+        return ''.join('{:02}{:011}'.format(_random.randrange(0, 20), _random.randrange(0, 100000000000)))
+        
+def mime_type():
+    """
+    Returns tuple, left is suffix, right is media type/subtype.
+    """
+    return tuple(linecache.getline(
+        os.path.join(os.path.abspath(os.path.dirname(__file__)), 'mimes.csv'),
+        _random.randrange(0, 647)
+    ).strip("\n").split(','))
