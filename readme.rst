@@ -43,7 +43,7 @@ But this is just the beginning. Other ways to implement this, include using dict
 	user_information = {
 		"first_name": picka.male_name(),
 		"last_name": picka.last_name(),
-		"email_address": picka.email(extension='.org'),
+		"email_address": picka.email(10, extension='example.org'),
 		"password": picka.password_numerical(6),
 	}
 
@@ -54,7 +54,7 @@ This would provide:
     {
         "first_name": "Jack",
         "last_name": "Logan",
-        "email_address": "uragn@getit.com",
+        "email_address": "uragnscsah@example.org",
         "password": "485444"
     }
 
