@@ -2,16 +2,24 @@
 # -*- coding: utf-8 -*-
 
 from distutils.core import setup
+import os
+
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     name='picka',
-    version='0.9.5',
+    version='0.9.6',
     description='Picka generates randomized, realistic testing data for use in any application.',
+    long_description=read('readme.rst'),
     author='Anthony Long',
     author_email='antlong@gmail.com',
+    license='Apache 2.0',
     packages=['picka'],
     url='http://github.com/antlong/picka',
-    package_data={'picka': ['*.sqlite', 'book_sherlock.txt', 'ca_lat_long.csv', 'ca_postal_codes.csv']},
+    package_data={'picka': ['*.sqlite', 'book_sherlock.txt', 'ca_lat_long.csv', 'ca_postal_codes.csv', 'mimes.csv']},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Customer Service",
