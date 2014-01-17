@@ -13,7 +13,6 @@ setup(
     name='picka',
     version='0.9.6',
     description='Picka generates randomized, realistic testing data for use in any application.',
-    long_description=read('readme.rst'),
     keywords="assert assertions testing test qa",
     author='Anthony Long',
     author_email='antlong@gmail.com',
