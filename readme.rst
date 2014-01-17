@@ -5,21 +5,10 @@ Picka: A Python module for data generation and randomization.
 	Anthony Long
 
 :Version:
+	0.96
 	
-	0.94
-	
-	- Added >1k company names.
-	
-	0.93
-	
-	- Fixed sentence generator.
-    	
-	0.91
-	
-	- Removed sentence generator.
-	- Added tests.
-	- Reverted back from SQLite to JSON.
-
+	- rbg, image, hex_color, and more.
+    
 
 What is Picka?
 ______________
