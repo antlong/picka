@@ -25,3 +25,19 @@ import calendar
 import linecache
 
 __docformat__ = 'restructuredtext en'
+
+def pattern_next(pattern, tester,sut):
+    """ Return a unique string based on pattern and index stored in db.
+
+    Look up pattern in database using sut and tester to manage different test
+    environments and multiple testers.
+
+    If pattern does not exist for tester and sut, it is added with zero index.
+
+    pattern is formated with index to return a unique value.
+
+    :param pattern: String of data to be made unique by index stored in database.
+    :param tester:
+    :param sut:
+    :return: generated test dat
+    """
