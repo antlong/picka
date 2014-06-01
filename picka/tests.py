@@ -60,5 +60,6 @@ assert picka.street_address()
 assert picka.language()
 assert len(picka.barcode("EAN-8")) == 8
 assert len(picka.barcode("EAN-13")) == 13
-assert picka.locale()
+#assert picka.locale()
 assert picka.mime_type()
+

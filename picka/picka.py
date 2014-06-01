@@ -635,7 +635,7 @@ def timestamp(style=False):
     """
 
     if not style:
-        return time.strftime('%H:%M:%S%p %D', time.localtime())
+        return time.strftime('%H:%M:%S%p %x', time.localtime())
     else:
         return time.strftime(style, time.localtime())
 

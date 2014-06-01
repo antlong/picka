@@ -16,55 +16,14 @@ By: Bernard Kuehlhorn
 from itertools import izip
 from functools import partial
 import string
-import random as _random
-import time
-import sqlite3
-import os
-import re
-import calendar
-import linecache
-
-__docformat__ = 'restructuredtext en'
-
-def pattern_next(pattern, tester,sut):
-    """ Return a unique string based on pattern and index stored in db.
-
-    Look up pattern in database using sut and tester to manage different test
-    environments and multiple testers.
-
-    If pattern does not exist for tester and sut, it is added with zero index.
-
-    pattern is formated with index to return a unique value.
-
-    :param pattern: String of data to be made unique by index stored in database.
-    :param tester:
-    :param sut:
-    :return: generated test dat
-    """
-__author__ = 'benk'
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-Picka is a data generation and randomization module which aims to increase
-coverage by increasing the amount of tests you _dont_ have to write
-by hand.
-By: Anthony Long
-"""
-
-from itertools import izip
-from functools import partial
-import string
-import random as _random
-import time
-import sqlite3
-import json
-import os
-import re
-import calendar
-import datetime
-import linecache
 import random
+import time
+import datetime
+import sqlite3
+import os
+import re
+import calendar
+import linecache
 
 __docformat__ = 'restructuredtext en'
 
@@ -99,102 +58,110 @@ def isodate(start=1900, end=2010):
     random_date = random.randint(datetime.datetime.toordinal(start_date), datetime.datetime.toordinal(end_date))
     return datetime.datetime.isoformat(datetime.datetime.fromordinal(random_date)).split('T')[0]
 
-def next_applicant(tester, starter, DEBUG=False):
+def pattern_next(pattern, tester=None, sut=None, DEBUG=False):
     """ Make a unique Applicant name from starter for next test in a run.
 
+    :param pattern: Initial patters for test data. Index is added by format()
     :param tester: User id for Tester running test.
-    :param starter: Initial patters for Applicant first name. Index is added to
-    :return: Applicant name with next index to make unique for test run
+    :param sut: System Under Test. Allows for testers to be testing several systems.
+    :return: pattern with next index to make unique for test run
 
     sqlite table creation:
+        CREATE TABLE pattern
+        (
+            pattern char(50) NOT NULL,
+            pattern_number int NOT NULL,
+            tester char(50) DEFAULT NULL,
+            sut char(50) DEFAULT NULL 
+        );
 
-    create table if not exists applicant_name (tester not null, applicant_name char(40) not null, applicant_number int)
+    create table if not exists pattern (pattern char(40) not null, pattern_number int, tester, sut)
 
-    pickabk.admissions.next_applicant(os.environ.get('USER'), 'Frank{0}')
+    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
-    sel = "SELECT applicant_number FROM applicant_name where (tester = ? and applicant_name=?)"
+    sel = "SELECT pattern_number FROM pattern where (pattern=? and tester = ? and sut = ?)"
     # print sel
     try:
-        cursor.execute(sel, (tester, starter))
+        cursor.execute(sel, (pattern, tester, sut))
         index =  cursor.fetchone()   # update that index is used
         if index is None:
             index = 0
-            sel = "insert into applicant_name (applicant_number, tester, applicant_name) values (?, ?, ?);"
+            sel = "insert into pattern (pattern, pattern_number, tester, sut) values (?, ?, ?, ?);"
         else:
             index = index[0]
             if not DEBUG:
                 index += 1
-                sel = "update applicant_name set applicant_number = ? where (tester = ? and applicant_name=?);"
+                sel = "update pattern_name set pattern_number = ? where (pattern=? and tester = ? and sut = ?);"
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         index = 0
     # print 'insert/update: ', sel
-    cursor.execute(sel, (index, tester, starter))
+    cursor.execute(sel, (index, pattern, tester, sut))
     connect.commit()
     # cursor.execute('commit ;')
     # print ('new start: ', spickabk.number()tarter.format(index))
-    return (starter.format(index))
+    return (pattern.format(index))
 
-def current_applicant(tester, starter, DEBUG=False):
-    """ Make current Applicant name from starter for next test in a run.
+def pattern_curr(pattern, tester=None, sut=None, DEBUG=False):
+    """ Make current Applicant name from pattern for next test in a run.
 
+    :param pattern: Initial patters for test data. Index is added by format()
     :param tester: User id for Tester running test.
-    :param starter: Initial patters for Applicant first name. Index is added to
     :return: Applicant name with next index to make unique for test run
 
     sqlite table creation:
 
-    create table if not exists applicant_name (tester not null, applicant_name char(40) not null, applicant_number int)
+    create table if not exists pattern_name (tester not null, pattern_name char(40) not null, pattern_number int)
 
-    pickabk.admissions.next_applicant(os.environ.get('USER'), 'Frank{0}')
+    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
-    sel = "SELECT applicant_number FROM applicant_name where (tester = ? and applicant_name=?)"
+    sel = "SELECT pattern_number FROM pattern_name where (tester = ? and pattern_name=?)"
     # print sel
     try:
-        cursor.execute(sel, (tester, starter))
+        cursor.execute(sel, (tester, pattern))
         index =  cursor.fetchone()   # update that index is used
         if index is None:
             index = 0
-            sel = "insert into applicant_name (applicant_number, tester, applicant_name) values (?, ?, ?);"
+            sel = "insert into pattern_name (pattern_number, tester, pattern_name) values (?, ?, ?);"
         else:
             index = index[0]
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         index = 0
-    return (starter.format(index))
+    return (pattern.format(index))
 
-def reset_applicant(tester, starter=None, adjust=None):
-    """ Reset Applicants for new test run.
+def pattern_reset(pattern=None, tester=None, sut=None, adjust=None):
+    """ Reset Applicants for new test run. Reset can be done by several means
 
     :param tester: User id for Tester running test.
-    :param starter: Initial patters for Applicant first name to reset. Reset all for Tester if None
+    :param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
     :return: None
 
-    pickabk.admissions.reset_applicant(os.environ.get('USER'), 'Frank{0}')
+    pickabk.admissions.reset_pattern(os.environ.get('USER'), 'Frank{0}')
     """
     cursor_update = connect.cursor()
     rows_updated = []
-    if starter is None:
-        sel = 'select applicant_number, tester, applicant_name from applicant_name where tester = ?'
+    if pattern is None:
+        sel = 'select pattern_number, tester, pattern_name from pattern_name where tester = ? and sut = ?'
         rows = cursor.execute(sel, (tester,))
     else:
-        sel = 'select applicant_number, tester, applicant_name from applicant_name where tester = ? and applicant_name = ?'
-        rows = cursor.execute(sel, (tester, starter))
+        sel = 'select pattern_number, tester, pattern_name from pattern_name where tester = ? and pattern_name = ? and sut = ?'
+        rows = cursor.execute(sel, (tester, pattern))
     # print 'sel: ', sel
 
-    sel = "update applicant_name set applicant_number = ? where (tester = ? and applicant_name=?);"
+    sel = "update pattern_name set pattern_number = ? where (tester = ? and pattern_name=? and sut = ?);"
     for row in cursor:
         # print 'reset: ', row
         if adjust is None:
-            new_applicant_number = 0
+            new_pattern_number = 0
         else:
             adjust = int(adjust)
             if adjust < 0:
-                new_applicant_number = max( -1, (row[0] + adjust))
+                new_pattern_number = max( -1, (row[0] + adjust))
             else:
-                new_applicant_number = adjust
-        cursor_update.execute(sel, (new_applicant_number, row[1], row[2]))
+                new_pattern_number = adjust
+        cursor_update.execute(sel, (new_pattern_number, row[1], row[2], sut))
         rows_updated.append(row[2])
     connect.commit()
     return rows_updated
