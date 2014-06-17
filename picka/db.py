@@ -16,6 +16,7 @@ By: Bernard Kuehlhorn
 from itertools import izip
 from functools import partial
 import string
+import json
 import random
 import time
 import datetime
@@ -79,27 +80,33 @@ def pattern_next(pattern, tester=None, sut=None, DEBUG=False):
 
     pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
-    sel = "SELECT pattern_number FROM pattern where (pattern=? and tester = ? and sut = ?)"
+    #sel = 'SELECT pattern_number FROM pattern where (pattern=? and tester = ? and sut = ?)'
+    sel = 'SELECT pattern_number FROM pattern where (pattern=? and tester = ?)'
     # print sel
     try:
-        cursor.execute(sel, (pattern, tester, sut))
+        #cursor.execute(sel, (pattern, tester, sut))
+        cursor.execute(sel, (pattern, tester))
         index =  cursor.fetchone()   # update that index is used
         if index is None:
             index = 0
-            sel = "insert into pattern (pattern, pattern_number, tester, sut) values (?, ?, ?, ?);"
+            sel = "insert into pattern (pattern_number, pattern, tester) values (?, ?, ?);"
+            #sel = "insert into pattern (pattern_number, pattern, tester, sut) values (?, ?, ?, ?);"
         else:
             index = index[0]
             if not DEBUG:
                 index += 1
-                sel = "update pattern_name set pattern_number = ? where (pattern=? and tester = ? and sut = ?);"
+                sel = "update pattern set pattern_number = ? where (pattern=? and tester = ?);"
+                #sel = "update pattern set pattern_number = ? where (pattern=? and tester = ? and sut = ?);"
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         index = 0
     # print 'insert/update: ', sel
-    cursor.execute(sel, (index, pattern, tester, sut))
+    cursor.execute(sel, (index, pattern, tester))
+    #cursor.execute(sel, (index, pattern, tester, sut))
     connect.commit()
     # cursor.execute('commit ;')
     # print ('new start: ', spickabk.number()tarter.format(index))
+    ret = (pattern.format(index))
     return (pattern.format(index))
 
 def pattern_curr(pattern, tester=None, sut=None, DEBUG=False):
@@ -115,14 +122,14 @@ def pattern_curr(pattern, tester=None, sut=None, DEBUG=False):
 
     pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
-    sel = "SELECT pattern_number FROM pattern_name where (tester = ? and pattern_name=?)"
+    sel = "SELECT pattern_number FROM pattern where (tester = ? and pattern=?)"
     # print sel
     try:
         cursor.execute(sel, (tester, pattern))
         index =  cursor.fetchone()   # update that index is used
         if index is None:
             index = 0
-            sel = "insert into pattern_name (pattern_number, tester, pattern_name) values (?, ?, ?);"
+            sel = "insert into pattern (pattern_number, tester, pattern) values (?, ?, ?);"
         else:
             index = index[0]
     except IOError, e:
@@ -174,10 +181,10 @@ def next_in_group(rowkey):
 
     sqlite table creation:
 
-    create table if not exists select_row (rowkey PRIMARY KEY unique , next_select, entries)
+    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
 
     """
-    sel = "SELECT next_select, entries FROM select_row where rowkey = ?"
+    sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
     try:
         cursor.execute(sel, (rowkey,))
         row =  cursor.fetchone()   # update that index is used
@@ -186,9 +193,10 @@ def next_in_group(rowkey):
         else:
             index = row[0]
             entries = row[1]
+            index = index + 1
+            if index >= len(entries): return None # return none and don't update
+            sel = "update data_lists set next_select = ? where (rowkey = ?);"
             return_value = json.loads(entries)[index]
-            index = min(index + 1, len(entries)-1)
-            sel = "update select_row set next_select = ? where (rowkey = ?);"
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         return None
@@ -209,10 +217,10 @@ def current_in_group(rowkey):
 
     sqlite table creation:
 
-    create table if not exists select_row (rowkey PRIMARY KEY unique , next_select, entries)
+    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
 
     """
-    sel = "SELECT next_select, entries FROM select_row where rowkey = ?"
+    sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
     try:
         cursor.execute(sel, (rowkey,))
         row =  cursor.fetchone()   # update that index is used
@@ -222,11 +230,35 @@ def current_in_group(rowkey):
             index = row[0]
             entries = row[1]
             x = json.loads(entries)
-            return_value = json.loads(entries)[index]
+            return None if index < 0 else json.loads(entries)[index]
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         return None
-    return return_value
+
+def adjust_in_group(rowkey, change=-1):
+    """ Reset the next entry to start of list in rowkey
+
+    :param rowkey: key to access row
+    :param change: Change index by change number. Default is -1. Limit of index after change is +-(len(list)-1)
+    :return:
+    """
+    cursor_update = connect.cursor()
+    sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
+    try:
+        cursor.execute(sel, (rowkey,))
+        row =  cursor.fetchone()   # update that index is used
+        if row is None:
+            return None
+        else:
+            #m = len(json.loads(row[1]))-1
+            index = min(max(row[0] + change, 0), len(json.loads(row[1]))-1)
+            sel = "update data_lists set next_select = ? where (rowkey = ?);"
+    except IOError, e:
+        print "Error {0}: {1}".format(e.args[0], e.args[1])
+        return None
+    cursor_update.execute(sel, (index, rowkey))
+    connect.commit()
+    return
 
 def reset_in_group(rowkey, index=None):
     """ Reset the next entry to start of list in rowkey
@@ -236,7 +268,7 @@ def reset_in_group(rowkey, index=None):
     :return:
     """
     cursor_update = connect.cursor()
-    sel = "SELECT next_select, entries FROM select_row where rowkey = ?"
+    sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
     try:
         cursor.execute(sel, (rowkey,))
         row =  cursor.fetchone()   # update that index is used
@@ -244,12 +276,12 @@ def reset_in_group(rowkey, index=None):
             return None
         else:
             if index is None:
-                index = min(0, len(row[1])-1)
+                index = min(-1, len(row[1])-1)
             else:
                 index = int(index)
                 if index < 0:
-                    index = max(row[0] + index, 0)
-            sel = "update select_row set next_select = ? where (rowkey = ?);"
+                    index = max(row[0] + index, 91)
+            sel = "update data_lists set next_select = ? where (rowkey = ?);"
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         return None
@@ -266,14 +298,27 @@ def load_in_group(rowkey, entries):
     :param entries: new list for rowkey. reset row to give first entry
     :return:
 
-
     """
-    sel = "insert or replace into select_row (rowkey, next_select, entries) values(?, 0, ?);"
+    sel = "insert or replace into data_lists (rowkey, next_select, entries) values(?, -1, ?);"
     e = json.dumps(entries)
     cursor.execute(sel, (rowkey, json.dumps(entries)))
     # print "sel:", sel
     connect.commit()
     return
+
+def dump_in_group(rowkey):
+    """ Dump rowkey with index, entries.
+
+    Table:
+
+    :param rowkey: key to access row
+    :return:
+
+    """
+    sel = "select next_select, entries from data_lists where (rowkey = ?);"
+    cursor.execute(sel, (rowkey, ))
+    rows = cursor.execute(sel, (rowkey,)).fetchone()
+    return [rows[0], json.loads(rows[1])]
 
 def get_in_group(rowkey, select=None):
     """ Initialize rowkey with entries.
@@ -286,7 +331,7 @@ def get_in_group(rowkey, select=None):
 
 
     """
-    sel = "select next_select, entries from select_row where rowkey = ?;"
+    sel = "select next_select, entries from data_lists where rowkey = ?;"
     rows = cursor.execute(sel, (rowkey,)).fetchone()
     if select is None:
         return [rows[0], json.loads(rows[1])]
