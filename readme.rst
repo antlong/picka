@@ -148,6 +148,8 @@ pattern_next(pattern, tester=None, sut=None, DEBUG=False)
     :param sut: System Under Test. Allows for testers to be testing several systems.
     :return: pattern with next index to make unique for test run
 
+..
+
     sqlite table creation:
         CREATE TABLE pattern
         (
