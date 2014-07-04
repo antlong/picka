@@ -10,19 +10,6 @@ db supports storing lists of values that can be accessed sequentially or randoml
 Testers can continue testing with less thought on what will be a value for this run.
 Those decision can be made when tests are developed and will not interrupt a test session.
 
-CREATE TABLE data_lists
-(
-    rowkey TEXT PRIMARY KEY,
-    next_select TEXT,
-    entries TEXT
-);
-
-CREATE TABLE pattern
-(
-    pattern TEXT NOT NULL,
-    pattern_number INTEGER NOT NULL
-);
-
 By: Bernard Kuehlhorn
 """
 
@@ -85,8 +72,7 @@ def pattern_next(pattern, tester=None, sut=None, DEBUG=False):
         (
             pattern char(50) NOT NULL,
             pattern_number int NOT NULL,
-            tester char(50) DEFAULT NULL,
-            sut char(50) DEFAULT NULL 
+            tester char(50) DEFAULT NULL
         );
 
     create table if not exists pattern (pattern char(40) not null, pattern_number int, tester, sut)
@@ -194,7 +180,12 @@ def next_in_group(rowkey):
 
     sqlite table creation:
 
-    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
+    CREATE TABLE if not exists data_lists
+    (
+        rowkey TEXT PRIMARY KEY,
+        next_select TEXT,
+        entries TEXT
+);
 
     """
     sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
