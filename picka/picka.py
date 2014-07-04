@@ -87,7 +87,7 @@ def age(min=1, max=99):
 
 
 def month():
-    return _random.choice(calendar.month_name)
+    return _random.choice(calendar.month_name[1:])
 
 
 def birthday(min_year=1900, max_year=2012):
