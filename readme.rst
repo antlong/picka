@@ -140,7 +140,7 @@ Picka.db for Patterns
 _____________________
 
 pattern_next(pattern, tester=None, sut=None, DEBUG=False)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Make a unique Applicant name from starter for next test in a run.
 
@@ -164,7 +164,7 @@ pattern_next(pattern, tester=None, sut=None, DEBUG=False)
     pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
 
 pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
-----------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Make current Applicant name from pattern for next test in a run.
 
     :param pattern: Initial patters for test data. Index is added by format()
@@ -178,7 +178,7 @@ pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
     pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
 
 pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
-----------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Reset Applicants for new test run. Reset can be done by several means
 
     :param tester: User id for Tester running test.
