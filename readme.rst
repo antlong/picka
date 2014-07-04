@@ -169,7 +169,7 @@ pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
 
     :param pattern: Initial patters for test data. Index is added by format()
     :param tester: User id for Tester running test.
-    :return: Applicant name with next index to make unique for test run
+    :return: pattern with next index to make unique for test run
 
     sqlite table creation:
 
@@ -184,6 +184,92 @@ pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
     :param tester: User id for Tester running test.
     :param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
-    :return: None
+    :return: Pattern that was updated
 
     pickabk.admissions.reset_pattern(os.environ.get('USER'), 'Frank{0}')
+
+Picka.db for Lists
+__________________
+
+
+next_in_group(rowkey)
+^^^^^^^^^^^^^^^^^^^^^
+    Select next entry in rowkey from select_entry table
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :return: Next index into list or None if not valid index
+
+    sqlite table creation:
+
+    CREATE TABLE if not exists data_lists
+    (
+        rowkey TEXT PRIMARY KEY,
+        next_select TEXT,
+        entries TEXT
+    );
+
+current_in_group(rowkey)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Select current entry in rowkey from select_entry table
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :return: Current index into list or None if not valid index
+
+    sqlite table creation:
+
+    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
+
+adjust_in_group(rowkey, change=-1)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reset the next entry to start of list in rowkey
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :param change: Change index by change number. Default is -1. Limit of index after change is +-(len(list)-1)
+    :return: None
+
+reset_in_group(rowkey, index=None)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reset the next entry to start of list in rowkey
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :param index: Set index to specific value. None decrease index by 1, min zero. No check on range and can be broken
+    :return:
+
+load_in_group(rowkey, entries)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Initialize rowkey with entries.
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :param entries: new list for rowkey. reset row to give first entry
+    :return:
+
+
+dump_in_group(rowkey)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Dump rowkey with index, entries.
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :return: (index, list of entries)
+
+get_in_group(rowkey, select=None)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Initialize rowkey with entries.
+
+    Table: data_lists
+
+    :param rowkey: key to access row
+    :param select: List of elements to return from entry in table. None or empty returns entire list
+    :return: get index and entries from rowkey, if select is used: [0, selected]
+

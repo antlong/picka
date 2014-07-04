@@ -113,7 +113,7 @@ def pattern_curr(pattern, tester=None, sut=None, DEBUG=False):
 
     :param pattern: Initial patters for test data. Index is added by format()
     :param tester: User id for Tester running test.
-    :return: Applicant name with next index to make unique for test run
+    :return: Ppattern with next index to make unique for test run
 
     sqlite table creation:
 
@@ -142,7 +142,7 @@ def pattern_reset(pattern=None, tester=None, sut=None, adjust=None):
     :param tester: User id for Tester running test.
     :param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
-    :return: None
+    :return: Pattern that was updated
 
     pickabk.admissions.reset_pattern(os.environ.get('USER'), 'Frank{0}')
     """
@@ -175,8 +175,10 @@ def pattern_reset(pattern=None, tester=None, sut=None, adjust=None):
 def next_in_group(rowkey):
     """ Select next entry in rowkey from select_entry table
 
+    Table: data_lists
+
     :param rowkey: key to access row
-    :return:
+    :return: Next index into list or None if not valid index
 
     sqlite table creation:
 
@@ -185,7 +187,7 @@ def next_in_group(rowkey):
         rowkey TEXT PRIMARY KEY,
         next_select TEXT,
         entries TEXT
-);
+    );
 
     """
     sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
@@ -217,7 +219,9 @@ def current_in_group(rowkey):
     """ Select current entry in rowkey from select_entry table
 
     :param rowkey: key to access row
-    :return:
+    :return: Current index into list or None if not valid index
+
+    Table: data_lists
 
     sqlite table creation:
 
@@ -242,9 +246,11 @@ def current_in_group(rowkey):
 def adjust_in_group(rowkey, change=-1):
     """ Reset the next entry to start of list in rowkey
 
+    Table: data_lists
+
     :param rowkey: key to access row
     :param change: Change index by change number. Default is -1. Limit of index after change is +-(len(list)-1)
-    :return:
+    :return: None
     """
     cursor_update = connect.cursor()
     sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"
@@ -266,6 +272,8 @@ def adjust_in_group(rowkey, change=-1):
 
 def reset_in_group(rowkey, index=None):
     """ Reset the next entry to start of list in rowkey
+
+    Table: data_lists
 
     :param rowkey: key to access row
     :param index: Set index to specific value. None decrease index by 1, min zero. No check on range and can be broken
@@ -296,7 +304,7 @@ def reset_in_group(rowkey, index=None):
 def load_in_group(rowkey, entries):
     """ Initialize rowkey with entries.
 
-    Table:
+    Table: data_lists
 
     :param rowkey: key to access row
     :param entries: new list for rowkey. reset row to give first entry
@@ -313,10 +321,10 @@ def load_in_group(rowkey, entries):
 def dump_in_group(rowkey):
     """ Dump rowkey with index, entries.
 
-    Table:
+    Table: data_lists
 
     :param rowkey: key to access row
-    :return:
+    :return: (index, list of entries)
 
     """
     sel = "select next_select, entries from data_lists where (rowkey = ?);"
@@ -327,7 +335,7 @@ def dump_in_group(rowkey):
 def get_in_group(rowkey, select=None):
     """ Initialize rowkey with entries.
 
-    Table:
+    Table: data_lists
 
     :param rowkey: key to access row
     :param select: List of elements to return from entry in table. None or empty returns entire list
