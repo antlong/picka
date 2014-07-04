@@ -48,13 +48,23 @@ class TestListFunctions(unittest.TestCase):
         assert (int_list == dump[1])
 
         for each in int_list:
-            print each
+            #print each
             assert (each == db.next_in_group(name))
             assert (each == db.current_in_group(name))
 
+        rand_set = random.randint(0, len(int_list))
+        db.reset_in_group(name, rand_set)
+        assert (int_list[rand_set] == db.current_in_group(name))
+
         rand_adj = random.randint(0, len(int_list))
         db.adjust_in_group(name, rand_adj)
-        assert (int_list[-1] == db.current_in_group(name))
+        set = min(max(rand_set+rand_adj, 0), len(int_list)-1)
+        assert (int_list[set] == db.current_in_group(name))
+        rand_adj = -random.randint(0, len(int_list))
+
+        db.adjust_in_group(name, rand_adj)
+        set = min(max(set+rand_adj, 0), len(int_list)-1)
+        assert (int_list[set] == db.current_in_group(name))
 
         rand_adj = random.randint(0, len(int_list)-1)
         db.reset_in_group(name, rand_adj)
