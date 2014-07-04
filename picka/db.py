@@ -10,6 +10,19 @@ db supports storing lists of values that can be accessed sequentially or randoml
 Testers can continue testing with less thought on what will be a value for this run.
 Those decision can be made when tests are developed and will not interrupt a test session.
 
+CREATE TABLE data_lists
+(
+    rowkey TEXT PRIMARY KEY,
+    next_select TEXT,
+    entries TEXT
+);
+
+CREATE TABLE pattern
+(
+    pattern TEXT NOT NULL,
+    pattern_number INTEGER NOT NULL
+);
+
 By: Bernard Kuehlhorn
 """
 
