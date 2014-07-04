@@ -75,9 +75,6 @@ def pattern_next(pattern, tester=None, sut=None, DEBUG=False):
             tester char(50) DEFAULT NULL
         );
 
-    create table if not exists pattern (pattern char(40) not null, pattern_number int, tester, sut)
-
-    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
     #sel = 'SELECT pattern_number FROM pattern where (pattern=? and tester = ? and sut = ?)'
     sel = 'SELECT pattern_number FROM pattern where (pattern=? and tester = ?)'
@@ -115,11 +112,6 @@ def pattern_curr(pattern, tester=None, sut=None, DEBUG=False):
     :param tester: User id for Tester running test.
     :return: Ppattern with next index to make unique for test run
 
-    sqlite table creation:
-
-    create table if not exists pattern_name (tester not null, pattern_name char(40) not null, pattern_number int)
-
-    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
     """
     sel = "SELECT pattern_number FROM pattern where (tester = ? and pattern=?)"
     # print sel
@@ -144,7 +136,6 @@ def pattern_reset(pattern=None, tester=None, sut=None, adjust=None):
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
     :return: Pattern that was updated
 
-    pickabk.admissions.reset_pattern(os.environ.get('USER'), 'Frank{0}')
     """
     cursor_update = connect.cursor()
     rows_updated = []
@@ -222,10 +213,6 @@ def current_in_group(rowkey):
     :return: Current index into list or None if not valid index
 
     Table: data_lists
-
-    sqlite table creation:
-
-    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
 
     """
     sel = "SELECT next_select, entries FROM data_lists where rowkey = ?"

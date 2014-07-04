@@ -149,19 +149,15 @@ pattern_next(pattern, tester=None, sut=None, DEBUG=False)
     :param sut: System Under Test. Allows for testers to be testing several systems.
     :return: pattern with next index to make unique for test run
 
-..
-
     sqlite table creation:
-        CREATE TABLE pattern
+::
+
+        CREATE TABLE if not exists pattern
         (
             pattern char(50) NOT NULL,
             pattern_number int NOT NULL,
             tester char(50) DEFAULT NULL
         );
-
-    create table if not exists pattern (pattern char(40) not null, pattern_number int, tester, sut)
-
-    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
 
 pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -171,11 +167,6 @@ pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
     :param tester: User id for Tester running test.
     :return: pattern with next index to make unique for test run
 
-    sqlite table creation:
-
-    create table if not exists pattern_name (tester not null, pattern_name char(40) not null, pattern_number int)
-
-    pickabk.admissions.next_pattern(os.environ.get('USER'), 'Frank{0}')
 
 pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -185,8 +176,6 @@ pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
     :param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
     :return: Pattern that was updated
-
-    pickabk.admissions.reset_pattern(os.environ.get('USER'), 'Frank{0}')
 
 Picka.db for Lists
 __________________
@@ -202,6 +191,7 @@ next_in_group(rowkey)
     :return: Next index into list or None if not valid index
 
     sqlite table creation:
+::
 
     CREATE TABLE if not exists data_lists
     (
@@ -218,10 +208,6 @@ current_in_group(rowkey)
 
     :param rowkey: key to access row
     :return: Current index into list or None if not valid index
-
-    sqlite table creation:
-
-    create table if not exists data_lists (rowkey PRIMARY KEY unique , next_select, entries)
 
 adjust_in_group(rowkey, change=-1)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
