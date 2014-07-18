@@ -177,6 +177,40 @@ pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
     :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
     :return: Pattern that was updated
 
+Webdriver
+_________
+
+Use Pattern to create a unique name for each test run. Between runs, last name can be used
+in different tests.
+
+::
+
+    driver = webdriver.Firefox()
+    driver.get("http://somesite.com")
+    x = {
+        "name": [
+            "#name",
+            test_data = picka.db.pattern_next('testName{0:0}', "me")
+        ]
+    }
+    driver.find_element_by_css_selector(
+        x["name"][0]).send_keys(x["name"][1]
+    )
+
+Funcargs / pytest
+_________________
+
+::
+
+	def pytest_generate_tests(metafunc):
+		if "test_string" in metafunc.funcargnames:
+			for i in range(10):
+				metafunc.addcall(funcargs=dict(numiter=picka.db.pattern_next('testName{0:0}', "me")))
+
+	def test_func(test_string):
+		assert test_string.isalpha()
+		assert len(test_string) == 20
+
 Picka.db for Lists
 __________________
 
@@ -258,4 +292,47 @@ get_in_group(rowkey, select=None)
     :param rowkey: key to access row
     :param select: List of elements to return from entry in table. None or empty returns entire list
     :return: get index and entries from rowkey, if select is used: [0, selected]
+
+Initialize list with Python
+___________________________
+Add to initialization test run. Not part of initialization of test cases. Use when starting
+set of tests for a release.
+
+::
+
+    name = 'int_list'
+    int_list = range(100)
+    load_in_group(name, int_list)
+
+Webdriver
+_________
+Get next in group for selenium test.
+
+::
+
+    driver = webdriver.Firefox()
+    driver.get("http://somesite.com")
+    x = {
+        "name": [
+            "#name",
+            test_data = db.next_in_group('int_list')
+        ]
+    }
+    driver.find_element_by_css_selector(
+        x["name"][0]).send_keys(x["name"][1]
+    )
+
+Funcargs / pytest
+_________________
+
+::
+
+	def pytest_generate_tests(metafunc):
+		if "test_string" in metafunc.funcargnames:
+			for i in range(10):
+				metafunc.addcall(funcargs=dict(numiter=db.next_in_group('int_list')))
+
+	def test_func(test_string):
+		assert test_string.isalpha()
+		assert len(test_string) == 20
 
