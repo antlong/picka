@@ -208,8 +208,7 @@ _________________
 				metafunc.addcall(funcargs=dict(numiter=picka.db.pattern_next('testName{0:0}', "me")))
 
 	def test_func(test_string):
-		assert test_string.isalpha()
-		assert len(test_string) == 20
+		assert test_string.isalnum()
 
 Picka.db for Lists
 __________________
@@ -333,6 +332,5 @@ _________________
 				metafunc.addcall(funcargs=dict(numiter=db.next_in_group('int_list')))
 
 	def test_func(test_string):
-		assert test_string.isalpha()
-		assert len(test_string) == 20
+		assert test_string.isnum()
 
