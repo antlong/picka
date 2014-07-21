@@ -197,13 +197,8 @@ def next_in_group(rowkey):
     except IOError, e:
         print "Error {0}: {1}".format(e.args[0], e.args[1])
         return None
-    # print 'insert/update: ', sel
-    # print 'update:', rowkey, index, return_value
-    # print 'sel:', sel
     cursor.execute(sel, (index, rowkey))
     connect.commit()
-    # cursor.execute('commit ;')
-    # print ('new start: ', spickabk.number()tarter.format(index))
     return return_value
 
 def current_in_group(rowkey):
@@ -247,7 +242,6 @@ def adjust_in_group(rowkey, change=-1):
         if row is None:
             return None
         else:
-            #m = len(json.loads(row[1]))-1
             index = min(max(row[0] + change, 0), len(json.loads(row[1]))-1)
             sel = "update data_lists set next_select = ? where (rowkey = ?);"
     except IOError, e:
@@ -301,7 +295,6 @@ def load_in_group(rowkey, entries):
     sel = "insert or replace into data_lists (rowkey, next_select, entries) values(?, -1, ?);"
     e = json.dumps(entries)
     cursor.execute(sel, (rowkey, json.dumps(entries)))
-    # print "sel:", sel
     connect.commit()
     return
 
