@@ -87,7 +87,7 @@ def age(min=1, max=99):
 
 
 def month():
-    return _random.choice(calendar.month_name)
+    return _random.choice(calendar.month_name[1:])
 
 
 def birthday(min_year=1900, max_year=2012):
@@ -635,7 +635,7 @@ def timestamp(style=False):
     """
 
     if not style:
-        return time.strftime('%H:%M:%S%p %D', time.localtime())
+        return time.strftime('%H:%M:%S%p %x', time.localtime())
     else:
         return time.strftime(style, time.localtime())
 
