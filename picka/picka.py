@@ -194,7 +194,7 @@ def calling_code_with_country(formatting=''):
 
 
 def career():
-    """This function will produce a carrer."""
+    """This function will produce a career."""
     cursor.execute('SELECT name FROM careers order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
@@ -366,7 +366,7 @@ def month_and_day():
 
 def month_and_day_and_year(start=1900, end=2010):
     """
-    Selects a monday, day and year for you.
+    Selects a month, day and year for you.
     Logic built in to handle day in month.
     To change month do (a, b). b has +1 so the
     last year in your range can be selected. Default is 1900, 2010.
