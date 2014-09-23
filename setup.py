@@ -12,14 +12,24 @@ def read(fname):
 setup(
     name='picka',
     version='0.9.7',
-    description='Picka generates randomized, realistic testing data for use in any application.',
+    description='Picka generates randomized, realistic testing \
+        data for use in any application.',
     keywords="assert assertions testing test qa",
     author='Anthony Long',
     author_email='antlong@gmail.com',
     license='Apache 2.0',
     packages=['picka'],
     url='http://github.com/antlong/picka',
-    package_data={'picka': ['*.sqlite', 'book_sherlock.txt', 'ca_lat_long.csv', 'ca_postal_codes.csv', 'mimes.csv', 'readme.rst']},
+    package_data={
+        'picka': [
+            '*.sqlite',
+            'book_sherlock.txt',
+            'ca_lat_long.csv',
+            'ca_postal_codes.csv',
+            'mimes.csv',
+            'readme.rst'
+        ]
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Customer Service",
