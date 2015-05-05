@@ -11,56 +11,48 @@ By: Anthony Long
 import random as _random
 import sqlite3 as _sqlite3
 import os as _os
-import linecache as _linecache
 
 _connect = \
     _sqlite3.connect(_os.path.join(_os.path.abspath(
         _os.path.dirname(__file__)), 'db.sqlite'))
 _connect.text_factory = str
 _cursor = _connect.cursor()
+_max_counts = {}
 
 
-def street_direction(abbreviated=False):
-    return _random.choice([
-        "Est", "Nord", "Nord-Est", "Nord-Ouest",
-        "Sud", "Sud-Est", "Sud-Ouest", "Ouest"
-    ]) if not abbreviated else _random.choice([
-        "E", "N", "NE", "NO", "S", "SE", "SO", "O"
-    ])
+def _get_max(tablename):
+    if tablename in _max_counts:
+        return _max_counts[tablename]
+    _cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1'.format(tablename))
+    _max_counts[tablename] = _cursor.fetchone()[0]
+    return _max_counts[tablename]
 
 
-def street_type():
+def direction(abbreviated=True):
+    if abbreviated:
+        _cursor.execute('SELECT abbreviated from ca_directions where id = ?', [
+            _random.randint(1, _get_max("ca_directions"))])
+    else:
+        _cursor.execute('SELECT full from ca_directions where id = ?', [
+            _random.randint(1, _get_max("ca_directions"))])
+    return _cursor.fetchone().decode("utf-8")
+
+
+def street_name():
+    _cursor.execute('SELECT name FROM ca_street_names where id =?', [
+        _random.randint(1, _get_max("ca_street_names"))])
+    return _cursor.fetchone()[0].decode("utf-8")
+
+
+def street_type(abbreviated=True):
     """Returns a Canadian street type."""
-    return _random.choice(
-        [
-            "Abbey", "Acres", "Allée", "Alley", "Autoroute", "Avenue",
-            "Bay", "Beach", "Bend", "Boulevard", "By-pass", "Byway",
-            "Campus", "Cape", "Carré", "Carrefour", "Centre", "Cercle",
-            "Chase", "Chemin", "Circle", "Circuit", "Close", "Common",
-            "Concession", "Corners", "Côte", "Cour", "Cours", "Court",
-            "Cove", "Crescent", "Croissant", "Crossing", "Cul-de-sac"
-            "Dale", "Dell", "Diversion", "Downs", "Drive", "Échangeur",
-            "End", "Esplanade", "Estates", "Expressway", "Extension",
-            "Farm", "Field", "Forest", "Freeway", "Front", "Gardens",
-            "Gate", "Glade", "Glen", "Green", "Grounds", "Grove",
-            "Harbour", "Heath", "Heights", "Highlands", "Highway",
-            "Hill", "Hollow", "Île", "Impasse", "Inlet", "Island",
-            "Key", "Knoll", "Landing", "Lane", "Limits", "Line",
-            "Link", "Lookout", "Loop", "Mall", "Manor", "Maze",
-            "Meadow", "Mews", "Montée", "Moor", "Mount", "Mountain",
-            "Orchard", "Parade", "Parc", "Park", "Parkway",
-            "Passage", "Path", "Pathway", "Pines", "Place",
-            "Plateau", "Plaza", "Point", "Pointe", "Port",
-            "Private", "Promenade", "Quai", "Quay", "Ramp",
-            "Rang", "Range", "Ridge", "Rise", "Road",
-            "Rond-point" "Route", "Row", "Rue", "Ruelle",
-            "Run", "Sentier", "Square", "Street", "Subdivision",
-            "Terrace", "Terrasse", "Thicket", "Towers",
-            "Townline", "Trail", "Turnabout", "Vale", "Via",
-            "View", "Village", "Villas", "Vista", "Voie", "Walk",
-            "Way", "Wharf", "Wood", "Wynd"
-        ]
-    ).decode('utf-8')
+    if abbreviated:
+        _cursor.execute('SELECT abbreviated from ca_street_types where id = ?', [
+            _random.randint(1, _get_max("ca_streets"))])
+    else:
+        _cursor.execute('SELECT full from ca_street_types where id = ?', [
+            _random.randint(1, _get_max("ca_street_types"))])
+    return _cursor.fetchone()[0].decode("utf-8")
 
 
 def province():
@@ -81,27 +73,27 @@ def province():
     )
 
 
+def town():
+    _cursor.execute('SELECT name from ca_towns where id = ?', [
+        _random.randint(1, _get_max("ca_towns"))])
+    return _cursor.fetchone()[0]
+
+
 def postal():
     """Returns a valid postal code"""
-    return _linecache.getline(
-        _os.path.join(
-            _os.path.abspath(_os.path.dirname(__file__)),
-            'ca_postal_codes.csv'),
-        _random.randrange(0, 917358)
-    ).strip("\n")
+    _cursor.execute('SELECT code from ca_postal_codes where id = ?', [
+        _random.randint(1, _get_max("ca_postal_codes"))])
+    return _cursor.fetchone()[0]
 
 
 def city():
     """Returns a valid Canadian city"""
-    _cursor.execute('SELECT DISTINCT(name) FROM ca_cities \
-        where name is not null order by random() limit 1;')
+    _cursor.execute('SELECT name FROM ca_cities where id =?', [
+        _random.randint(1, _get_max("ca_cities"))])
     return _cursor.fetchone()[0].decode("utf-8")
 
 
 def lat_long():
-    """Returns a valid lat long."""
-    return _linecache.getline(
-        _os.path.join(_os.path.abspath(
-            _os.path.dirname(__file__)), 'ca_lat_long.csv'),
-        _random.randrange(0, 917358)
-    ).strip("\n")
+    _cursor.execute('SELECT lat,long from ca_lat_and_longs \
+        where id = ?', [_random.randint(1, _get_max("ca_cities"))])
+    return _cursor.fetchone()

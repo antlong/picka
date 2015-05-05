@@ -25,23 +25,33 @@ connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
         os.path.dirname(__file__)), 'db.sqlite'))
 cursor = connect.cursor()
+_max_counts = {}
 
 
-def initial(with_trailing_period=False):
+def _get_max(tablename):
+    if tablename in _max_counts:
+        return _max_counts[tablename]
+    cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1'.format(tablename))
+    _max_counts[tablename] = cursor.fetchone()[0]
+    return _max_counts[tablename]
+
+
+def initial(with_period=False):
     """
     Returns a randomly chosen letter, with a trailing period if desired.
 
-        :parameters: with_trailing_period: (bool)
+        :parameters: with_period: (bool)
             Whether or not to add a trailing period.
     """
     letter = _random.choice(string.letters).upper()
-    return (letter if not with_trailing_period else letter + '.')
+    return (letter if not with_period else letter + '.')
 
 
 def female_first():
     """Returns a randomly chosen female first name."""
-    cursor.execute('SELECT name FROM female order by RANDOM() limit 1')
-    return cursor.fetchone()[0]
+    cursor.execute('SELECT name FROM female where id =?', [
+        _random.randint(1, _get_max("female"))])
+    return cursor.fetchone()[0].decode("utf-8")
 
 
 def female_middle():
@@ -51,8 +61,9 @@ def female_middle():
 
 def male_first():
     """Returns a randomly chosen male first name."""
-    cursor.execute('SELECT name FROM male order by RANDOM() limit 1')
-    return cursor.fetchone()[0]
+    cursor.execute('SELECT name FROM male where id =?', [
+        _random.randint(1, _get_max("male"))])
+    return cursor.fetchone()[0].decode("utf-8")
 
 
 def male_middle():
@@ -63,8 +74,9 @@ def male_middle():
 def surnames():
     """Returns a randomly chosen surname."""
 
-    cursor.execute('SELECT * FROM surname order by RANDOM() limit 1')
-    return cursor.fetchone()[0]
+    cursor.execute('SELECT name FROM surname where id =?', [
+        _random.randint(1, _get_max("surname"))])
+    return cursor.fetchone()[0].decode("utf-8")
 
 
 def age(min=1, max=99):
@@ -112,10 +124,10 @@ def apartment_number():
     letter = _random.choice(string.ascii_letters).capitalize()
     directions = ['E', 'W', 'N', 'S']
     short = '{} {}'.format(type, _random.randint(1, 999))
-    long = '{} {}{}'.format(type, _random.randint(1, 999), letter)
+    _long = '{} {}{}'.format(type, _random.randint(1, 999), letter)
     alt = '{} {}-{}{}'.format(type, _random.choice(directions),
                               _random.randint(1, 999), letter)
-    return _random.choice([short, long, alt])
+    return _random.choice([short, _long, alt])
 
 
 def business_title(abbreviated=False):
@@ -201,7 +213,7 @@ def career():
 
 def city():
     """This function will produce a city."""
-    cursor.execute('SELECT city FROM american_cities \
+    cursor.execute('SELECT city FROM us_cities \
         order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
@@ -212,7 +224,7 @@ def city_with_state():
     ie - city_with_state() = 'New York, NY'
     """
 
-    cursor.execute('SELECT city, state FROM american_cities \
+    cursor.execute('SELECT city, state FROM us_cities \
         order by RANDOM() limit 1;')
     return cursor.fetchone()
 
@@ -579,7 +591,7 @@ def special_characters(i):
 def street_type():
     """This function will return a random street type."""
 
-    cursor.execute('SELECT * FROM street_types \
+    cursor.execute('SELECT * FROM us_street_types \
         order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
@@ -719,7 +731,7 @@ def state_abbreviated():
     eg - state_abbreviated() = 'NY'
     """
 
-    cursor.execute('SELECT * FROM american_cities_with_states \
+    cursor.execute('SELECT * FROM us_cities_with_states \
         order by RANDOM() limit 1;')
     return (cursor.fetchone()[0])[-2:]
 
@@ -730,8 +742,7 @@ def postal_code():
     eg - zipcode() = '11221'.
     """
 
-    cursor.execute('SELECT col_1 FROM zipcodes order by RANDOM() limit 1;'
-                   )
+    cursor.execute('SELECT col_1 FROM us_zipcodes order by RANDOM() limit 1;')
     return cursor.fetchone()[0]
 
 zipcode = postal_code
