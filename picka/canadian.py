@@ -20,6 +20,15 @@ _connect.text_factory = str
 _cursor = _connect.cursor()
 
 
+def street_direction(abbreviated=False):
+    return _random.choice([
+        "Est", "Nord", "Nord-Est", "Nord-Ouest",
+        "Sud", "Sud-Est", "Sud-Ouest", "Ouest"
+    ]) if not abbreviated else _random.choice([
+        "E", "N", "NE", "NO", "S", "SE", "SO", "O"
+    ])
+
+
 def street_type():
     """Returns a Canadian street type."""
     return _random.choice(
@@ -51,7 +60,7 @@ def street_type():
             "View", "Village", "Villas", "Vista", "Voie", "Walk",
             "Way", "Wharf", "Wood", "Wynd"
         ]
-    )
+    ).decode('utf-8')
 
 
 def province():
@@ -75,20 +84,24 @@ def province():
 def postal():
     """Returns a valid postal code"""
     return _linecache.getline(
-        _os.path.join(_os.path.abspath(_os.path.dirname(__file__)), 'ca_postal_codes.csv'),
+        _os.path.join(
+            _os.path.abspath(_os.path.dirname(__file__)),
+            'ca_postal_codes.csv'),
         _random.randrange(0, 917358)
     ).strip("\n")
 
 
 def city():
     """Returns a valid Canadian city"""
-    _cursor.execute('SELECT DISTINCT(name) FROM ca_cities where name is not null order by random() limit 1;')
+    _cursor.execute('SELECT DISTINCT(name) FROM ca_cities \
+        where name is not null order by random() limit 1;')
     return _cursor.fetchone()[0].decode("utf-8")
 
 
 def lat_long():
     """Returns a valid lat long."""
     return _linecache.getline(
-        _os.path.join(_os.path.abspath(_os.path.dirname(__file__)), 'ca_lat_long.csv'),
+        _os.path.join(_os.path.abspath(
+            _os.path.dirname(__file__)), 'ca_lat_long.csv'),
         _random.randrange(0, 917358)
     ).strip("\n")

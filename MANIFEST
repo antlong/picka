@@ -9,3 +9,4 @@ picka/db.sqlite
 picka/mimes.csv
 picka/picka.py
 picka/tests.py
+picka/db.py

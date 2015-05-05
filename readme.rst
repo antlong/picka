@@ -5,8 +5,8 @@ Picka: A Python module for data generation and randomization.
 	Anthony Long
 
 :Version:
-	0.97
-	- Users can now add their own data - via bkuehlhorn
+	0.99
+	- Added new functions to produce Canadian mailing information.
     
 
 What is Picka?

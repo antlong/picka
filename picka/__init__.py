@@ -1,3 +1,3 @@
 from picka import *
+import db
 import canadian
-from db import *
