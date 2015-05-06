@@ -47,6 +47,8 @@ def initial(with_period=False):
     return (letter if not with_period else letter + '.')
 
 
+# todo picka.name(gender or surname)
+
 def female_first():
     """Returns a randomly chosen female first name."""
     cursor.execute('SELECT name FROM female where id =?', [
@@ -94,7 +96,7 @@ def age(min=1, max=99):
 
     """
 
-    return '%.i' % ((_random.randint(min, max + 1) if min
+    return '%.i' % ((_random.randint(min, max) if min
                     and max else _random.randint(1, 100)))
 
 
