@@ -736,16 +736,17 @@ def state_abbreviated():
     return (cursor.fetchone()[0])[-2:]
 
 
-def postal_code():
+def zipcode(state=False):
     """
     This function will pick a zipcode randomnly from a list.
     eg - zipcode() = '11221'.
     """
-
-    cursor.execute('SELECT col_1 FROM us_zipcodes order by RANDOM() limit 1;')
-    return cursor.fetchone()[0]
-
-zipcode = postal_code
+    if not state:
+        cursor.execute('SELECT min,max from zipcodes')
+    else:
+        cursor.execute('SELECT min,max from zipcodes where st = ?', [(state)])
+    _range = _random.choice(cursor.fetchall())
+    return '%05d' % _random.randint(_range[0], _range[1])
 
 
 def foreign_characters(i):
