@@ -11,7 +11,9 @@ By: Anthony Long
 import random as _random
 import sqlite3 as _sqlite3
 import os as _os
+
 import picka
+
 
 _connect = \
     _sqlite3.connect(_os.path.join(_os.path.abspath(
@@ -31,16 +33,16 @@ def _get_max(tablename):
 
 def direction(abbreviated=True):
     if abbreviated:
-        _cursor.execute('SELECT abbreviated from directions where id = ?', [
+        _cursor.execute('SELECT abbreviated FROM directions WHERE id = ?', [
             _random.randint(1, _get_max("directions"))])
     else:
-        _cursor.execute('SELECT full from directions where id = ?', [
+        _cursor.execute('SELECT "full" FROM directions WHERE id = ?', [
             _random.randint(1, _get_max("directions"))])
     return _cursor.fetchone()[0]
 
 
 def street_name():
-    _cursor.execute('SELECT name FROM street_names where id =?', [
+    _cursor.execute('SELECT name FROM street_names WHERE id =?', [
         _random.randint(1, _get_max("street_names"))])
     return _cursor.fetchone()[0].decode("utf-8")
 
@@ -48,30 +50,30 @@ def street_name():
 def street_type(abbreviated=True):
     """Returns a Canadian street type."""
     if abbreviated:
-        _cursor.execute('SELECT abbreviated from street_types where id = ?', [
+        _cursor.execute('SELECT abbreviated FROM street_types WHERE id = ?', [
             _random.randint(1, _get_max("street_types"))])
     else:
-        _cursor.execute('SELECT full from street_types where id = ?', [
+        _cursor.execute('SELECT "full" FROM street_types WHERE id = ?', [
             _random.randint(1, _get_max("street_types"))])
     return _cursor.fetchone()[0].decode("utf-8")
 
 
 def province():
     """Returns a list, full name and postal abbreviation"""
-    _cursor.execute('SELECT abbreviation,en_name,fr_name from provinces where id = ?', [
+    _cursor.execute('SELECT abbreviation,en_name,fr_name FROM provinces WHERE id = ?', [
         _random.randint(1, _get_max("provinces"))])
     return _cursor.fetchone()
 
 
 def town():
-    _cursor.execute('SELECT name from towns where id = ?', [
+    _cursor.execute('SELECT name FROM towns WHERE id = ?', [
         _random.randint(1, _get_max("towns"))])
     return _cursor.fetchone()[0]
 
 
 def postal(separator=False):
     """Returns a valid postal code"""
-    _cursor.execute('SELECT code from postal_codes where id = ?', [
+    _cursor.execute('SELECT code FROM postal_codes WHERE id = ?', [
         _random.randint(1, _get_max("postal_codes"))])
     code = _cursor.fetchone()[0]
     return code[:3] + str(separator) + code[3:] if separator else code
@@ -79,21 +81,21 @@ def postal(separator=False):
 
 def city():
     """Returns a valid Canadian city"""
-    _cursor.execute('SELECT name FROM cities where id =?', [
+    _cursor.execute('SELECT name FROM cities WHERE id =?', [
         _random.randint(1, _get_max("cities"))])
     return _cursor.fetchone()[0].decode("utf-8")
 
 
 def lat_long():
-    _cursor.execute('SELECT lat,long from lat_and_longs \
-        where id = ?', [_random.randint(1, _get_max("lat_and_longs"))])
+    _cursor.execute('SELECT lat,long FROM lat_and_longs \
+        WHERE id = ?', [_random.randint(1, _get_max("lat_and_longs"))])
     return _cursor.fetchone()
 
 
-def mailing_address(format=1):
+def mailing_address():
     """Generate a mailing address in many formats.
-    
-    format 1: 
+
+    format 1:
         First line: The Addressee
         Second-last line: Civic Address
         Last line: Municipality Name, Province or Territory and Postal Code

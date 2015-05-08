@@ -7,7 +7,7 @@ Picka: A Python module for data generation and randomization.
 :Version:
 	0.99
 	- Added new functions to produce Canadian mailing information.
-    
+
 
 What is Picka?
 ______________
@@ -38,13 +38,13 @@ But this is just the beginning. Other ways to implement this, include using dict
 This would provide:
 
 ::
-    
-    {
-        "first_name": "Jack",
-        "last_name": "Logan",
-        "email_address": "uragnscsah@example.org",
-        "password": "485444"
-    }
+
+	{
+		"first_name": "Jack",
+		"last_name": "Logan",
+		"email_address": "uragnscsah@example.org",
+		"password": "485444"
+	}
 
 Don't forget, since all of the data is considered "clean" or valid - you can also use it to fill selects and other form fields with pre-defined values. For example, if you were to generate a state; picka.state() the result would be "Alabama". You can use this result to directly select a state in an address drop-down box.
 
@@ -72,18 +72,18 @@ _________
 
 ::
 
-    driver = webdriver.Firefox()
-    driver.get("http://somesite.com")
-    x = {
-        "name": [
-            "#name",
-            picka.name()
-        ]
-    }
-    driver.find_element_by_css_selector(
-        x["name"][0]).send_keys(x["name"][1]
-    )
-    
+	driver = webdriver.Firefox()
+	driver.get("http://somesite.com")
+	x = {
+		"name": [
+			"#name",
+			picka.name()
+		]
+	}
+	driver.find_element_by_css_selector(
+		x["name"][0]).send_keys(x["name"][1]
+	)
+
 Funcargs / pytest
 _________________
 
@@ -104,12 +104,12 @@ ______________
 
 ::
 
-    first, last, age = picka.first_name(), picka.last_name(), picka.age()
-    cursor.execute(
+	first, last, age = picka.first_name(), picka.last_name(), picka.age()
+	cursor.execute(
 	   "insert into user_data (first_name, last_name, age) VALUES (?, ?, ?)",
 	   (first, last, age)
-    )
-    
+	)
+
 
 HTTP
 ____
@@ -117,11 +117,11 @@ ____
 ::
 
 	def post(host, data):
-	    http = httplib.HTTP(host)
-	    return http.send(data)
+		http = httplib.HTTP(host)
+		return http.send(data)
 	
 	def test_post_result():
-	    post("www.spam.egg/bacon.htm", picka.random_string(10))
+		post("www.spam.egg/bacon.htm", picka.random_string(10))
 
 
 A More Useful Picka
@@ -141,40 +141,40 @@ _____________________
 pattern_next(pattern, tester=None, sut=None, DEBUG=False)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Make a unique Applicant name from starter for next test in a run.
+	Make a unique Applicant name from starter for next test in a run.
 
-    :param pattern: Initial patters for test data. Index is added by format()
-    :param tester: User id for Tester running test.
-    :param sut: System Under Test. Allows for testers to be testing several systems.
-    :return: pattern with next index to make unique for test run
+	:param pattern: Initial patters for test data. Index is added by format()
+	:param tester: User id for Tester running test.
+	:param sut: System Under Test. Allows for testers to be testing several systems.
+	:return: pattern with next index to make unique for test run
 
-    sqlite table creation:
+	sqlite table creation:
 ::
 
-        CREATE TABLE if not exists pattern
-        (
-            pattern char(50) NOT NULL,
-            pattern_number int NOT NULL,
-            tester char(50) DEFAULT NULL
-        );
+		CREATE TABLE if not exists pattern
+		(
+			pattern char(50) NOT NULL,
+			pattern_number int NOT NULL,
+			tester char(50) DEFAULT NULL
+		);
 
 pattern_curr(pattern, tester=None, sut=None, DEBUG=False)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Make current Applicant name from pattern for next test in a run.
+	Make current Applicant name from pattern for next test in a run.
 
-    :param pattern: Initial patters for test data. Index is added by format()
-    :param tester: User id for Tester running test.
-    :return: pattern with next index to make unique for test run
+	:param pattern: Initial patters for test data. Index is added by format()
+	:param tester: User id for Tester running test.
+	:return: pattern with next index to make unique for test run
 
 
 pattern_reset(pattern=None, tester=None, sut=None, adjust=None)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Reset Applicants for new test run. Reset can be done by several means
+	Reset Applicants for new test run. Reset can be done by several means
 
-    :param tester: User id for Tester running test.
-    :param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
-    :param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
-    :return: Pattern that was updated
+	:param tester: User id for Tester running test.
+	:param pattern: Initial patters for Applicant first name to reset. Reset all for Tester if None
+	:param adjust: None: resets index to -1, negative value: index is reduced by abs of adjust, otherwise: set index to adjust
+	:return: Pattern that was updated
 
 Webdriver
 _________
@@ -184,17 +184,17 @@ in different tests.
 
 ::
 
-    driver = webdriver.Firefox()
-    driver.get("http://somesite.com")
-    x = {
-        "name": [
-            "#name",
-            test_data = picka.db.pattern_next('testName{0:0}', "me")
-        ]
-    }
-    driver.find_element_by_css_selector(
-        x["name"][0]).send_keys(x["name"][1]
-    )
+	driver = webdriver.Firefox()
+	driver.get("http://somesite.com")
+	x = {
+		"name": [
+			"#name",
+			test_data = picka.db.pattern_next('testName{0:0}', "me")
+		]
+	}
+	driver.find_element_by_css_selector(
+		x["name"][0]).send_keys(x["name"][1]
+	)
 
 Funcargs / pytest
 _________________
@@ -215,81 +215,81 @@ __________________
 
 next_in_group(rowkey)
 ^^^^^^^^^^^^^^^^^^^^^
-    Select next entry in rowkey from select_entry table
+	Select next entry in rowkey from select_entry table
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :return: Next index into list or None if not valid index
+	:param rowkey: key to access row
+	:return: Next index into list or None if not valid index
 
-    sqlite table creation:
+	sqlite table creation:
 ::
 
-    CREATE TABLE if not exists data_lists
-    (
-        rowkey TEXT PRIMARY KEY,
-        next_select TEXT,
-        entries TEXT
-    );
+	CREATE TABLE if not exists data_lists
+	(
+		rowkey TEXT PRIMARY KEY,
+		next_select TEXT,
+		entries TEXT
+	);
 
 current_in_group(rowkey)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Select current entry in rowkey from select_entry table
+^^^^^^^^^^^^^^^^^^^^^^^^
+	Select current entry in rowkey from select_entry table
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :return: Current index into list or None if not valid index
+	:param rowkey: key to access row
+	:return: Current index into list or None if not valid index
 
 adjust_in_group(rowkey, change=-1)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Reset the next entry to start of list in rowkey
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Reset the next entry to start of list in rowkey
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :param change: Change index by change number. Default is -1. Limit of index after change is +-(len(list)-1)
-    :return: None
+	:param rowkey: key to access row
+	:param change: Change index by change number. Default is -1. Limit of index after change is +-(len(list)-1)
+	:return: None
 
 reset_in_group(rowkey, index=None)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Reset the next entry to start of list in rowkey
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Reset the next entry to start of list in rowkey
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :param index: Set index to specific value. None decrease index by 1, min zero. No check on range and can be broken
-    :return:
+	:param rowkey: key to access row
+	:param index: Set index to specific value. None decrease index by 1, min zero. No check on range and can be broken
+	:return:
 
 load_in_group(rowkey, entries)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Initialize rowkey with entries.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Initialize rowkey with entries.
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :param entries: new list for rowkey. reset row to give first entry
-    :return:
+	:param rowkey: key to access row
+	:param entries: new list for rowkey. reset row to give first entry
+	:return:
 
 
 dump_in_group(rowkey)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Dump rowkey with index, entries.
+^^^^^^^^^^^^^^^^^^^^^
+	Dump rowkey with index, entries.
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :return: (index, list of entries)
+	:param rowkey: key to access row
+	:return: (index, list of entries)
 
 get_in_group(rowkey, select=None)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Initialize rowkey with entries.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Initialize rowkey with entries.
 
-    Table: data_lists
+	Table: data_lists
 
-    :param rowkey: key to access row
-    :param select: List of elements to return from entry in table. None or empty returns entire list
-    :return: get index and entries from rowkey, if select is used: [0, selected]
+	:param rowkey: key to access row
+	:param select: List of elements to return from entry in table. None or empty returns entire list
+	:return: get index and entries from rowkey, if select is used: [0, selected]
 
 Initialize list with Python
 ___________________________
@@ -298,9 +298,9 @@ set of tests for a release.
 
 ::
 
-    name = 'int_list'
-    int_list = range(100)
-    load_in_group(name, int_list)
+	name = 'int_list'
+	int_list = range(100)
+	load_in_group(name, int_list)
 
 Webdriver
 _________
@@ -308,17 +308,17 @@ Get next in group for selenium test.
 
 ::
 
-    driver = webdriver.Firefox()
-    driver.get("http://somesite.com")
-    x = {
-        "name": [
-            "#name",
-            test_data = db.next_in_group('int_list')
-        ]
-    }
-    driver.find_element_by_css_selector(
-        x["name"][0]).send_keys(x["name"][1]
-    )
+	driver = webdriver.Firefox()
+	driver.get("http://somesite.com")
+	x = {
+		"name": [
+			"#name",
+			test_data = db.next_in_group('int_list')
+		]
+	}
+	driver.find_element_by_css_selector(
+		x["name"][0]).send_keys(x["name"][1]
+	)
 
 Funcargs / pytest
 _________________

@@ -17,15 +17,20 @@ import sqlite3
 import os
 import re
 import calendar
-import linecache
+
+import english
+
 
 __docformat__ = 'restructuredtext en'
 
 connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
         os.path.dirname(__file__)), 'db.sqlite'))
+connect.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
 cursor = connect.cursor()
 _max_counts = {}
+_rewhite = re.compile(r"\s+")
+_rewhitesub = partial(_rewhite.sub, "")
 
 
 def _get_max(tablename):
@@ -37,46 +42,34 @@ def _get_max(tablename):
 
 
 def initial(with_period=False):
-    """
-    Returns a randomly chosen letter, with a trailing period if desired.
+    """Returns a randomly chosen letter, with a trailing period if desired.
 
         :parameters: with_period: (bool)
             Whether or not to add a trailing period.
+
+        >>> assert initial() in string.ascii_letters
     """
-    letter = _random.choice(string.letters).upper()
-    return (letter if not with_period else letter + '.')
+    letter = _random.choice(string.ascii_uppercase)
+    return "{0:s}.".format(letter) if with_period else letter
 
 
-# todo picka.name(gender or surname)
-
-def female_first():
+def female():
     """Returns a randomly chosen female first name."""
-    cursor.execute('SELECT name FROM female where id =?', [
+    cursor.execute('SELECT name FROM female WHERE id =?', [
         _random.randint(1, _get_max("female"))])
     return cursor.fetchone()[0].decode("utf-8")
 
 
-def female_middle():
-    """Returns a randomly chosen female middle name."""
-    return female_first()
-
-
-def male_first():
+def male():
     """Returns a randomly chosen male first name."""
-    cursor.execute('SELECT name FROM male where id =?', [
+    cursor.execute('SELECT name FROM male WHERE id =?', [
         _random.randint(1, _get_max("male"))])
     return cursor.fetchone()[0].decode("utf-8")
 
 
-def male_middle():
-    """Returns a randomly chosen male middle name."""
-    return male_first()
-
-
-def surnames():
+def surname():
     """Returns a randomly chosen surname."""
-
-    cursor.execute('SELECT name FROM surname where id =?', [
+    cursor.execute('SELECT name FROM surname WHERE id =?', [
         _random.randint(1, _get_max("surname"))])
     return cursor.fetchone()[0].decode("utf-8")
 
@@ -96,8 +89,9 @@ def age(min=1, max=99):
 
     """
 
-    return '%.i' % ((_random.randint(min, max) if min
-                    and max else _random.randint(1, 100)))
+    return '%.i'.format(_random.randint(
+        min, max) if min and max else _random.randint(
+        1, 100))
 
 
 def month():
@@ -109,7 +103,7 @@ def birthday(min_year=1900, max_year=2012):
     birthday_month = calendar.month_name[rmonth]
     birthday_year = _random.randrange(min_year, max_year + 1)
     birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
-    return (birthday_month, birthday_day, birthday_year)
+    return birthday_month, birthday_day, birthday_year
 
 
 def apartment_number():
@@ -121,13 +115,12 @@ def apartment_number():
     in using string formatting instead.
 
     """
-
-    type = _random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
+    _type = _random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
     letter = _random.choice(string.ascii_letters).capitalize()
     directions = ['E', 'W', 'N', 'S']
-    short = '{} {}'.format(type, _random.randint(1, 999))
-    _long = '{} {}{}'.format(type, _random.randint(1, 999), letter)
-    alt = '{} {}-{}{}'.format(type, _random.choice(directions),
+    short = '{} {}'.format(_type, _random.randint(1, 999))
+    _long = '{} {}{}'.format(_type, _random.randint(1, 999), letter)
+    alt = '{} {}-{}{}'.format(_type, _random.choice(directions),
                               _random.randint(1, 999), letter)
     return _random.choice([short, _long, alt])
 
@@ -190,33 +183,27 @@ def calling_code():
 
     cursor.execute(
         'SELECT calling_code FROM countries_and_calling_codes \
-        order by RANDOM() limit 1;')
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
-def calling_code_with_country(formatting=''):
+def calling_code_with_country():
     """Returns a country, with a calling code as a single string."""
 
-    cursor.execute('select * from countries_and_calling_codes \
-        order by random() limit 1;')
-    (country, calling_code) = cursor.fetchone()
-    if formatting is dict:
-        return formatting({country: calling_code})
-    return (formatting([country,
-            calling_code]) if formatting else '{} {}'.format(country,
-            calling_code))
+    return cursor.execute('SELECT * FROM countries_and_calling_codes \
+        ORDER BY random() LIMIT 1;')
 
 
 def career():
-    """This function will produce a carrer."""
-    cursor.execute('SELECT name FROM careers order by RANDOM() limit 1;')
+    """This function will produce a career."""
+    cursor.execute('SELECT name FROM careers ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
 def city():
     """This function will produce a city."""
     cursor.execute('SELECT city FROM us_cities \
-        order by RANDOM() limit 1;')
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
@@ -227,38 +214,36 @@ def city_with_state():
     """
 
     cursor.execute('SELECT city, state FROM us_cities \
-        order by RANDOM() limit 1;')
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()
 
 
 def company_name():
     """This function will return a company name"""
 
-    cursor.execute('SELECT name from companies \
-        order by RANDOM() limit 1;')
+    cursor.execute('SELECT name FROM companies \
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
 def country():
     """This function will return a random country."""
-
-    cursor.execute('SELECT country_names FROM countries \
-        order by RANDOM() limit 1;')
+    cursor.execute('SELECT name FROM countries \
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
-def creditcard(type):
-    if type == 'visa':
+def creditcard(prefix='visa'):
+    if prefix == 'visa':
         prefix = ['40240071']
-    elif type == 'amex':
+    elif prefix == 'amex':
         prefix = ['34', '37']
-    elif type == 'discover':
+    elif prefix == 'discover':
         prefix = ['6011']
-    elif type == 'mastercard':
+    elif prefix == 'mastercard':
         prefix = ['51', '52', '53', '54', '55']
-    prefix = _random.choice(prefix)
     while len(prefix) < 15:
-        prefix = prefix + str(_random.randint(0, 9))
+        prefix += str(_random.randint(0, 9))
     return ''.join(prefix) + '0'
 
 
@@ -295,7 +280,7 @@ def female_name():
      :Usage: picka.female_name() >>> 'Christy'
     """
 
-    cursor.execute('SELECT name FROM female order by RANDOM() limit 1;')
+    cursor.execute('SELECT name FROM female ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
@@ -307,18 +292,7 @@ def trash(picka_function):
      :Usage: picka.trash(picka.name) >>> 'D#o}y>l~e^'
     """
     return ''.join([str(char) + _random.choice(str(string.punctuation))
-                   for char in picka_function()])
-
-
-def male_full_name():
-    return '{} {}'.format(male_first(), surnames())
-
-
-def male_full_name_w_middle_initial(with_period=False):
-    """Returns name, middile initial and last name."""
-
-    return '{} {} {}'.format(male_first(), initial(with_period),
-                             surnames())
+                    for char in picka_function()])
 
 
 def gender():
@@ -341,23 +315,12 @@ def hyphenated_last_name():
 def language():
     """Picks a random language."""
 
-    cursor.execute('SELECT name from languages order by RANDOM() limit 1;')
+    cursor.execute('SELECT name FROM languages ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
-def last_name():
-    """
-    This function will return a last name from a list.
-    ie - last_name() = 'Smith'.
-    """
-
-    return surnames()
-
-
-def male_middle_name():
-    """Picks a middle name from a list of male names."""
-
-    return male_first()
+last_name = surname
+last = last_name
 
 
 def month_and_day():
@@ -391,7 +354,7 @@ def month_and_day_and_year(start=1900, end=2010):
 
 def name():
     """Picks a random male or female name."""
-    return _random.choice([male_first(), female_first()])
+    return _random.choice([male(), female()])
 
 
 def number(i):
@@ -467,7 +430,7 @@ def screename(service=''):
 
     def _make_name(a, b):
         return ''.join(_random.sample(string.ascii_letters,
-                       _random.choice(range(a, b))))
+                                      _random.choice(range(a, b))))
 
     if service in ('', 'aim', 'aol'):
         name = _make_name(3, 16)
@@ -495,11 +458,7 @@ def sentence(num_words=20, chars=''):
     word_list = _Book.get_text().split()
     words = ' '.join(_random.choice(word_list) for x in
                      xrange(num_words))
-    return (words if not chars else words[:chars])
-
-
-_rewhite = re.compile(r"\s+")
-_rewhitesub = partial(_rewhite.sub, "")
+    return words if not chars else words[:chars]
 
 
 def sentence_actual(min_words=3, max_words=1000):
@@ -515,8 +474,8 @@ def sentence_actual(min_words=3, max_words=1000):
             continue
         if min_words <= len(sentence.split()) <= max_words:
             return sentence
-    raise Exception("Couldn't find a sentence between {0} and {1} words long".format(
-                    min_words, max_words))
+    raise Exception("Couldn't find a sentence between \
+        {0} and {1} words long".format(min_words, max_words))
 
 
 class _Book:
@@ -567,7 +526,7 @@ def set_of_initials(i=3):
     """Returns initials with period seperators."""
 
     return [''.join(_random.choice(string.ascii_uppercase) + '.'
-            for x in xrange(i))]
+                    for x in xrange(i))]
 
 
 def social_security_number():
@@ -594,7 +553,7 @@ def street_type():
     """This function will return a random street type."""
 
     cursor.execute('SELECT * FROM us_street_types \
-        order by RANDOM() limit 1;')
+        ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
 
@@ -633,12 +592,9 @@ def street_address():
 
 def suffix():
     """This returns a suffix from a small list."""
-
-    return _random.choice(
-        [
-            'Sr.', 'Jr.', 'II', 'III', 'IV', 'V'
-        ]
-    )
+    return _random.choice([
+        'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
+    ])
 
 
 def timestamp(style=False):
@@ -734,29 +690,27 @@ def state_abbreviated():
     """
 
     cursor.execute('SELECT * FROM us_cities_with_states \
-        order by RANDOM() limit 1;')
+        ORDER BY RANDOM() LIMIT 1;')
     return (cursor.fetchone()[0])[-2:]
 
 
 def zipcode(state=False):
-    """
-    This function will pick a zipcode randomnly from a list.
+    """This function will pick a zipcode randomnly from a list.
     eg - zipcode() = '11221'.
     """
     if not state:
-        cursor.execute('SELECT min,max from zipcodes')
+        cursor.execute('SELECT min,max FROM zipcodes')
     else:
-        cursor.execute('SELECT min,max from zipcodes where st = ?', [(state)])
+        cursor.execute('SELECT min,max FROM zipcodes WHERE st = ?', [state])
     _range = _random.choice(cursor.fetchall())
     return '%05d' % _random.randint(_range[0], _range[1])
 
 
 def foreign_characters(i):
     foreign_chars = (
-        u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛ'
-        u'ÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
+        u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
-    return ''.join(_random.choice(foreign_chars) for x in xrange(i))
+    return ''.join(_random.choice(foreign_chars) for i in xrange(i))
 
 
 def mac_address():
@@ -770,15 +724,14 @@ def mac_address():
 
 
 def rbg():
-    x = [_random.randrange(0, 256) for i in xrange(3)]
-    return tuple(x)
+    return [_random.randrange(0, 256) for i in xrange(3)]
 
 
-def rbga(r=None, b=None, g=None, a=None):
-    x = [_random.randrange(0, 256) for i in xrange(4)]
-    return tuple(x)
+def rbga():
+    return [_random.randrange(0, 256) for i in xrange(4)]
 
 
+# noinspection PyUnresolvedReferences
 def image(filepath, length=100, width=100):
     """Generate a random colored image, with random text on it.
     Returns filepath for ease of use.
@@ -791,10 +744,10 @@ def image(filepath, length=100, width=100):
         :type width: int
     """
     try:
-        import Image
-        import ImageDraw
+        import Image, ImageDraw
     except ImportError as e:
         print e, "Please install PIL to use this functionality."
+        return
     im = Image.new('RGBA', tuple((length, width)), tuple((rbga(a=255))))
     draw = ImageDraw.Draw(im)
     text = sentence_actual(1)
@@ -818,6 +771,7 @@ def hex_color():
             else:
                 a = int(round(a * 255))
         return a
+
     r, b, g = rbg()
     r = _chkarg(r)
     g = _chkarg(g)
@@ -835,20 +789,42 @@ def barcode(specification="EAN-8"):
 
     UPC-A - Used on products at the point of sale
     UPC-B - Developed for the US National Drug Code; used to identify drugs
-    UPC-E - Used on smaller products where a traditional 12 digit barcode doesn’t fit
+    UPC-E - Used on smaller products where 12 digits don’t fit
     UPC-5 - Used as a supplemental code to indicate the price of retail books
     """
     if specification == "EAN-8":
-        return '{:02}{:06}'.format(_random.randrange(0, 20), _random.randrange(0, 1000000))
+        return '{:02}{:06}'.format(
+            _random.randrange(0, 20),
+            _random.randrange(0, 1000000)
+        )
     if specification == "EAN-13":
-        # For some reason this was returning a space in the third position sometimes.
-        return ''.join('{:02}{:011}'.format(_random.randrange(0, 20), _random.randrange(0, 100000000000)))
-        
+        # For some reason this was returning a space
+        # in the third position sometimes.
+        return ''.join('{:02}{:011}'.format(
+            _random.randrange(0, 20),
+            _random.randrange(0, 100000000000))
+        )
+
+
 def mime_type():
+    """Returns tuple, left is suffix, right is media type/subtype.
     """
-    Returns tuple, left is suffix, right is media type/subtype.
-    """
-    return tuple(linecache.getline(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), 'mimes.csv'),
-        _random.randrange(0, 647)
-    ).strip("\n").split(','))
+    cursor.execute('SELECT extension,name FROM mimes WHERE id =?', [
+        _random.randint(1, _get_max("mimes"))])
+    return cursor.fetchone()
+
+
+female_first = female
+female_middle = female
+male_middle_name = male
+male_middle = male
+male_first = male
+postal_code = zipcode
+
+
+def male_full_name():
+    return english.name("{male} {male} {surname}")
+
+
+def male_full_name_w_middle_initial():
+    return "{0} {1}".format(male(), initial())
