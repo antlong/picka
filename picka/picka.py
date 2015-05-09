@@ -318,10 +318,6 @@ def language():
     return cursor.fetchone()[0]
 
 
-last_name = surname
-last = last_name
-
-
 def month_and_day():
     """
     Selects and month and day for you.
@@ -390,14 +386,37 @@ def password_alphanumeric(i):
     return ''.join(_random.choice(chars) for _ in xrange(i))
 
 
-def phone_number():
-    """
-    This function will produce a phone number randomnly.
-    """
+def area_code(state=False):
+    if state:
+        cursor.execute('SELECT code from areacodes where state = ? ORDER BY RANDOM() LIMIT 1;', [state])
+    else:
+        cursor.execute('SELECT code from areacodes ORDER BY RANDOM() LIMIT 1;')
+    return cursor.fetchone()[0]
 
-    x = ''.join(str(_random.randrange(0, 10)) for _ in xrange(10))
-    y = '%s-%s-%s' % (x[0:3], x[3:6], x[6:])
-    return y
+def phone_number(state=False, formatting=False):
+    """Generate a phone number. Conforms to NANP standards.
+    
+    :arg state: Bool
+    :arg formatting: local, domestic, or international
+    """
+    def _gen():
+        while True: 
+            n = str(_random.randint(2, 9)) + str(_random.randrange(10**(2-1),10**2))
+            if n not in ["911", "555"]:
+                break
+        return n
+    if formatting in ("local",):
+        # 754-3010
+        return "{0}-{1}".format(_gen(), number(4))
+    elif formatting in ("domestic",):
+        # (541) 754-3010
+        return "({0}) {1}-{2}".format(area_code(state), _gen(), number(4))
+    elif formatting in ("international",):
+        # +1-541-754-3010
+        return "+1-{0}-{1}-{2}".format(area_code(state), _gen(), number(4))
+    else:
+        # 204-371-1275
+        return "{0}-{1}-{2}".format(area_code(state), _gen(), number(4))
 
 
 def random_string(i):
@@ -829,3 +848,5 @@ male_middle_name = male
 male_middle = male
 male_first = male
 postal_code = zipcode
+last_name = surname
+last = last_name
