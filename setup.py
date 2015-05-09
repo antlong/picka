@@ -24,9 +24,6 @@ setup(
         'picka': [
             '*.sqlite',
             'book_sherlock.txt',
-            'ca_lat_long.csv',
-            'ca_postal_codes.csv',
-            'mimes.csv',
             'readme.rst'
         ]
     },

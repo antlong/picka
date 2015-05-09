@@ -41,15 +41,26 @@ def test_initial():
     assert type(picka.initial(x)) is StringType
     assert y[-1] == "."
 
+
 def test_sentence():
     assert type(picka.sentence()) is StringType
+
 
 def test_sentence_actual():
     x = picka.sentence_actual(min_words=3, max_words=3)
     assert len(x.split()) == 3
 
+
 def test_timezone_offset():
     assert picka.timezone_offset()
+
+
+def test_rbga():
+    assert len(picka.rbga()) == 4
+    assert len(picka.rbga(a=255)) == 4
+    assert picka.rbga(a=0)[3] == 0
+    assert picka.rbga(a=255)[3] == 255
+
 
 assert picka.language()
 assert picka.timezone_offset_country()
@@ -102,6 +113,8 @@ assert picka.password_numerical(10)
 assert picka.street_address()
 assert picka.language()
 assert len(picka.barcode("EAN-8")) == 8
+
+
 def test_barcode():
     x = picka.barcode("EAN-13")
     assert len(x) == 13

@@ -14,6 +14,8 @@ import os as _os
 
 import picka
 
+# TODO: add lat long, and postal codes
+
 
 _connect = \
     _sqlite3.connect(_os.path.join(_os.path.abspath(

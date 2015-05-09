@@ -47,7 +47,6 @@ def initial(with_period=False):
         :parameters: with_period: (bool)
             Whether or not to add a trailing period.
 
-        >>> assert initial() in string.ascii_letters
     """
     letter = _random.choice(string.ascii_uppercase)
     return "{0:s}.".format(letter) if with_period else letter
@@ -74,7 +73,7 @@ def surname():
     return cursor.fetchone()[0].decode("utf-8")
 
 
-def age(min=1, max=99):
+def age(minimum=1, maximum=99):
     """
     Returns a random age, from a range.
 
@@ -90,7 +89,7 @@ def age(min=1, max=99):
     """
 
     return '%.i'.format(_random.randint(
-        min, max) if min and max else _random.randint(
+        minimum, maximum) if minimum and maximum else _random.randint(
         1, 100))
 
 
@@ -261,7 +260,7 @@ def email(length=8, domain='@example.com'):
     :Usage: picka.email(length=8, domain='@foo.com')
     """
 
-    return ''.join(_random.choice(string.ascii_lowercase) for i in
+    return ''.join(_random.choice(string.ascii_lowercase) for _ in
                    xrange(length)) + domain
 
 
@@ -362,7 +361,7 @@ def number(i):
     This function will produce a random number with as many
     characters as you wish.
     """
-    return ''.join(str(_random.randrange(0, 10)) for x in xrange(i))
+    return ''.join(str(_random.randrange(0, 10)) for _ in xrange(i))
 
 
 def password_alphabetical(i):
@@ -370,7 +369,7 @@ def password_alphabetical(i):
     This function will return a randomized password consisting of letters.
     """
 
-    return ''.join(_random.choice(string.ascii_letters) for x in
+    return ''.join(_random.choice(string.ascii_letters) for _ in
                    range(i))
 
 
@@ -379,7 +378,7 @@ def password_numerical(i):
     This function will return a random password consisting of numbers.
     """
 
-    return ''.join(_random.choice(string.digits) for x in range(i))
+    return ''.join(_random.choice(string.digits) for _ in xrange(i))
 
 
 def password_alphanumeric(i):
@@ -388,7 +387,7 @@ def password_alphanumeric(i):
     """
 
     chars = string.ascii_letters + string.digits
-    return ''.join(_random.choice(chars) for x in range(i))
+    return ''.join(_random.choice(chars) for _ in xrange(i))
 
 
 def phone_number():
@@ -396,7 +395,7 @@ def phone_number():
     This function will produce a phone number randomnly.
     """
 
-    x = ''.join(str(_random.randrange(0, 10)) for i in xrange(10))
+    x = ''.join(str(_random.randrange(0, 10)) for _ in xrange(10))
     y = '%s-%s-%s' % (x[0:3], x[3:6], x[6:])
     return y
 
@@ -407,7 +406,7 @@ def random_string(i):
     of characters. ie: random_string(7) = DsEIzCd
     """
 
-    return ''.join(_random.choice(string.ascii_letters) for x in
+    return ''.join(_random.choice(string.ascii_letters) for _ in
                    xrange(i))
 
 
@@ -429,24 +428,19 @@ def screename(service=''):
     """
 
     def _make_name(a, b):
-        return ''.join(_random.sample(string.ascii_letters,
-                                      _random.choice(range(a, b))))
+        return ''.join(_random.sample(
+            string.ascii_letters, _random.choice(
+                range(a, b)))
+        )
 
-    if service in ('', 'aim', 'aol'):
-        name = _make_name(3, 16)
-        if service == 'aol':
-            return name + '@aol.com'
-        else:
-            return name
+    if service in ['', 'aim', 'aol']:
+        return _make_name(3, 16)
     elif service is 'skype':
-        name = _make_name(6, 32)
-        return name
+        return _make_name(6, 32)
     elif service is 'google':
-        name = _make_name(1, 19)
-        return name + '@google.com'
+        return _make_name(1, 19) + '@googletalk.com'
     else:
-        name = _make_name(8, 20)
-        return name
+        return _make_name(8, 20)
 
 
 def sentence(num_words=20, chars=''):
@@ -456,7 +450,7 @@ def sentence(num_words=20, chars=''):
     or `num_words` words in length.
     """
     word_list = _Book.get_text().split()
-    words = ' '.join(_random.choice(word_list) for x in
+    words = ' '.join(_random.choice(word_list) for _ in
                      xrange(num_words))
     return words if not chars else words[:chars]
 
@@ -466,14 +460,14 @@ def sentence_actual(min_words=3, max_words=1000):
     Returns a sentence from The Adventures of Sherlock Holmes
     that contains at least `min_words` and no more than `max_words`.
     """
-    for sentence in _Book.gen_random_sentences():
-        words = _rewhite.split(sentence)
+    for x in _Book.gen_random_sentences():
+        words = _rewhite.split(x)
         words = filter(None, map(_rewhitesub, words))
-        sentence = " ".join(words)
-        if sentence.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
+        x = " ".join(words)
+        if x.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
             continue
-        if min_words <= len(sentence.split()) <= max_words:
-            return sentence
+        if min_words <= len(x.split()) <= max_words:
+            return x
     raise Exception("Couldn't find a sentence between \
         {0} and {1} words long".format(min_words, max_words))
 
@@ -488,6 +482,9 @@ class _Book:
     """
     # TODO: I really think Sherlock is a bad source for sentences.
     # There are just too many weird quotes and fragments. Too much dialog.
+    def __init__(self):
+        pass
+
     _path = os.path.join(os.path.dirname(__file__),
                          "book_sherlock.txt")
     _text = _num_sentences = _sentences = None
@@ -526,7 +523,7 @@ def set_of_initials(i=3):
     """Returns initials with period seperators."""
 
     return [''.join(_random.choice(string.ascii_uppercase) + '.'
-                    for x in xrange(i))]
+                    for _ in xrange(i))]
 
 
 def social_security_number():
@@ -546,7 +543,7 @@ def special_characters(i):
     ie - picka.special_characters() = '@%^$'.
     """
 
-    return ''.join(_random.choice(string.punctuation) for x in xrange(i))
+    return ''.join(_random.choice(string.punctuation) for _ in xrange(i))
 
 
 def street_type():
@@ -710,7 +707,7 @@ def foreign_characters(i):
     foreign_chars = (
         u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
-    return ''.join(_random.choice(foreign_chars) for i in xrange(i))
+    return ''.join(_random.choice(foreign_chars) for _ in xrange(i))
 
 
 def mac_address():
@@ -724,15 +721,17 @@ def mac_address():
 
 
 def rbg():
-    return [_random.randrange(0, 256) for i in xrange(3)]
+    return [_random.randint(0, 257) for _ in xrange(3)]
 
 
-def rbga():
-    return [_random.randrange(0, 256) for i in xrange(4)]
+def rbga(a=0):
+    x = rbg()
+    x.append(a) if isinstance(a, (int, long)) else x.append(_random.randint(0, 257))
+    return x
 
 
 # noinspection PyUnresolvedReferences
-def image(filepath, length=100, width=100):
+def image(filepath, length=100, width=100, a=0):
     """Generate a random colored image, with random text on it.
     Returns filepath for ease of use.
 
@@ -744,11 +743,13 @@ def image(filepath, length=100, width=100):
         :type width: int
     """
     try:
-        import Image, ImageDraw
+        # noinspection PyPackageRequirements
+        import Image
+        import ImageDraw
     except ImportError as e:
         print e, "Please install PIL to use this functionality."
         return
-    im = Image.new('RGBA', tuple((length, width)), tuple((rbga(a=255))))
+    im = Image.new('RGBA', tuple((length, width)), tuple((rbga(a))))
     draw = ImageDraw.Draw(im)
     text = sentence_actual(1)
     draw.text((0, 0), text, fill=rbg())
@@ -814,17 +815,17 @@ def mime_type():
     return cursor.fetchone()
 
 
-female_first = female
-female_middle = female
-male_middle_name = male
-male_middle = male
-male_first = male
-postal_code = zipcode
-
-
 def male_full_name():
     return english.name("{male} {male} {surname}")
 
 
 def male_full_name_w_middle_initial():
     return "{0} {1}".format(male(), initial())
+
+
+female_first = female
+female_middle = female
+male_middle_name = male
+male_middle = male
+male_first = male
+postal_code = zipcode
