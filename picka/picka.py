@@ -41,15 +41,21 @@ def _get_max(tablename):
     return _max_counts[tablename]
 
 
-def initial(with_period=False):
+def initial(period=False):
     """Returns a randomly chosen letter, with a trailing period if desired.
 
-        :parameters: with_period: (bool)
-            Whether or not to add a trailing period.
+    Args:
+      with_period (bool): Whether or not to add a trailing period.
+
+    Example:
+
+    >>> print picka.initial()
+    "A"
+    >>> print picka.initial(period=True)
+    "X."
 
     """
-    letter = _random.choice(string.ascii_uppercase)
-    return "{0:s}.".format(letter) if with_period else letter
+    return "{0}{1}".format(random_string(), "." if period else "")
 
 
 def female():
@@ -73,7 +79,7 @@ def surname():
     return cursor.fetchone()[0].decode("utf-8")
 
 
-def age(minimum=1, maximum=99):
+def age(min=1, max=99):
     """
     Returns a random age, from a range.
 
@@ -88,9 +94,7 @@ def age(minimum=1, maximum=99):
 
     """
 
-    return '%.i'.format(_random.randint(
-        minimum, maximum) if minimum and maximum else _random.randint(
-        1, 100))
+    return '{0}'.format(_random.randint(min, max))
 
 
 def month():
@@ -102,7 +106,7 @@ def birthday(min_year=1900, max_year=2012):
     birthday_month = calendar.month_name[rmonth]
     birthday_year = _random.randrange(min_year, max_year + 1)
     birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
-    return birthday_month, birthday_day, birthday_year
+    return birthday_month, str(birthday_day), str(birthday_year)
 
 
 def apartment_number():
@@ -125,8 +129,7 @@ def apartment_number():
 
 
 def business_title(abbreviated=False):
-    """
-    This will produce a random business title.
+    """This will produce a random business title.
 
     :parameters:
         abbreviated: (boolean)
@@ -138,20 +141,9 @@ def business_title(abbreviated=False):
     """
     abbs = ['COO', 'CEO', 'CFO', 'VP', 'EVP']
     primary = [
-        'Lead',
-        'Senior',
-        'Direct',
-        'Corporate',
-        'Dynamic',
-        'Future',
-        'Product',
-        'National',
-        'Global',
-        'Customer',
-        'Investor',
-        'Dynamic',
-        'International',
-        'Principal',
+        'Lead', 'Senior', 'Direct', 'Corporate', 'Dynamic',
+        'Future', 'Product', 'National', 'Global', 'Customer',
+        'Investor', 'Dynamic', 'International', 'Principal'
     ]
     secondary = [
         'Supervisor',
@@ -319,8 +311,7 @@ def language():
 
 
 def month_and_day():
-    """
-    Selects and month and day for you.
+    """Selects and month and day for you.
     There is logic to handle the days in the month correctly.
     """
 
@@ -352,56 +343,52 @@ def name():
     return _random.choice([male(), female()])
 
 
-def number(i):
+def number(length=1):
     """
     This function will produce a random number with as many
     characters as you wish.
     """
-    return ''.join(str(_random.randrange(0, 10)) for _ in xrange(i))
+    return ''.join(str(_random.randrange(0, 10)) for _ in xrange(length))
 
 
-def password_alphabetical(i):
-    """
-    This function will return a randomized password consisting of letters.
-    """
-
-    return ''.join(_random.choice(string.ascii_letters) for _ in
-                   range(i))
-
-
-def password_numerical(i):
-    """
-    This function will return a random password consisting of numbers.
-    """
-
-    return ''.join(_random.choice(string.digits) for _ in xrange(i))
-
-
-def password_alphanumeric(i):
-    """
-    This function will return an alphanumeric password.
-    """
-
-    chars = string.ascii_letters + string.digits
-    return ''.join(_random.choice(chars) for _ in xrange(i))
+def password(case='mixed', length=6, format='letters', special_chars=False):
+    choices = ''
+    if format in ['letters', 'alphanumeric']:
+        cases = {
+            'upper': string.ascii_uppercase,
+            'mixed': string.ascii_letters,
+            'lower': string.ascii_lowercase
+        }
+        choices += cases[case]
+    if format in ['numbers', 'alphanumeric']:
+        choices += string.digits
+    if special_chars:
+        choices += string.punctuation
+    output = ''
+    for _ in xrange(length):
+        output += _random.choice(choices)
+    return output
 
 
 def area_code(state=False):
     if state:
-        cursor.execute('SELECT code from areacodes where state = ? ORDER BY RANDOM() LIMIT 1;', [state])
+        cursor.execute('SELECT code from areacodes where state = ? \
+            ORDER BY RANDOM() LIMIT 1;', [state])
     else:
         cursor.execute('SELECT code from areacodes ORDER BY RANDOM() LIMIT 1;')
     return cursor.fetchone()[0]
 
+
 def phone_number(state=False, formatting=False):
     """Generate a phone number. Conforms to NANP standards.
-    
+
     :arg state: Bool
     :arg formatting: local, domestic, or international
     """
     def _gen():
-        while True: 
-            n = str(_random.randint(2, 9)) + str(_random.randrange(10**(2-1),10**2))
+        while True:
+            n = str(_random.randint(2, 9)) + str(
+                _random.randrange(10**(2-1), 10**2))
             if n not in ["911", "555"]:
                 break
         return n
@@ -419,23 +406,29 @@ def phone_number(state=False, formatting=False):
         return "{0}-{1}-{2}".format(area_code(state), _gen(), number(4))
 
 
-def random_string(i):
+def random_string(length=1, case='upper'):
     """
     This will allow you to enter an integer, and create 'i' amount
     of characters. ie: random_string(7) = DsEIzCd
     """
-
-    return ''.join(_random.choice(string.ascii_letters) for _ in
-                   xrange(i))
+    choices = ''
+    output = ''
+    cases = {
+        'upper': string.ascii_uppercase,
+        'lower': string.ascii_lowercase,
+        'mixed': string.ascii_letters
+    }
+    choices += cases[case]
+    for _ in xrange(length):
+        output += _random.choice(choices)
+    return output
 
 
 def salutation():
     """
     This function will return a 'Mr.' or 'Mrs.'
     """
-
-    salutations = ('Mr.', 'Mrs.')
-    return _random.choice(salutations)
+    return _random.choice(['Mr.', 'Mrs.', 'Miss', 'Dr.', 'Prof.', 'Rev.'])
 
 
 def screename(service=''):
@@ -724,7 +717,8 @@ def zipcode(state=False):
 
 def foreign_characters(i):
     foreign_chars = (
-        u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
+        u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕ\
+        ÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
     return ''.join(_random.choice(foreign_chars) for _ in xrange(i))
 
@@ -740,16 +734,16 @@ def mac_address():
 
 
 def rbg():
-    return [_random.randint(0, 257) for _ in xrange(3)]
+    return [_random.randint(0, 256) for _ in xrange(3)]
 
 
 def rbga(a=0):
     x = rbg()
-    x.append(a) if isinstance(a, (int, long)) else x.append(_random.randint(0, 257))
+    x.append(a) if isinstance(a, (
+        int, long)) else x.append(_random.randint(0, 256))
     return x
 
 
-# noinspection PyUnresolvedReferences
 def image(filepath, length=100, width=100, a=0):
     """Generate a random colored image, with random text on it.
     Returns filepath for ease of use.
@@ -762,7 +756,6 @@ def image(filepath, length=100, width=100, a=0):
         :type width: int
     """
     try:
-        # noinspection PyPackageRequirements
         import Image
         import ImageDraw
     except ImportError as e:
@@ -800,30 +793,41 @@ def hex_color():
 
 
 def barcode(specification="EAN-8"):
-    """
-    Based on the standard barcode specifications. Valid options are:
+    """Based on the standard barcode specifications. Valid options are:
     EAN-8 - 8 numerical digits.
     EAN-13 - 13 numerical digits.
+    UPC-A - Used on products at the point of sale
 
     Unsupported, but in-progress:
-
-    UPC-A - Used on products at the point of sale
     UPC-B - Developed for the US National Drug Code; used to identify drugs
     UPC-E - Used on smaller products where 12 digits don’t fit
     UPC-5 - Used as a supplemental code to indicate the price of retail books
     """
+    def _gen(i):
+        upc_str = str(i)
+        odd_sum = 0
+        even_sum = 0
+        for i, char in enumerate(upc_str):
+            j = i+1
+            if j % 2 == 0:
+                even_sum += int(char)
+            else:
+                odd_sum += int(char)
+        total_sum = (odd_sum * 3) + even_sum
+        mod = total_sum % 10
+        check_digit = 10 - mod
+        if check_digit == 10:
+            check_digit = 0
+        return upc_str + str(check_digit)
+
     if specification == "EAN-8":
-        return '{:02}{:06}'.format(
-            _random.randrange(0, 20),
-            _random.randrange(0, 1000000)
-        )
+        return _gen(number(7))
+
     if specification == "EAN-13":
-        # For some reason this was returning a space
-        # in the third position sometimes.
-        return ''.join('{:02}{:011}'.format(
-            _random.randrange(0, 20),
-            _random.randrange(0, 100000000000))
-        )
+        return _gen(number(12))
+
+    if specification == "UPC-A":
+        return _gen(number(11))
 
 
 def mime_type():
@@ -839,8 +843,125 @@ def male_full_name():
 
 
 def male_full_name_w_middle_initial():
-    return "{0} {1}".format(male(), initial())
+    return english.name("{male} {initial}")
 
+
+def drivers_license(state='NY'):
+    """Generates drivers license numbers that adhere to the state license format.
+
+    Args:
+      state (str, optional): Two letter state code.
+
+    Returns:
+      str: generated license code.
+
+    Examples:
+      >>> picka.drivers_license()
+      >>> picka.drivers_license("WA")
+    """
+    lengths = {
+        "AL": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
+        "AK": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
+        "AZ": [[1, 8], [2, 5], [0, 9]],
+        "AR": [[0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]],
+        "CA": [[1, 7]],
+        "CO": [
+            [0, 9], [1, 3], [1, 4], [1, 5], [1, 6],
+            [2, 2], [2, 3], [2, 4], [2, 5]
+        ],
+        "DE": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
+        "DC": [[0, 7], [0, 9]],
+        "FL": [[1, 12]],
+        "GA": [[0, 7], [0, 8], [0, 9]],
+        "HI": [[1, 8], [0, 9]],
+        "ID": [[2, 6], [2, 6, 1], [0, 9]],
+        "IL": [[0, 11], [1, 12]],
+        "IN": [[1, 9], [0, 9], [0, 10]],
+        "IA": [[0, 9], [0, 3, 2, 4]],
+        "KS": [[1, 1, 1, 1, 1], [1, 8], [0, 9]],
+        "KY": [[1, 8], [1, 9], [0, 9]],
+        "LA": [
+            [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+            [0, 8], [0, 9]
+        ],
+        "ME": [[0, 7], [0, 7, 1], [0, 8]],
+        "MD": [[1, 12]],
+        "MA": [[1, 8], [0, 9]],
+        "MI": [[1, 10], [1, 12]],
+        "MN": [[1, 12]],
+        "MS": [[0, 9]],
+        "MO": [
+            [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 6, "R"],
+            [0, 8, 2], [9, 1], [0, 9]
+        ],
+        "MT": [[1, 8], [0, 13], [0, 9], [0, 14]],
+        "NE": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
+        "NV": [[0, 9], [0, 10], [0, 12], [1, 8]],
+        "NH": [[0, 2, 3, 5]],
+        "NJ": [[1, 14]],
+        "NM": [[0, 8], [0, 9]],
+        "NY": [[1, 7], [1, 18], [0, 8], [0, 9], [0, 16], [8, 0]],
+        "NC": [
+            [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+            [0, 8], [0, 9], [0, 10], [0, 11], [0, 12]
+        ],
+        "ND": [[3, 6], [0, 9]],
+        "OH": [
+            [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [2, 3], [2, 4],
+            [2, 5], [2, 6], [2, 7], [0, 8]
+        ],
+        "OK": [[1, 9], [0, 9]],
+        "OR": [
+            [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+            [0, 8], [0, 9], [1, 6], [2, 5]
+        ],
+        "PA": [[0, 8]],
+        "RI": [[0, 7], [1, 6]],
+        "SC": [[0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 11]],
+        "SD": [[0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 12]],
+        "TN": [[0, 7], [0, 8], [0, 9]],
+        "TX": [[0, 7], [0, 8]],
+        "UT": [[0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10]],
+        "VT": [[0, 8], [0, 7, "A"]],
+        "VI": [[1, 9], [1, 10], [1, 11], [0, 9]],
+        "WA": [],
+        "WV": [[0, 7], [1, 5], [2, 5], [1, 6], [2, 6]],
+        "WI": [[1, 13]],
+        "WY": [[0, 9], [0, 10]]
+    }
+    if state == "WA":
+        i = _random.choice([_random.randint(1, 7), 12])
+        return password(
+            case="upper",
+            length=i,
+            format="alphanumeric",
+            special_chars=False
+            )
+    n = _random.choice(lengths[state])
+    s = ""
+    s += random_string(length=n[0])
+    s += number(length=n[1])
+
+    if len(n) > 2:
+        if state == "ID":
+            s += random_string()
+        if state == "IA":
+            s += random_string(length=n[2])
+            s += number(n[3])
+        if state == "KS":
+            s += random_string(n[2])
+            s += number(n[3])
+            s += random_string(n[4])
+        if state == "MO":
+            s += "R" if n[2] == "R" else random_string(n[2])
+        if state == "NH":
+            s += number(n[3])
+
+    if state == "NV" and n == [1, 8]:
+        s = s.replace(s[0], "X")
+    if state == "VT" and n == [0, 7, "A"]:
+        s = s.replace(s[-1], "A")
+    return "{0}".format(s)
 
 female_first = female
 female_middle = female
