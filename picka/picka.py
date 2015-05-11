@@ -9,6 +9,7 @@ By: Anthony Long
 
 from itertools import izip
 from functools import partial
+from dateutil.relativedelta import relativedelta
 import string
 import random as _random
 import time
@@ -16,9 +17,11 @@ import sqlite3
 import os
 import re
 import calendar
+import datetime
+import json
 
 import english
-import utils as _utils
+import picka_utils as _utils
 
 
 __docformat__ = 'restructuredtext en'
@@ -330,25 +333,48 @@ def gender():
     return _random.choice(['Male', 'Female'])
 
 
-def age(min=1, max=99):
-    """
-    Returns a random age, from a range.
+def age(min_year=1900, max_year=2015):
+    """Returns a random age, from a range.
 
     :parameters:
-        min: (integer)
+        min_year: (integer)
             The lowest integer to use in the range
-        max: (integer)
+        max_year: (integer)
             The highest integer to use in the range
 
     :tip:
         If min and max are empty, 1 and 99 will be used.
 
+
+    Birth day, month, year
+    Days since birth
+    Time of birth
+
     """
+    d = {}
+    date_now = datetime.datetime.now()
+    _b = birthdate(min_year, max_year)
+    born = _b.strftime("%B %d, %Y")
+    time_of_birth = _b.strftime("%I:%m %p")
+    years_ago = relativedelta(date_now, _b).years
+    for i in ["born", "time_of_birth", "years_ago"]:
+        d[i] = str(locals()[i])
+    return d
 
-    return '{0}'.format(_random.randint(min, max))
+
+def birthdate(min_year=1900, max_year=2015):
+    current_date = datetime.datetime.now()
+    y = _random.randrange(min_year, max_year + 1)
+    m = _random.randrange(1, 13)
+    d = _random.randrange(1, calendar.monthrange(y, m)[1] + 1)
+    h = _random.randint(1, 12)
+    mn = _random.randint(1, 59)
+    s = _random.randint(1, 59)
+    ms = "%.6i" % _random.randint(1, 999999)
+    return current_date.replace(y, m, d, h, mn, s, int(ms))
 
 
-def birthday(min_year=1900, max_year=2012):
+def birthday(min_year=1900, max_year=2015):
     rmonth = _random.randrange(1, 13)
     birthday_month = calendar.month_name[rmonth]
     birthday_year = _random.randrange(min_year, max_year + 1)
@@ -363,7 +389,7 @@ def language():
     return cursor.fetchone()[0]
 
 
-def social_security_number():
+def social_security_number(state="NY"):
     """Produces a US Social Security Number.
 
     Example:
@@ -372,58 +398,12 @@ def social_security_number():
     >>> assert len(social_security_number()) == 11
 
     """
-    states = {
-        "AL": [[416, 424]],
-        "AK": [[574, 574]],
-        "AR": [[429, 432], [676, 679]],
-        "AZ": [[526, 527], [600, 601]],
-        "CA": [[1, 7]],
-        "CO": [[521, 524], [650, 653]],
-        "DE": [[221, 222]],
-        "FL": [[261, 267], [589, 595], [766, 772]],
-        "GA": [[252, 260], [667, 675]],
-        "HI": [[575, 576], [750, 751]],
-        "ID": [[518, 519]],
-        "IL": [[318, 361]],
-        "IN": [[303, 317]],
-        "IA": [],
-        "KS": [],
-        "KY": [],
-        "LA": [],
-        "ME": [],
-        "MD": [],
-        "MA": [],
-        "MI": [],
-        "MN": [],
-        "MS": [],
-        "MO": [],
-        "MT": [],
-        "NE": [],
-        "NV": [],
-        "NH": [],
-        "NJ": [],
-        "NM": [],
-        "NY": [],
-        "NC": [],
-        "ND": [],
-        "OH": [],
-        "OK": [],
-        "OR": [],
-        "PA": [],
-        "RI": [],
-        "SC": [],
-        "SD": [],
-        "TN": [],
-        "TX": [],
-        "UT": [],
-        "VT": [],
-        "VI": [],
-        "WA": [],
-        "WV": [],
-        "WI": [],
-        "WY": []
-    }
-    return '{0}-{1}-{2}'.format(number(3), number(2), number(4))
+    x = _random.choice(_utils._ssn_prefixes(state))
+    return '{0}-{1}-{2}'.format(
+        _random.randrange(x[0], x[1] + 1),
+        number(2),
+        number(4)
+    )
 
 
 def drivers_license(state='NY'):
