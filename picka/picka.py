@@ -9,7 +9,6 @@ By: Anthony Long
 
 from itertools import izip
 from functools import partial
-from dateutil.relativedelta import relativedelta
 import string
 import random as _random
 import time
@@ -17,9 +16,8 @@ import sqlite3
 import os
 import re
 import calendar
-import datetime
-import json
 
+from age import birthday, birthdate
 import english
 import picka_utils as _utils
 
@@ -331,55 +329,6 @@ def gender():
     """
 
     return _random.choice(['Male', 'Female'])
-
-
-def age(min_year=1900, max_year=2015):
-    """Returns a random age, from a range.
-
-    :parameters:
-        min_year: (integer)
-            The lowest integer to use in the range
-        max_year: (integer)
-            The highest integer to use in the range
-
-    :tip:
-        If min and max are empty, 1 and 99 will be used.
-
-
-    Birth day, month, year
-    Days since birth
-    Time of birth
-
-    """
-    d = {}
-    date_now = datetime.datetime.now()
-    _b = birthdate(min_year, max_year)
-    born = _b.strftime("%B %d, %Y")
-    time_of_birth = _b.strftime("%I:%m %p")
-    years_ago = relativedelta(date_now, _b).years
-    for i in ["born", "time_of_birth", "years_ago"]:
-        d[i] = str(locals()[i])
-    return d
-
-
-def birthdate(min_year=1900, max_year=2015):
-    current_date = datetime.datetime.now()
-    y = _random.randrange(min_year, max_year + 1)
-    m = _random.randrange(1, 13)
-    d = _random.randrange(1, calendar.monthrange(y, m)[1] + 1)
-    h = _random.randint(1, 12)
-    mn = _random.randint(1, 59)
-    s = _random.randint(1, 59)
-    ms = "%.6i" % _random.randint(1, 999999)
-    return current_date.replace(y, m, d, h, mn, s, int(ms))
-
-
-def birthday(min_year=1900, max_year=2015):
-    rmonth = _random.randrange(1, 13)
-    birthday_month = calendar.month_name[rmonth]
-    birthday_year = _random.randrange(min_year, max_year + 1)
-    birthday_day = calendar.monthrange(birthday_year, rmonth)[1]
-    return birthday_month, str(birthday_day), str(birthday_year)
 
 
 def language():
