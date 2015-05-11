@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 Picka is a data generation and randomization module which aims to increase
 coverage by increasing the amount of tests you _dont_ have to write
@@ -45,6 +44,53 @@ def _get_max(tablename):
     return _max_counts[tablename]
 
 
+class _Book:
+    """
+    Keeps the text of a book and the split sentences of a book
+    globally available. This means you don't have to read in
+    all of a book's text every time you need  a sentence or a set of words.
+    The book will only be read once. The sentences of the book will only
+    be split apart once.
+    """
+    # TODO: I really think Sherlock is a bad source for sentences.
+    # There are just too many weird quotes and fragments. Too much dialog.
+    def __init__(self):
+        pass
+
+    _path = os.path.join(os.path.dirname(__file__),
+                         "book_sherlock.txt")
+    _text = _num_sentences = _sentences = None
+
+    @classmethod
+    def get_text(cls):
+        if not cls._text:
+            cls._text = open(cls._path).read()
+        return cls._text
+
+    @classmethod
+    def get_sentences(cls):
+        if not cls._sentences:
+            text = cls.get_text()
+            cls._sentences = _split_sentences(text)
+            cls._num_sentences = len(cls._sentences)
+        return cls._sentences
+
+    @classmethod
+    def gen_random_sentences(cls, no_more_than=1000000):
+        sentences = cls.get_sentences()
+        max_index = cls._num_sentences - 1
+        for _ in xrange(no_more_than):
+            i = _random.randint(0, max_index)
+            yield sentences[i]
+
+
+def _split_sentences(text):
+    # from pyteaser: https://github.com/xiaoxu193/PyTeaser
+    # see `pyteaser.split_sentences()`
+    fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
+    return map("".join, izip(*[iter(fragments[:-1])] * 2))
+
+
 #######
 # Names
 #######
@@ -80,14 +126,15 @@ def initial(period=False):
     """Returns a randomly chosen letter, with a trailing period if desired.
 
     Args:
-      with_period (bool): Whether or not to add a trailing period.
+        with_period (bool): Whether or not to add a trailing period.
 
     Example:
+      print picka.initial() => "B"
 
-    >>> print picka.initial()
-    "A"
-    >>> print picka.initial(period=True)
-    "X."
+    >>> initial() in string.ascii_letters
+    True
+    >>> initial(period=True)[-1] == "."
+    True
 
     """
     return "{0}{1}".format(random_string(), "." if period else "")
@@ -121,6 +168,16 @@ def suffix():
     return _random.choice([
         'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
     ])
+
+
+@_utils.deprecated("picka.surname()")
+def last_name():
+    return surname()
+
+
+@_utils.deprecated("picka.surname()")
+def last():
+    return last_name()
 
 
 @_utils.deprecated("picka.name('{male}')")
@@ -212,6 +269,21 @@ def screename(*service):
         return _make_name(8, 20)
 
 
+@_utils.deprecated("picka.password(format='numbers')")
+def password_alphanumeric(i=8):
+    return password(length=i, format="numbers")
+
+
+@_utils.deprecated("picka.password(format='letters', length=8")
+def password_alphabetical(i=8, case="mixed"):
+    return password(case=case, length=i)
+
+
+@_utils.deprecated("picka.password(format='numeric', length=8")
+def password_numerical(i):
+    return password(length=i)
+
+
 def password(case='mixed', length=6, format='letters', special_chars=False):
     choices = ''
     if format in ['letters', 'alphanumeric']:
@@ -292,14 +364,66 @@ def language():
 
 
 def social_security_number():
-    """
-    This function will produce a Mock Social Security Number.
-    ie - social_security_number() = '112-32-3322'
-    """
+    """Produces a US Social Security Number.
 
-    return '%.3i-%.2i-%.4i' % (_random.randrange(999),
-                               _random.randrange(99),
-                               _random.randrange(9999))
+    Example:
+      social_security_number() => '112-32-3322'
+
+    >>> assert len(social_security_number()) == 11
+
+    """
+    states = {
+        "AL": [[416, 424]],
+        "AK": [[574, 574]],
+        "AR": [[429, 432], [676, 679]],
+        "AZ": [[526, 527], [600, 601]],
+        "CA": [[1, 7]],
+        "CO": [[521, 524], [650, 653]],
+        "DE": [[221, 222]],
+        "FL": [[261, 267], [589, 595], [766, 772]],
+        "GA": [[252, 260], [667, 675]],
+        "HI": [[575, 576], [750, 751]],
+        "ID": [[518, 519]],
+        "IL": [[318, 361]],
+        "IN": [[303, 317]],
+        "IA": [],
+        "KS": [],
+        "KY": [],
+        "LA": [],
+        "ME": [],
+        "MD": [],
+        "MA": [],
+        "MI": [],
+        "MN": [],
+        "MS": [],
+        "MO": [],
+        "MT": [],
+        "NE": [],
+        "NV": [],
+        "NH": [],
+        "NJ": [],
+        "NM": [],
+        "NY": [],
+        "NC": [],
+        "ND": [],
+        "OH": [],
+        "OK": [],
+        "OR": [],
+        "PA": [],
+        "RI": [],
+        "SC": [],
+        "SD": [],
+        "TN": [],
+        "TX": [],
+        "UT": [],
+        "VT": [],
+        "VI": [],
+        "WA": [],
+        "WV": [],
+        "WI": [],
+        "WY": []
+    }
+    return '{0}-{1}-{2}'.format(number(3), number(2), number(4))
 
 
 def drivers_license(state='NY'):
@@ -312,8 +436,12 @@ def drivers_license(state='NY'):
       str: generated license code.
 
     Examples:
-      >>> picka.drivers_license()
-      >>> picka.drivers_license("WA")
+        print drivers_license() => "I370162546092578729"
+        print drivers_license("AL") => "2405831"
+
+    >>> assert len(drivers_license()) > 0
+    >>> assert len(drivers_license("OK")) in [9, 10]
+
     """
     lengths = {
         "AL": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
@@ -885,6 +1013,7 @@ def rbga(a=0):
     return x
 
 
+# noinspection PyUnresolvedReferences
 def image(filepath, length=100, width=100, a=0):
     """Generate a random colored image, with random text on it.
     Returns filepath for ease of use.
@@ -978,54 +1107,3 @@ def mime_type():
     cursor.execute('SELECT extension,name FROM mimes WHERE id =?', [
         _random.randint(1, _get_max("mimes"))])
     return cursor.fetchone()
-
-
-class _Book:
-    """
-    Keeps the text of a book and the split sentences of a book
-    globally available. This means you don't have to read in
-    all of a book's text every time you need  a sentence or a set of words.
-    The book will only be read once. The sentences of the book will only
-    be split apart once.
-    """
-    # TODO: I really think Sherlock is a bad source for sentences.
-    # There are just too many weird quotes and fragments. Too much dialog.
-    def __init__(self):
-        pass
-
-    _path = os.path.join(os.path.dirname(__file__),
-                         "book_sherlock.txt")
-    _text = _num_sentences = _sentences = None
-
-    @classmethod
-    def get_text(cls):
-        if not cls._text:
-            cls._text = open(cls._path).read()
-        return cls._text
-
-    @classmethod
-    def get_sentences(cls):
-        if not cls._sentences:
-            text = cls.get_text()
-            cls._sentences = _split_sentences(text)
-            cls._num_sentences = len(cls._sentences)
-        return cls._sentences
-
-    @classmethod
-    def gen_random_sentences(cls, no_more_than=1000000):
-        sentences = cls.get_sentences()
-        max_index = cls._num_sentences - 1
-        for _ in xrange(no_more_than):
-            i = _random.randint(0, max_index)
-            yield sentences[i]
-
-
-def _split_sentences(text):
-    # from pyteaser: https://github.com/xiaoxu193/PyTeaser
-    # see `pyteaser.split_sentences()`
-    fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
-    return map("".join, izip(*[iter(fragments[:-1])] * 2))
-
-
-last_name = surname
-last = last_name

@@ -34,7 +34,7 @@ def test_random_string():
 
 def test_initial():
     x = picka.initial()
-    y = picka.initial(with_period=True)
+    y = picka.initial(period=True)
     assert "." not in x
     assert len(x) == 1
     assert type(x) is StringType
