@@ -1,18 +1,35 @@
 from datetime import datetime
 from random import randrange, randint
-from calendar import monthrange, month_name
+from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 
-def date_formatter(formatting):
-    return date.strftime(formatting)
 
-def birthdate(min_year=1900, max_year=2015, formatting=False):
+def birthdate(min_year=1900, max_year=2015, formatted=False):
     """Generates a birthdate.
 
-    :param min_year:
-    :param max_year:
-    :param formatting:
-    :returns: datetime object
+    Args:
+      min_year (int): Minimum year to use in range.
+      max_year (int): Maximum year to use in range.
+      formatted (str): Applies strftime to object.
+
+    Returns:
+      formatted: A string based on your strftime.
+      no formatting: a datetimeobject.
+
+    Examples:
+
+      >>> print picka.birthdate()
+      datetime.datetime(1903, 12, 23, 10, 46, 55, 140438)
+      >>> print picka.birthday(max_year=1950)
+      datetime.datetime(1928, 6, 20, 12, 26, 17, 27057)
+      >>> print picka.birthdate(formatted="%m/%d/%Y")
+      '07/07/2002'
+      >>> x = picka.birthdate()
+      >>> print x.month, x.day, x.year
+      11 1 1981
+      >>> picka.birthdate(formatted="%B")
+      'Februrary'
+
     """
     n = datetime.now()
     y = randrange(min_year, max_year + 1)
@@ -22,44 +39,53 @@ def birthdate(min_year=1900, max_year=2015, formatting=False):
     mn = randint(1, 59)
     s = randint(1, 59)
     ms = "%.6i" % randint(1, 999999)
-    n.replace(y, m, d, h, mn, s, int(ms))
-    if formatting:
-        return n.strftime(formatting)
+    n = n.replace(y, m, d, h, mn, s, int(ms))
+    if formatted:
+        return n.strftime(formatted)
     return n
 
 
-def birthday(min_year=1900, max_year=2015):
-    rmonth = randrange(1, 13)
-    birthday_month = month_name[rmonth]
-    birthday_year = randrange(min_year, max_year + 1)
-    birthday_day = monthrange(birthday_year, rmonth)[1]
-    return birthday_month, str(birthday_day), str(birthday_year)
+def age(min_year=1900, max_year=2015, formatting=False):
+    """Generates an age, and related data.
 
+    Args:
+      min_year (int): Minimum year to use in range.
+      max_year (int): Maximum year to use in range.
+      formatted (str): Applies strftime to the object.
 
-def age(min_year=1900, max_year=2015):
-    """Returns a random age, from a range.
+    Returns:
+      formatting: A string based on your strftime.
+      no formatting: A dict containing multiple values.
 
-    :parameters:
-        min_year: (integer)
-            The lowest integer to use in the range
-        max_year: (integer)
-            The highest integer to use in the range
-
-    :tip:
-        If min and max are empty, 1 and 99 will be used.
-
-
-    Birth day, month, year
-    Days since birth
-    Time of birth
+    Examples:
+      >>> picka.age()
+      {
+        'year': '1916',
+        'period': 'AM',
+        'month_short': 'Jan',
+        'month_digit': '1',
+        'age': 99,
+        'time': '05:01',
+        'pretty_date': 'January 05, 1916',
+        'datetime': datetime.datetime(1916, 1, 5, 5, 47, 47, 564468),
+        'day': '05'
+      }
+      >>> picka.age(formatting="%B, %d %Y")
+      'June, 20 2005'
 
     """
     d = {}
     date_now = datetime.now()
     _b = birthdate(min_year, max_year)
-    born = _b.strftime("%B %d, %Y")
-    time_of_birth = _b.strftime("%I:%m %p")
-    years_ago = relativedelta(date_now, _b).years
-    for i in ["born", "time_of_birth", "years_ago"]:
-        d[i] = str(locals()[i])
+    if formatting:
+        return _b.strftime(formatting)
+    d["datetime"] = _b
+    d["pretty_date"] = _b.strftime("%B %d, %Y")
+    d["time"] = _b.strftime("%I:%m")
+    d["period"] = _b.strftime("%p")
+    d["years_old"] = relativedelta(date_now, _b).years
+    d["month_short"] = _b.strftime("%b")
+    d["month_digit"] = _b.strftime("%m")
+    d["day"] = _b.strftime("%d")
+    d["year"] = _b.strftime("%Y")
     return d

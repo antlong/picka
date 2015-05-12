@@ -17,7 +17,7 @@ import os
 import re
 import calendar
 
-from age import birthday, birthdate
+from age import age, birthdate
 import english
 import picka_utils as _utils
 
