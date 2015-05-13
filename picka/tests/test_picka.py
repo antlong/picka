@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-import sqlite3
-import os
 import unittest
 from types import *
 
 import picka
 
-
-connect = \
-    sqlite3.connect(os.path.join(os.path.abspath(
-        os.path.dirname(__file__)), 'db.sqlite'))
-cursor = connect.cursor()
-
-
 def test_phone_number():
-    n = picka.phone_number()
-    assert type(n) is StringType
-    assert n[3], n[7] == "-"
+    assert len(picka.phone_number().items()) > 1
 
 
 def test_last_name():

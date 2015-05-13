@@ -6,13 +6,14 @@ import random
 import string
 import re
 from itertools import izip
+from functools import partial
+
 
 warnings.simplefilter('always', DeprecationWarning)
-_rewhite = re.compile(r"\s+")
-_rewhitesub = partial(_rewhite.sub, "")
+
 
 db_filepath = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'db.sqlite'
+    os.path.dirname(__file__)), 'data/db.sqlite'
 )
 
 row_counts = {}
@@ -36,7 +37,7 @@ def deprecated(replacement=None):
     return outer
 
 
-def _ssn_prefixes(state):
+def ssn_prefixes(state):
     states = {
         "AL": [[416, 424]],
         "AK": [[574, 574]],
@@ -151,8 +152,8 @@ class _Book:
     def __init__(self):
         pass
 
-    _path = os.path.join(os.path.dirname(__file__),
-                         "book_sherlock.txt")
+    _path = os.path.join(os.path.dirname(
+        __file__) + "/data/book_sherlock.txt")
     _text = _num_sentences = _sentences = None
 
     @classmethod
@@ -183,4 +184,35 @@ def _split_sentences(text):
     # see `pyteaser.split_sentences()`
     fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
     return map("".join, izip(*[iter(fragments[:-1])] * 2))
+
+
+def sentence(num_words=20, chars=''):
+    """
+    Returns a sentence based on random words from The Adventures of
+    Sherlock Holmes that is no more than `chars` characters in length
+    or `num_words` words in length.
+    """
+    word_list = _Book.get_text().split()
+    words = ' '.join(random.choice(word_list) for _ in
+                     xrange(num_words))
+    return words if not chars else words[:chars]
+
+
+def sentence_actual(min_words=3, max_words=1000):
+    """
+    Returns a sentence from The Adventures of Sherlock Holmes
+    that contains at least `min_words` and no more than `max_words`.
+    """
+    _rewhite = re.compile(r"\s+")
+    _rewhitesub = partial(_rewhite.sub, "")
+    for x in _Book.gen_random_sentences():
+        words = _rewhite.split(x)
+        words = filter(None, map(_rewhitesub, words))
+        x = " ".join(words)
+        if x.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
+            continue
+        if min_words <= len(x.split()) <= max_words:
+            return x
+    raise Exception("Couldn't find a sentence between \
+        {0} and {1} words long".format(min_words, max_words))
 

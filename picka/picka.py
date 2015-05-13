@@ -6,47 +6,17 @@ coverage by increasing the amount of tests you _dont_ have to write
 by hand.
 By: Anthony Long
 """
-
-from functools import partial
 import string
 import random as _random
 import random
-import re
 import socket
 import struct
-from ConfigParser import ConfigParser
 
 import picka_utils as _utils
-from english import name as _name
-
+from numbers import number
 
 __docformat__ = 'restructuredtext en'
 _query = _utils.query
-name = _name
-
-
-
-class _Settings(ConfigParser):
-    defaults = {
-        'output': 'full',
-    }
-
-    def get(self, section, key):
-        try:
-            return ConfigParser.get(self, section, key)
-        except ConfigParser.NoSectionError:
-            if section in self.defaults:
-                self.add_section(section)
-                self.set(section, key, self.defaults[section])
-                return self.defaults[section]
-            else:
-                raise
-        except ConfigParser.NoOptionError:
-            if section in self.defaults:
-                self.set(section, key, self.defaults[section])
-                return self.defaults[section]
-            else:
-                raise
 
 
 def trash(picka_function):
@@ -59,40 +29,6 @@ def trash(picka_function):
     return ''.join([str(char) + _random.choice(str(string.punctuation))
                     for char in picka_function()])
 
-
-def number(length=1):
-    """This function will produce a random number with as many
-    characters as you wish.
-    """
-    return ''.join(str(_random.randrange(0, 10)) for _ in xrange(length))
-
-def sentence(num_words=20, chars=''):
-    """
-    Returns a sentence based on random words from The Adventures of
-    Sherlock Holmes that is no more than `chars` characters in length
-    or `num_words` words in length.
-    """
-    word_list = _Book.get_text().split()
-    words = ' '.join(_random.choice(word_list) for _ in
-                     xrange(num_words))
-    return words if not chars else words[:chars]
-
-
-def sentence_actual(min_words=3, max_words=1000):
-    """
-    Returns a sentence from The Adventures of Sherlock Holmes
-    that contains at least `min_words` and no more than `max_words`.
-    """
-    for x in _Book.gen_random_sentences():
-        words = _rewhite.split(x)
-        words = filter(None, map(_rewhitesub, words))
-        x = " ".join(words)
-        if x.endswith(("Mr.", "Mrs.", "Dr.", "Ms.", "Prof.")):
-            continue
-        if min_words <= len(x.split()) <= max_words:
-            return x
-    raise Exception("Couldn't find a sentence between \
-        {0} and {1} words long".format(min_words, max_words))
 
 
 def foreign_characters(i):
@@ -214,13 +150,9 @@ def barcode(specification="EAN-8"):
 def mime_type():
     """Returns tuple, left is suffix, right is media type/subtype.
     """
-    cursor.execute('SELECT extension,name FROM mimes WHERE id =?', [
-        _random.randint(1, _get_max("mimes"))])
-    return cursor.fetchone()
-
+    return _query("extension,name", "mimes")
 
 def ipv4():
     return socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
 
 
-settings = _Settings()

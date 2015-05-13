@@ -1,16 +1,38 @@
 import random
 import string
+import sys
 
 from attrdict import AttrDict
 
-import utils as _utils
-import age as _age
+import picka_utils as _utils
+from numbers import age as _age
+from numbers import number
+from numbers import birthdate as _birthdate
+
+_query = _utils.query
+
+
+class NameGenerator(string.Formatter):
+    def get_value(self, key, args, kwargs):
+        thismodule = sys.modules[__name__]
+        return getattr(thismodule, key)()
+
+ftr = NameGenerator()
+
+def name(formatting="{male} {last}"):
+    return ftr.format(formatting)
+
+
+def male():
+    return _query("name", "male")
 
 def age():
-    return AttrDict(_age.age())
+    return AttrDict(_age())
+
 
 def birthdate():
-    return _age.birthdate()
+    return _birthdate()
+
 
 def email(length=8, domain='@example.com'):
     """
@@ -111,7 +133,7 @@ def gender():
 def language():
     """Picks a random language."""
 
-    _query("name", "languages")
+    return _query("name", "languages")
 
 
 def social_security_number(state="NY"):
@@ -123,7 +145,7 @@ def social_security_number(state="NY"):
     >>> assert len(social_security_number()) == 11
 
     """
-    x = random.choice(_utils._ssn_prefixes(state))
+    x = random.choice(_utils.ssn_prefixes(state))
     return '{0}-{1}-{2}'.format(
         random.randrange(x[0], x[1] + 1),
         number(2),
@@ -228,21 +250,21 @@ def drivers_license(state='NY'):
         )
     n = random.choice(lengths[state])
     s = ""
-    s += random_string(length=n[0])
+    s += _utils.random_string(length=n[0])
     s += number(length=n[1])
 
     if len(n) > 2:
         if state == "ID":
-            s += random_string()
+            s += _utils.random_string()
         if state == "IA":
-            s += random_string(length=n[2])
+            s += _utils.random_string(length=n[2])
             s += number(n[3])
         if state == "KS":
-            s += random_string(n[2])
+            s += _utils.random_string(n[2])
             s += number(n[3])
-            s += random_string(n[4])
+            s += _utils.random_string(n[4])
         if state == "MO":
-            s += "R" if n[2] == "R" else random_string(n[2])
+            s += "R" if n[2] == "R" else _utils.random_string(n[2])
         if state == "NH":
             s += number(n[3])
 
@@ -293,16 +315,12 @@ def business_title(abbreviated=False):
 
 def career():
     """This function will produce a career."""
-    cursor.execute('SELECT name FROM careers ORDER BY RANDOM() LIMIT 1;')
-    return cursor.fetchone()[0]
+    return _query("name", "careers")
 
 
 def company_name():
     """This function will return a company name"""
-
-    cursor.execute('SELECT name FROM companies \
-        ORDER BY RANDOM() LIMIT 1;')
-    return cursor.fetchone()[0]
+    return _query("name", "companies")
 
 
 def creditcard(prefix='visa'):
@@ -325,3 +343,219 @@ def cvv(i):
     """
 
     return '{}'.format(random.randint(111, (999 if i == 3 else 9999)))
+
+
+def street_address():
+    """This function will produce a complete street address."""
+
+    return random.choice(
+        [
+            '%d-%d %s' % (
+                random.randrange(999),
+                random.randrange(999),
+                street_name()
+            ),
+            '%d %s' % (
+                random.randrange(999),
+                street_name()
+            ),
+            '%s %d, %s' % (
+                'P.O. Box',
+                random.randrange(999),
+                street_name()
+            )
+        ]
+    )
+
+
+def street_name():
+    """
+    This function will create a street name from either
+    a male or female name, plus a street type.
+    """
+    return "{} {}".format(_query("name", "streetnames"), str(street_type()))
+
+
+def street_type():
+    """This function will return a random street type."""
+    return _query("name", "us_street_types")
+
+
+def apartment_number():
+    """
+    Returns an apartment type, with a number.
+
+    :tip: There are many different types which could be returned.
+    If you are looking for a specific format, you might be interested\
+    in using string formatting instead.
+
+    """
+    _type = random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
+    letter = random.choice(string.ascii_letters).capitalize()
+    directions = ['E', 'W', 'N', 'S']
+    short = '{} {}'.format(_type, random.randint(1, 999))
+    _long = '{} {}{}'.format(_type, random.randint(1, 999), letter)
+    alt = '{} {}-{}{}'.format(_type, random.choice(directions),
+                              random.randint(1, 999), letter)
+    return random.choice([short, _long, alt])
+
+
+def city():
+    """This function will produce a city."""
+    return _query("city", "us_cities")
+
+
+def city_with_state():
+    """
+    This function produces a city with a state.
+    ie - city_with_state() = 'New York, NY'
+    """
+    return ', '.join(_query("city, state", "us_cities"))
+
+
+def state_abbreviated():
+    """
+    This function produces just a state abbreviation.
+    eg - state_abbreviated() = 'NY'
+    """
+    return _query("abbreviation", "states")
+
+
+@_utils.deprecated("picka.zipcode(state)")
+def postal_code():
+    return zipcode()
+
+
+def zipcode(state=False):
+    """This function will pick a zipcode randomnly from a list.
+    eg - zipcode() = '11221'.
+    """
+    range_gen = []
+    if state:
+        _range = _query(custom='SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), quantity=True)
+        for r in _range:
+            range_gen += range(r[0], r[1])
+        return '%05d' % random.choice(range_gen)
+    else:
+        range_gen += _query(
+            custom='SELECT min, max FROM zipcodes ORDER BY RANDOM() LIMIT 1;',
+            quantity=True
+        )[0]
+    print range_gen
+    return '%05d' % random.randint(range_gen[0], range_gen[1])
+
+
+def country():
+    # Todo: Use max row.
+    """This function will return a random country."""
+    return _query("name", "countries")
+
+
+def salutation():
+    """This function will return a 'Mr.' or 'Mrs.'"""
+    return random.choice(['Mr.', 'Mrs.', 'Miss', 'Dr.', 'Prof.', 'Rev.'])
+
+
+def female():
+    """Returns a randomly chosen female first name."""
+    return _query("name", "female")
+
+
+def initial(period=False):
+    """Returns a randomly chosen letter, with a trailing period if desired.
+
+    Args:
+        with_period (bool): Whether or not to add a trailing period.
+
+    Example:
+      print picka.initial() => "B"
+
+    >>> initial() in string.ascii_letters
+    True
+    >>> initial(period=True)[-1] == "."
+    True
+
+    """
+    return "{0}{1}".format(_utils.random_string(), "." if period else "")
+
+
+def set_of_initials(i=3):
+    """Returns initials with period seperators."""
+
+    return [''.join(initial(True) for _ in xrange(i))]
+
+
+def surname():
+    """Returns a randomly chosen surname."""
+    return _query("name", "surname")
+
+
+def hyphenated_last_name():
+    """
+    This function will pick 2 random last names and hyphenate them.
+    ie - hyphenated_last_name() = 'Perry-Jenkins'
+    """
+
+    return '{}-{}'.format(surname(), surname())
+
+
+def suffix():
+    """This returns a suffix from a small list."""
+    return random.choice([
+        'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
+    ])
+
+
+@_utils.deprecated("picka.surname()")
+def last_name():
+    return surname()
+
+
+@_utils.deprecated("picka.surname()")
+def last():
+    return last_name()
+
+
+@_utils.deprecated("picka.name(format='{male}{middle}{last}'")
+def male_full_name():
+    return name("{male} {male} {surname}")
+
+
+@_utils.deprecated("picka.name(format='{male}{initial}{last}', gender='M'")
+def male_full_name_w_middle_initial():
+    return name("{male} {initial}")
+
+
+@_utils.deprecated("picka.name('{female}')")
+def female_first():
+    return female()
+
+
+@_utils.deprecated("picka.name('{female}')")
+def female_middle():
+    return female()
+
+
+@_utils.deprecated("picka.name('{female}')")
+def female_name():
+    """
+     :Summary: Returns a random female name.
+     :Usage: picka.female_name() >>> 'Christy'
+    """
+    return female()
+
+
+@_utils.deprecated("picka.name('{male}')")
+def male_middle_name():
+    return male()
+
+
+@_utils.deprecated("picka.name('{male}')")
+def male_middle():
+    return male()
+
+
+@_utils.deprecated("picka.name('{male}')")
+def male_first():
+    return male()
+
