@@ -1,9 +1,21 @@
 import warnings
 import functools
-import datetime
-
+import os
+import sqlite3
+import random
+import string
+import re
+from itertools import izip
 
 warnings.simplefilter('always', DeprecationWarning)
+_rewhite = re.compile(r"\s+")
+_rewhitesub = partial(_rewhite.sub, "")
+
+db_filepath = os.path.join(os.path.abspath(
+    os.path.dirname(__file__)), 'db.sqlite'
+)
+
+row_counts = {}
 
 
 def deprecated(replacement=None):
@@ -80,55 +92,95 @@ def _ssn_prefixes(state):
     return states[state]
 
 
-def _readable_date(theDateAndTime, fromDate, precise=False):
-    """ provides a human readable format for a time delta
-        @param theDateAndTime this is time equal or older than now or the date in 'fromDate'
-        @param precise        when true then milliseconds and microseconds are included
-        @param fromDate       when None the 'now' is used otherwise a concrete date is expected
-        @return the time delta as text
-
-        @note I don't calculate months and years because those varies (28,29,30 or 31 days a month
-              and 365 or 366 days the year depending on leap years). In addition please refer
-              to the documentation for timedelta limitations.
+def query(name=False, column=False, where=False, value=False, quantity=False, custom=False):
     """
-    if not fromDate:
-        fromDate = datetime.now()
+    Grabs data from the database.
+    """
+    with sqlite3.connect(db_filepath) as connect:
+        connect.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
+        cursor = connect.cursor()
+        if custom:
+            cursor.execute(custom)
+            return cursor.fetchall()
+        if column not in row_counts:
+            cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1;'.format(column))
+            row_counts[column] = cursor.fetchone()[0]
+        if where and value:
+            cursor.execute('SELECT {} FROM {} WHERE {} = {}'.format(
+                name, column, where, value )
+            )
+        else:
+            cursor.execute('SELECT {} FROM {} WHERE id = {}'.format(
+                name, column, random.randint(1, row_counts[column]))
+            )
+        if not quantity:
+            data = cursor.fetchone()
+        else:
+            data = cursor.fetchall()
+    return data if len(name.split()) > 1 else data[0]
 
-    if theDateAndTime > fromDate:
-        return None
-    elif theDateAndTime == fromDate:
-        return "now"
 
-    delta = fromDate - theDateAndTime
+def random_string(length=1, case='upper'):
+    """
+    This will allow you to enter an integer, and create 'i' amount
+    of characters. ie: random_string(7) = DsEIzCd
+    """
+    choices = ''
+    output = ''
+    cases = {
+        'upper': string.ascii_uppercase,
+        'lower': string.ascii_lowercase,
+        'mixed': string.ascii_letters
+    }
+    choices += cases[case]
+    for _ in xrange(length):
+        output += random.choice(choices)
+    return output
 
-    # the timedelta structure does not have all units; bigger units are converted
-    # into given smaller ones (hours -> seconds, minutes -> seconds, weeks > days, ...)
-    # but we need all units:
-    deltaMinutes = delta.seconds // 60
-    deltaHours = delta.seconds // 3600
-    deltaMinutes -= deltaHours * 60
-    deltaWeeks = delta.days // 7
-    deltaSeconds = delta.seconds - deltaMinutes * 60 - deltaHours * 3600
-    deltaDays = delta.days - deltaWeeks * 7
-    deltaMilliSeconds = delta.microseconds // 1000
-    deltaMicroSeconds = delta.microseconds - deltaMilliSeconds * 1000
 
-    valuesAndNames = [(deltaWeeks, "week"  ), (deltaDays, "day"   ),
-                      (deltaHours, "hour"  ), (deltaMinutes, "minute"),
-                      (deltaSeconds, "second")]
-    if precise:
-        valuesAndNames.append((deltaMilliSeconds, "millisecond"))
-        valuesAndNames.append((deltaMicroSeconds, "microsecond"))
+class _Book:
+    """
+    Keeps the text of a book and the split sentences of a book
+    globally available. This means you don't have to read in
+    all of a book's text every time you need  a sentence or a set of words.
+    The book will only be read once. The sentences of the book will only
+    be split apart once.
+    """
+    # TODO: I really think Sherlock is a bad source for sentences.
+    # There are just too many weird quotes and fragments. Too much dialog.
+    def __init__(self):
+        pass
 
-    text = ""
-    for value, name in valuesAndNames:
-        if value > 0:
-            text += len(text) and ", " or ""
-            text += "%d %s" % (value, name)
-            text += (value > 1) and "s" or ""
+    _path = os.path.join(os.path.dirname(__file__),
+                         "book_sherlock.txt")
+    _text = _num_sentences = _sentences = None
 
-    # replacing last occurrence of a comma by an 'and'
-    if text.find(",") > 0:
-        text = " and ".join(text.rsplit(", ", 1))
+    @classmethod
+    def get_text(cls):
+        if not cls._text:
+            cls._text = open(cls._path).read()
+        return cls._text
 
-    return text
+    @classmethod
+    def get_sentences(cls):
+        if not cls._sentences:
+            text = cls.get_text()
+            cls._sentences = _split_sentences(text)
+            cls._num_sentences = len(cls._sentences)
+        return cls._sentences
+
+    @classmethod
+    def gen_random_sentences(cls, no_more_than=1000000):
+        sentences = cls.get_sentences()
+        max_index = cls._num_sentences - 1
+        for _ in xrange(no_more_than):
+            i = random.randint(0, max_index)
+            yield sentences[i]
+
+
+def _split_sentences(text):
+    # from pyteaser: https://github.com/xiaoxu193/PyTeaser
+    # see `pyteaser.split_sentences()`
+    fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
+    return map("".join, izip(*[iter(fragments[:-1])] * 2))
+

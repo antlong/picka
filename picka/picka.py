@@ -10,333 +10,45 @@ By: Anthony Long
 from functools import partial
 import string
 import random as _random
-import time
+import random
 import re
-import calendar
-
+import socket
+import struct
+from ConfigParser import ConfigParser
 
 import picka_utils as _utils
 from english import name as _name
 
 
 __docformat__ = 'restructuredtext en'
-
-_rewhite = re.compile(r"\s+")
-_rewhitesub = partial(_rewhite.sub, "")
 _query = _utils.query
-_max_counts = _utils.row_counts
-
-def male():
-    return _name("{male}")
-
-def female():
-    return _name("{female}")
-
 name = _name
 
-###########
-# User Data
-###########
-# Todo: Add IP Address generator
 
 
-# Address
-def street_address():
-    """This function will produce a complete street address."""
+class _Settings(ConfigParser):
+    defaults = {
+        'output': 'full',
+    }
 
-    return _random.choice(
-        [
-            '%d-%d %s' % (
-                _random.randrange(999),
-                _random.randrange(999),
-                street_name()
-            ),
-            '%d %s' % (
-                _random.randrange(999),
-                street_name()
-            ),
-            '%s %d, %s' % (
-                'P.O. Box',
-                _random.randrange(999),
-                street_name()
-            )
-        ]
-    )
-
-
-def street_name():
-    """
-    This function will create a street name from either
-    a male or female name, plus a street type.
-    """
-    return "{} {}".format(_query("name", "streetnames"), str(street_type()))
+    def get(self, section, key):
+        try:
+            return ConfigParser.get(self, section, key)
+        except ConfigParser.NoSectionError:
+            if section in self.defaults:
+                self.add_section(section)
+                self.set(section, key, self.defaults[section])
+                return self.defaults[section]
+            else:
+                raise
+        except ConfigParser.NoOptionError:
+            if section in self.defaults:
+                self.set(section, key, self.defaults[section])
+                return self.defaults[section]
+            else:
+                raise
 
 
-def street_type():
-    """This function will return a random street type."""
-    return _query("name", "us_street_types")
-
-
-def apartment_number():
-    """
-    Returns an apartment type, with a number.
-
-    :tip: There are many different types which could be returned.
-    If you are looking for a specific format, you might be interested\
-    in using string formatting instead.
-
-    """
-    _type = _random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
-    letter = _random.choice(string.ascii_letters).capitalize()
-    directions = ['E', 'W', 'N', 'S']
-    short = '{} {}'.format(_type, _random.randint(1, 999))
-    _long = '{} {}{}'.format(_type, _random.randint(1, 999), letter)
-    alt = '{} {}-{}{}'.format(_type, _random.choice(directions),
-                              _random.randint(1, 999), letter)
-    return _random.choice([short, _long, alt])
-
-
-def city():
-    """This function will produce a city."""
-    return _query("city", "us_cities")
-
-
-def city_with_state():
-    """
-    This function produces a city with a state.
-    ie - city_with_state() = 'New York, NY'
-    """
-    return ', '.join(_query("city, state", "us_cities"))
-
-
-def state_abbreviated():
-    """
-    This function produces just a state abbreviation.
-    eg - state_abbreviated() = 'NY'
-    """
-    return _query("abbreviation", "states")
-
-
-@_utils.deprecated("picka.zipcode(state)")
-def postal_code():
-    return zipcode()
-
-def sum_of_ranges(*ranges):
-    for r in ranges:
-        for num in r:
-            yield num
-
-
-def zipcode(state=False):
-    """This function will pick a zipcode randomnly from a list.
-    eg - zipcode() = '11221'.
-    """
-    range_gen = []
-    if state:
-        _range = _query(custom='SELECT min, max from zipcodes where st = "{}";'.format(state), quantity=True)
-        for r in _range:
-            range_gen += range(r[0], r[1])
-        return '%05d' % _random.choice(range_gen)
-    else:
-        range_gen += _query(custom='SELECT min, max from zipcodes ORDER BY RANDOM() LIMIT 1;', quantity=True)[0]
-    print range_gen
-    return '%05d' % _random.randint(range_gen[0], range_gen[1])
-
-
-
-
-
-def country():
-    # Todo: Use max row.
-    """This function will return a random country."""
-    cursor.execute('SELECT name FROM countries \
-        ORDER BY RANDOM() LIMIT 1;')
-    return cursor.fetchone()[0]
-
-
-# Phone Data
-def calling_code():
-    """
-    Returns a calling code from a list of all known calling codes in \
-    the world.
-    """
-
-    cursor.execute(
-        'SELECT calling_code FROM countries_and_calling_codes \
-        ORDER BY RANDOM() LIMIT 1;')
-    return cursor.fetchone()[0]
-
-
-def calling_code_with_country():
-    """Returns a country, with a calling code as a single string."""
-
-    return cursor.execute('SELECT * FROM countries_and_calling_codes \
-        ORDER BY random() LIMIT 1;')
-
-
-def area_code(state=False):
-    if state:
-        cursor.execute('SELECT code FROM areacodes WHERE state = ? \
-            ORDER BY RANDOM() LIMIT 1;', [state])
-    else:
-        cursor.execute('SELECT code FROM areacodes ORDER BY RANDOM() LIMIT 1;')
-    return cursor.fetchone()[0]
-
-
-def phone_number(state=False, formatting=False):
-    """Generate a phone number. Conforms to NANP standards.
-
-    :arg state: Bool
-    :arg formatting: local, domestic, or international
-    """
-
-    def _gen():
-        while True:
-            n = str(_random.randint(2, 9)) + str(
-                _random.randrange(10 ** (2 - 1), 10 ** 2))
-            if n not in ["911", "555"]:
-                break
-        return n
-
-    if formatting in ("local",):
-        # 754-3010
-        return "{0}-{1}".format(_gen(), number(4))
-    elif formatting in ("domestic",):
-        # (541) 754-3010
-        return "({0}) {1}-{2}".format(area_code(state), _gen(), number(4))
-    elif formatting in ("international",):
-        # +1-541-754-3010
-        return "+1-{0}-{1}-{2}".format(area_code(state), _gen(), number(4))
-    else:
-        # 204-371-1275
-        return "{0}-{1}-{2}".format(area_code(state), _gen(), number(4))
-
-
-@_utils.deprecated("picka.phone_number(formatting)")
-def fax_number():
-    """
-    :Summary: Returns a fax (phone) number.
-    :Usage: picka.fax_number() >>> 755-463-6544
-    """
-
-    return phone_number()
-
-
-#############
-# Time & Date
-#############
-def month():
-    return _random.choice(calendar.month_name[1:])
-
-
-def month_and_day():
-    """Selects and month and day for you.
-    There is logic to handle the days in the month correctly.
-    """
-
-    month_choice = month()
-    if month_choice in [
-        'January', 'March', 'May', 'July', 'August',
-        'October', 'December'
-    ]:
-        return '%s %s' % (month_choice, _random.randrange(1, 32))
-    if month_choice in 'February':
-        return '%s %s' % (month_choice, _random.randrange(1, 29))
-    else:
-        return '%s %s' % (month_choice, _random.randrange(1, 31))
-
-
-def month_and_day_and_year(start=1900, end=2010):
-    """
-    Selects a monday, day and year for you.
-    Logic built in to handle day in month.
-    To change month do (a, b). b has +1 so the
-    last year in your range can be selected. Default is 1900, 2010.
-    """
-
-    return '%s %s' % (month_and_day(), _random.randrange(start, end + 1))
-
-
-def timestamp(style=False):
-    """
-    This is a convenience function for creating timestamps.
-    Default when empty, is "12:28:59PM 07/20/10" or "%H:%M:%S%p %D".
-    To change this, pass in your format as an arg.
-    """
-
-    if not style:
-        return time.strftime('%H:%M:%S%p %x', time.localtime())
-    else:
-        return time.strftime(style, time.localtime())
-
-
-def timezone_offset():
-    """
-    This function will select the value of a timezone offsets,
-    such as GMT, GMT+4, etc.
-    """
-
-    return _random.choice(
-        [
-            ['GMT+' + str(_random.randint(1, 12))],
-            ['GMT'],
-            ['GMT' + str(_random.randint(-12, -1))]
-        ]
-    )[0]
-
-
-def timezone_offset_country():
-    """This function will select the country part of a timezone."""
-
-    return _random.choice(
-        [
-            'Eniwetoa',
-            'Hawaii',
-            'Alaska',
-            'Pacific',
-            'Mountain',
-            'Central',
-            'Eastern',
-            'Atlantic',
-            'Canada',
-            'Brazilia',
-            'Buenos Aries',
-            'Mid-Atlantic',
-            'Cape Verdes',
-            'Greenwich Mean Time',
-            'Dublin',
-            'Berlin',
-            'Rome',
-            'Israel',
-            'Cairo',
-            'Moscow',
-            'Kuwait',
-            'Abu Dhabi',
-            'Muscat',
-            'Islamabad',
-            'Karachi',
-            'Almaty',
-            'Dhaka',
-            'Bangkok, Jakarta',
-            'Hong Kong',
-            'Beijing',
-            'Tokyo',
-            'Osaka',
-            'Sydney',
-            'Melbourne',
-            'Guam',
-            'Magadan',
-            'Soloman Islands',
-            'Fiji',
-            'Wellington',
-            'Auckland',
-        ]
-    )
-
-
-######
-# Misc
-######
 def trash(picka_function):
     """
      :Summary: This method takes a function you pass in, and joins\
@@ -353,9 +65,6 @@ def number(length=1):
     characters as you wish.
     """
     return ''.join(str(_random.randrange(0, 10)) for _ in xrange(length))
-
-
-
 
 def sentence(num_words=20, chars=''):
     """
@@ -508,3 +217,10 @@ def mime_type():
     cursor.execute('SELECT extension,name FROM mimes WHERE id =?', [
         _random.randint(1, _get_max("mimes"))])
     return cursor.fetchone()
+
+
+def ipv4():
+    return socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
+
+
+settings = _Settings()

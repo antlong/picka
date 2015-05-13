@@ -18,16 +18,16 @@ def birthdate(min_year=1900, max_year=2015, formatted=False):
 
     Examples:
 
-      >>> print picka.birthdate()
+      >>> print birthdate()
       datetime.datetime(1903, 12, 23, 10, 46, 55, 140438)
-      >>> print picka.birthday(max_year=1950)
+      >>> print birthday(max_year=1950)
       datetime.datetime(1928, 6, 20, 12, 26, 17, 27057)
-      >>> print picka.birthdate(formatted="%m/%d/%Y")
+      >>> print birthdate(formatted="%m/%d/%Y")
       '07/07/2002'
-      >>> x = picka.birthdate()
+      >>> x = birthdate()
       >>> print x.month, x.day, x.year
       11 1 1981
-      >>> picka.birthdate(formatted="%B")
+      >>> birthdate(formatted="%B")
       'Februrary'
 
     """
@@ -58,7 +58,7 @@ def age(min_year=1900, max_year=2015, formatting=False):
       no formatting: A dict containing multiple values.
 
     Examples:
-      >>> picka.age()
+      >>> age()
       {
         'year': '1916',
         'period': 'AM',
@@ -70,7 +70,7 @@ def age(min_year=1900, max_year=2015, formatting=False):
         'datetime': datetime.datetime(1916, 1, 5, 5, 47, 47, 564468),
         'day': '05'
       }
-      >>> picka.age(formatting="%B, %d %Y")
+      >>> age(formatting="%B, %d %Y")
       'June, 20 2005'
 
     """

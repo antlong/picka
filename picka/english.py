@@ -10,35 +10,21 @@ By: Anthony Long
 
 import string
 import random as _random
-import sqlite3
-import os
-
-import picka
 
 
+import picka_utils as _utils
+import name as _name
 __docformat__ = 'restructuredtext en'
+_max_counts = _utils.row_counts
 
-connect = \
-    sqlite3.connect(os.path.join(os.path.abspath(
-        os.path.dirname(__file__)), 'db.sqlite'))
-cursor = connect.cursor()
-_max_counts = {}
-
+_query = _utils.query
 
 class NameGenerator(string.Formatter):
     def get_value(self, key, args, kwargs):
-        return getattr(picka, key)()
+        return getattr(_name, key)()
 
 
 ftr = NameGenerator()
-
-
-def _get_max(tablename):
-    if tablename in _max_counts:
-        return _max_counts[tablename]
-    cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1'.format(tablename))
-    _max_counts[tablename] = cursor.fetchone()[0]
-    return _max_counts[tablename]
 
 
 def name(formatting="{male} {last}"):

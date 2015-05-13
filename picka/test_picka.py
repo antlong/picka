@@ -8,6 +8,7 @@ from types import *
 
 import picka
 
+
 connect = \
     sqlite3.connect(os.path.join(os.path.abspath(
         os.path.dirname(__file__)), 'db.sqlite'))
@@ -65,64 +66,199 @@ def test_rbga():
 def test_language():
     assert len(picka.language()) > 0
 
-assert picka.timezone_offset_country()
-assert picka.screename()
-assert picka.number(10)
-assert picka.month()
-assert picka.month_and_day_and_year()
-assert picka.special_characters(8)
-assert picka.postal_code()
-assert picka.apartment_number()
-assert picka.gender()
-assert picka.salutation()
-assert picka.creditcard('visa')
-assert picka.male_middle_name()
-assert picka.city()
-assert picka.male_full_name_w_middle_initial()
-assert picka.state_abbreviated()
-assert picka.street_name()
-assert picka.initial()
-assert picka.calling_code_with_country()
-assert picka.surname()
-assert picka.business_title()
-assert picka.male_middle()
-assert picka.trash(picka.male_first)
-assert picka.female_first()
-assert picka.calling_code()
-assert picka.male_first()
-assert picka.timestamp()
-assert picka.hyphenated_last_name()
-assert picka.fax_number()
-assert picka.male_full_name()
-assert picka.password_alphanumeric(8)
-#assert picka.birthday()
-assert picka.social_security_number()
-assert picka.set_of_initials()
-assert picka.female_middle()
-assert picka.month_and_day()
-assert picka.password_alphabetical(8)
-assert picka.name()
-assert picka.cvv(3)
-assert picka.country()
-assert picka.age()
-assert picka.city_with_state()
-assert picka.email()
-assert picka.female_name()
-assert picka.street_type()
-assert picka.suffix()
-assert picka.url(10)
-assert picka.password_numerical(10)
-assert picka.street_address()
-assert picka.language()
-assert len(picka.barcode("EAN-8")) == 8
+
+def test_timezone_offset_country():
+    assert len(picka.timezone_offset_country()) > 0
+
+
+def test_screename():
+    assert picka.screename()
+
+
+def test_number():
+    assert picka.number(10)
+
+
+def test_month():
+    assert picka.month()
+
+
+def test_special_characters():
+    assert picka.special_characters(8)
+
+
+def test_postal_code():
+    assert picka.postal_code()
+
+
+def test_apartment_number():
+    assert picka.apartment_number()
+
+
+def test_gender():
+    assert picka.gender()
+
+
+def test_salutation():
+    assert picka.salutation()
+
+
+def test_creditcard():
+    assert picka.creditcard(prefix='visa')
+
+
+def test_male_middle_name():
+    assert picka.male_middle_name()
+
+
+def test_city():
+    assert picka.city()
+
+
+def test_male_full_name_w_middle_initial():
+    assert picka.male_full_name_w_middle_initial()
+
+
+def test_state_abbreviated():
+    assert picka.state_abbreviated()
+
+
+def test_street_name():
+    assert picka.street_name()
+
+
+def test_calling_code_with_country():
+    assert picka.calling_code_with_country()
+
+
+def test_surname():
+    assert picka.surname()
+
+
+def test_business_title():
+    assert picka.business_title()
+
+
+def test_male_middle():
+    assert picka.male_middle()
+
+
+def test_trash():
+    assert picka.trash(picka.male_first)
+
+
+def test_female_first():
+    assert picka.female_first()
+
+
+def test_calling_code():
+    assert picka.calling_code()
+
+
+def test_male_first():
+    assert picka.male_first()
+
+
+def test_timestamp():
+    assert picka.timestamp()
+
+
+def test_hyphenated_last_name():
+    assert picka.hyphenated_last_name()
+
+
+def test_fax_number():
+    assert picka.fax_number()
+
+
+def test_male_full_name():
+    assert picka.male_full_name()
+
+
+def test_password_alphanumeric():
+    assert picka.password_alphanumeric(8)
+
+
+# assert picka.birthday()
+
+def test_social_security_number():
+    assert picka.social_security_number()
+
+
+def test_set_of_initials():
+    assert picka.set_of_initials()
+
+
+def test_female_middle():
+    assert picka.female_middle()
+
+
+def test_month_and_day():
+    assert picka.month_and_day()
+
+
+def test_password_alphabetical():
+    assert picka.password_alphabetical(8)
+
+
+def test_name():
+    assert picka.name()
+
+
+def test_cvv():
+    assert picka.cvv(3)
+
+
+def test_country():
+    assert picka.country()
+
+
+def test_age():
+    assert picka.age()
+
+
+def test_city_with_state():
+    assert picka.city_with_state()
+
+
+def test_email():
+    assert picka.email()
+
+
+def test_female_name():
+    assert picka.female_name()
+
+
+def test_street_type():
+    assert picka.street_type()
+
+
+def test_suffix():
+    assert picka.suffix()
+
+
+def test_url():
+    assert picka.url(10)
+
+
+def test_password_numerical():
+    assert picka.password_numerical(10)
+
+
+def test_street_address():
+    assert picka.street_address()
 
 
 def test_barcode():
-    x = picka.barcode("EAN-13")
-    assert len(x) == 13
+    assert len(picka.barcode("EAN-8")) == 8
+    assert len(picka.barcode("EAN-13")) == 13
+
 
 # assert picka.locale()
-assert picka.mime_type()
+
+def test_mime_type():
+    assert picka.mime_type()
+
 
 if __name__ == '__main__':
     unittest.main()
