@@ -426,23 +426,26 @@ def postal_code():
     return zipcode()
 
 
-def zipcode(state=False):
+def zipcode(state=None):
     """This function will pick a zipcode randomnly from a list.
     eg - zipcode() = '11221'.
     """
     range_gen = []
-    if state:
-        _range = _query(custom='SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), quantity=True)
-        for r in _range:
-            range_gen += range(r[0], r[1])
-        return '%05d' % random.choice(range_gen)
-    else:
-        range_gen += _query(
-            custom='SELECT min, max FROM zipcodes ORDER BY RANDOM() LIMIT 1;',
-            quantity=True
-        )[0]
-    print range_gen
-    return '%05d' % random.randint(range_gen[0], range_gen[1])
+    state = state or state_abbreviated()
+    _range = _query(custom='SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), quantity=True)
+
+    for r in _range:
+        range_gen += range(r[0], r[1] + 1)
+
+    if hasattr(sys, '_called_from_test'):
+        result = "%05d" % random.choice(range_gen)
+        return AttrDict({
+            "result": result,
+            "computed_range": range_gen,
+            "original_range": _range
+        })
+
+    return '%05d' % random.choice(range_gen)
 
 
 def country():
@@ -506,14 +509,14 @@ def suffix():
     ])
 
 
-@_utils.deprecated("picka.surname()")
+@_utils.deprecated("picka.name('{surname'}")
 def last_name():
     return surname()
 
 
-@_utils.deprecated("picka.surname()")
+@_utils.deprecated("picka.name('{surname}'")
 def last():
-    return last_name()
+    return name("{surname}")
 
 
 @_utils.deprecated("picka.name(format='{male}{middle}{last}'")

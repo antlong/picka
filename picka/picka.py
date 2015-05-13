@@ -7,28 +7,27 @@ by hand.
 By: Anthony Long
 """
 import string
-import random as _random
-import random
-import socket
-import struct
+from random import choice, randint
+import socket as _socket
+import struct as _struct
 
 import picka_utils as _utils
 from numbers import number
+import db as _db
 
-__docformat__ = 'restructuredtext en'
-_query = _utils.query
+_query = _db.query()
+_row_counts = _utils.row_counts
 
 
 def trash(picka_function):
     """
      :Summary: This method takes a function you pass in, and joins\
-     the output with random punctuation.
+     the output with _random punctuation.
      :Date: Tue Feb 22 15:31:12 EST 2011.
      :Usage: picka.trash(picka.name) >>> 'D#o}y>l~e^'
     """
-    return ''.join([str(char) + _random.choice(str(string.punctuation))
+    return ''.join([str(char) + choice(str(string.punctuation))
                     for char in picka_function()])
-
 
 
 def foreign_characters(i):
@@ -36,7 +35,7 @@ def foreign_characters(i):
         u'ƒŠŒŽšœžŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕ\
         ÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
     )
-    return ''.join(_random.choice(foreign_chars) for _ in xrange(i))
+    return ''.join(choice(foreign_chars) for _ in xrange(i))
 
 
 def special_characters(i):
@@ -45,23 +44,23 @@ def special_characters(i):
     ie - picka.special_characters() = '@%^$'.
     """
 
-    return ''.join(_random.choice(string.punctuation) for _ in xrange(i))
+    return ''.join(choice(string.punctuation) for _ in xrange(i))
 
 
 def rbg():
-    return [_random.randint(0, 256) for _ in xrange(3)]
+    return [randint(0, 256) for _ in xrange(3)]
 
 
 def rbga(a=0):
     x = rbg()
     x.append(a) if isinstance(a, (
-        int, long)) else x.append(_random.randint(0, 256))
+        int, long)) else x.append(randint(0, 256))
     return x
 
 
 # noinspection PyUnresolvedReferences
 def image(filepath, length=100, width=100, a=0):
-    """Generate a random colored image, with random text on it.
+    """Generate a _random colored image, with _random text on it.
     Returns filepath for ease of use.
 
         :param: filepath: path to save image to.
@@ -152,7 +151,6 @@ def mime_type():
     """
     return _query("extension,name", "mimes")
 
+
 def ipv4():
-    return socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
-
-
+    return _socket.inet_ntoa(_struct.pack('>I', randint(1, 0xffffffff)))

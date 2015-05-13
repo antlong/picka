@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import unittest
 from types import *
 
 import picka
@@ -237,8 +236,10 @@ def test_street_address():
     assert picka.street_address()
 
 
-def test_barcode():
+def test_barcode_ean_8():
     assert len(picka.barcode("EAN-8")) == 8
+
+def test_barcode_ean_13():
     assert len(picka.barcode("EAN-13")) == 13
 
 
@@ -247,6 +248,18 @@ def test_barcode():
 def test_mime_type():
     assert picka.mime_type()
 
+def test_zipcode_result_length():
+    data = picka.zipcode()
+    assert len(data.result) == 5
 
-if __name__ == '__main__':
-    unittest.main()
+def test_zipcode_is_string():
+    data = picka.zipcode()
+    assert isinstance(data.result, StringType)
+
+def test_zipcode_selections_in_computed_range():
+    data = picka.zipcode()
+    for x in data.original_range:
+        for y in x:
+            assert y in data.computed_range
+
+

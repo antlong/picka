@@ -1,23 +1,18 @@
 import warnings
 import functools
 import os
-import sqlite3
 import random
 import string
 import re
 from itertools import izip
 from functools import partial
 
+import db as _db
+
+__docformat__ = 'restructuredtext en'
 
 warnings.simplefilter('always', DeprecationWarning)
-
-
-db_filepath = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/db.sqlite'
-)
-
-row_counts = {}
-
+_query = _db.query()
 
 def deprecated(replacement=None):
     def outer(fun):
@@ -91,34 +86,6 @@ def ssn_prefixes(state):
         "WY": [[520, 520]]
     }
     return states[state]
-
-
-def query(name=False, column=False, where=False, value=False, quantity=False, custom=False):
-    """
-    Grabs data from the database.
-    """
-    with sqlite3.connect(db_filepath) as connect:
-        connect.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
-        cursor = connect.cursor()
-        if custom:
-            cursor.execute(custom)
-            return cursor.fetchall()
-        if column not in row_counts:
-            cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1;'.format(column))
-            row_counts[column] = cursor.fetchone()[0]
-        if where and value:
-            cursor.execute('SELECT {} FROM {} WHERE {} = {}'.format(
-                name, column, where, value )
-            )
-        else:
-            cursor.execute('SELECT {} FROM {} WHERE id = {}'.format(
-                name, column, random.randint(1, row_counts[column]))
-            )
-        if not quantity:
-            data = cursor.fetchone()
-        else:
-            data = cursor.fetchall()
-    return data if len(name.split()) > 1 else data[0]
 
 
 def random_string(length=1, case='upper'):
