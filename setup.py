@@ -12,6 +12,7 @@ def read(fname):
 setup(
     name='picka',
     version='0.9.9',
+    install_requires = ['attrdict'],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
     keywords="assert assertions testing test qa",
