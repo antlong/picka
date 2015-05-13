@@ -5,8 +5,9 @@ from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 
 import picka_utils as _utils
+import db as _db
 
-_query = _utils.query
+_query = _db.query
 
 def birthdate(min_year=1900, max_year=2015, formatted=None):
     """Generates a birthdate.

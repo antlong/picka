@@ -12,7 +12,7 @@ import db as _db
 __docformat__ = 'restructuredtext en'
 
 warnings.simplefilter('always', DeprecationWarning)
-_query = _db.query()
+_query = _db.query
 
 def deprecated(replacement=None):
     def outer(fun):

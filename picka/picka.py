@@ -11,12 +11,11 @@ from random import choice, randint
 import socket as _socket
 import struct as _struct
 
-import picka_utils as _utils
 from numbers import number
 import db as _db
 
-_query = _db.query()
-_row_counts = _utils.row_counts
+_query = _db.query
+_row_counts = _db.row_counts
 
 
 def trash(picka_function):

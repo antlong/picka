@@ -20,10 +20,17 @@ def get_cursor():
         )
     return connect.cursor()
 
+
 def query(name=None, column=None, where=None, value=None, quantity=None, custom=None):
     """
     Grabs data from the database.
     """
+    try:
+        if not cursor and row_counts:
+            pass
+    except Exception:
+        cursor = get_cursor()
+        row_counts = get_row_counts()
     if custom:
         cursor.execute(custom)
         return cursor.fetchall()

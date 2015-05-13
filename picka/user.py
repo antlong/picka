@@ -4,12 +4,13 @@ import sys
 
 from attrdict import AttrDict
 
+import db as _db
 import picka_utils as _utils
 from numbers import age as _age
 from numbers import number
 from numbers import birthdate as _birthdate
 
-_query = _utils.query
+_query = _db.query
 
 
 class NameGenerator(string.Formatter):
