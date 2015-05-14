@@ -14,8 +14,9 @@ import struct as _struct
 from numbers import number
 import db as _db
 
-_query = _db.query
-_row_counts = _db.row_counts
+_query = _db.Queries()
+query_single = _query.query_single
+query_multiple = _query.query_multiple
 
 
 def trash(picka_function):
@@ -46,17 +47,6 @@ def special_characters(i):
     return ''.join(choice(string.punctuation) for _ in xrange(i))
 
 
-def rbg():
-    return [randint(0, 256) for _ in xrange(3)]
-
-
-def rbga(a=0):
-    x = rbg()
-    x.append(a) if isinstance(a, (
-        int, long)) else x.append(randint(0, 256))
-    return x
-
-
 # noinspection PyUnresolvedReferences
 def image(filepath, length=100, width=100, a=0):
     """Generate a _random colored image, with _random text on it.
@@ -83,27 +73,6 @@ def image(filepath, length=100, width=100, a=0):
     return filepath
 
 
-def hex_color():
-    def _chkarg(a):
-        if isinstance(a, int):
-            if a < 0:
-                a = 0
-            elif a > 255:
-                a = 255
-        elif isinstance(a, float):
-            if a < 0.0:
-                a = 0
-            elif a > 1.0:
-                a = 255
-            else:
-                a = int(round(a * 255))
-        return a
-
-    r, b, g = rbg()
-    r = _chkarg(r)
-    g = _chkarg(g)
-    b = _chkarg(b)
-    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 
 def barcode(specification="EAN-8"):
@@ -148,7 +117,7 @@ def barcode(specification="EAN-8"):
 def mime_type():
     """Returns tuple, left is suffix, right is media type/subtype.
     """
-    return _query("extension,name", "mimes")
+    return query_multiple("extension,name", "mimes")
 
 
 def ipv4():

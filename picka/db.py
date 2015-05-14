@@ -1,52 +1,63 @@
-import apsw
+import sqlite3
 from os.path import abspath, join, dirname
 import random
 
-row_counts = None
-cursor = None
+row_counts = {}
 
-def get_row_counts():
-    global row_counts
-    if not row_counts:
-        row_counts = {}
-    return row_counts
+class Queries(object):
+    def __init__(self):
+        dbpath = join(abspath(dirname(__file__)), 'data/db.sqlite')
+        self.connect = sqlite3.connect(dbpath, isolation_level=None)
+        self.connect.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+        self.tups = self.connect.cursor()
+        self.dict = self.connect.cursor()
+        self.dict.row_factory = sqlite3.Row
+        self.row_counts = {}
 
+    def dict_from_row(self, row):
+        d = {}
+        for idx, col in enumerate(self.dict.description):
+            d[col[0]] = row[idx]
+        return d
 
-def get_cursor():
-    global cursor
-    if not cursor:
-        connect = apsw.Connection(join(abspath(
-            dirname(__file__)), 'data/db.sqlite')
-        )
-    return connect.cursor()
+    def get_rows(self, table):
+        if table not in self.row_counts:
+            self.tups.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1;'.format(table))
+            self.row_counts[table] = self.tups.fetchone()[0]
+            return self.row_counts
 
+    def custom_query(self, query=None, output=None):
+        if output:
+            self.dict.execute(query)
+            return self.dict.fetchall()
+        else:
+            self.tups.execute(query)
+            return self.tups.fetchall()
 
-def query(name=None, column=None, where=None, value=None, quantity=None, custom=None):
-    """
-    Grabs data from the database.
-    """
-    try:
-        if not cursor and row_counts:
-            pass
-    except Exception:
-        cursor = get_cursor()
-        row_counts = get_row_counts()
-    if custom:
-        cursor.execute(custom)
-        return cursor.fetchall()
-    if column not in row_counts:
-        cursor.execute('SELECT MAX(_ROWID_) FROM {} LIMIT 1;'.format(column))
-        row_counts[column] = cursor.fetchone()[0]
-    if where and value:
-        cursor.execute('SELECT {} FROM {} WHERE {} = {}'.format(
-            name, column, where, value )
-        )
-    else:
-        cursor.execute('SELECT {} FROM {} WHERE id = {}'.format(
-            name, column, random.randint(1, row_counts[column]))
-        )
-    if not quantity:
-        data = cursor.fetchone()
-    else:
-        data = cursor.fetchall()
-    return data if len(name.split()) > 1 else data[0]
+    def query_single(self, name=None, column=None, where=None, value=None):
+        self.get_rows(column)
+        if where and value:
+            self.tups.execute('SELECT {} FROM {} WHERE {} = {}'.format(
+                name, column, where, value)
+            )
+        else:
+            self.tups.execute('SELECT {} FROM {} WHERE id = {}'.format(
+                name, column, random.randint(1, self.row_counts[column]))
+            )
+        return self.tups.fetchone()[0]
+
+    def query_multiple(self, name=None, table=None, where=None, value=None, output=None):
+        """Grabs data from the database."""
+        # Get row counts
+        self.get_rows(table)
+        ch = random.randint(1, self.row_counts[table])
+        if where and value:
+            self.dict.execute('SELECT {} FROM {} WHERE {} = {}'.format(
+                name, table, where, value)
+            )
+
+        else:
+            self.dict.execute('SELECT {} FROM {} WHERE id = {};'.format(name, table, ch))
+
+        return self.dict_from_row(self.dict.fetchall()[0])
+

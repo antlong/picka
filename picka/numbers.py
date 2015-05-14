@@ -7,7 +7,10 @@ from dateutil.relativedelta import relativedelta
 import picka_utils as _utils
 import db as _db
 
-_query = _db.query
+_query = _db.Queries()
+query_single = _query.query_single
+query_multiple = _query.query_multiple
+
 
 def birthdate(min_year=1900, max_year=2015, formatted=None):
     """Generates a birthdate.
@@ -101,19 +104,19 @@ def calling_code():
     Returns a calling code from a list of all known calling codes in \
     the world.
     """
-    return _query("calling_code", "countries_and_calling_codes")
+    return query_single("calling_code", "countries_and_calling_codes")
 
 
 def calling_code_with_country():
     """Returns a country, with a calling code as a single string."""
-    return _query("*", "countries_and_calling_codes")
+    return query_multiple("country, calling_code", "countries_and_calling_codes", output=True)
 
 
 def area_code(state=False):
     if state:
-        return _query("code", "areacodes", "state")
+        return query_single("code", "areacodes", "state")
     else:
-        return _query("code", "areacodes")
+        return query_single("code", "areacodes")
 
 
 @_utils.deprecated("picka.phone_number(formatting)")
@@ -153,7 +156,7 @@ def generate(state=None, extended_display=True):
         data["international"] = "+1-{0}-{1}-{2}".format(a, b, c)
         data["standard"] = "{0}-{1}-{2}".format(a, b, c)
         data["plain"] = a + b + c
-        data["state"] = _query("state", "areacodes", "code", a)
+        data["state"] = query_single("state", "areacodes", "code", a)
     return AttrDict(data)
 
 

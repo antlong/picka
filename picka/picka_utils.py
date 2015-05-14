@@ -7,12 +7,10 @@ import re
 from itertools import izip
 from functools import partial
 
-import db as _db
-
 __docformat__ = 'restructuredtext en'
 
-warnings.simplefilter('always', DeprecationWarning)
-_query = _db.query
+#warnings.simplefilter('always', DeprecationWarning)
+
 
 def deprecated(replacement=None):
     def outer(fun):

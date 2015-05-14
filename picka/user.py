@@ -4,28 +4,38 @@ import sys
 
 from attrdict import AttrDict
 
-import db as _db
+import db
 import picka_utils as _utils
 from numbers import age as _age
 from numbers import number
 from numbers import birthdate as _birthdate
 
-_query = _db.query
+_query = db.Queries()
+query_multiple = _query.query_multiple
+query_single = _query.query_single
+query_custom = _query.custom_query
 
 
-class NameGenerator(string.Formatter):
-    def get_value(self, key, args, kwargs):
-        thismodule = sys.modules[__name__]
-        return getattr(thismodule, key)()
-
-ftr = NameGenerator()
-
-def name(formatting="{male} {last}"):
-    return ftr.format(formatting)
+def name(gender="Male"):
+    f = [initial(period=True).upper(), set_of_initials(2)[0]]
+    m = ["", initial(period=True), set_of_initials(2)[0]]
+    s = [surname(), "%s-%s" % (surname(), surname())]
+    st = []
+    if gender.startswith("M"):
+        f.append(male())
+        m.append(male())
+    else:
+        f.append(female())
+        m.append(female())
+    return AttrDict({
+        "first": random.choice(f),
+        "middle": random.choice(m),
+        "last": random.choice(s)
+    })
 
 
 def male():
-    return _query("name", "male")
+    return query_single("name", "male")
 
 def age():
     return AttrDict(_age())
@@ -134,7 +144,7 @@ def gender():
 def language():
     """Picks a random language."""
 
-    return _query("name", "languages")
+    return query_single("name", "languages")
 
 
 def social_security_number(state="NY"):
@@ -316,12 +326,12 @@ def business_title(abbreviated=False):
 
 def career():
     """This function will produce a career."""
-    return _query("name", "careers")
+    return query_single("name", "careers")
 
 
 def company_name():
     """This function will return a company name"""
-    return _query("name", "companies")
+    return query_single("name", "companies")
 
 
 def creditcard(prefix='visa'):
@@ -374,12 +384,12 @@ def street_name():
     This function will create a street name from either
     a male or female name, plus a street type.
     """
-    return "{} {}".format(_query("name", "streetnames"), str(street_type()))
+    return "{} {}".format(query_single("name", "streetnames"), str(street_type()))
 
 
 def street_type():
     """This function will return a random street type."""
-    return _query("name", "us_street_types")
+    return query_single("name", "us_street_types")
 
 
 def apartment_number():
@@ -403,7 +413,7 @@ def apartment_number():
 
 def city():
     """This function will produce a city."""
-    return _query("city", "us_cities")
+    return query_single("city", "us_cities")
 
 
 def city_with_state():
@@ -411,7 +421,7 @@ def city_with_state():
     This function produces a city with a state.
     ie - city_with_state() = 'New York, NY'
     """
-    return ', '.join(_query("city, state", "us_cities"))
+    return ', '.join(query_single("city, state", "us_cities"))
 
 
 def state_abbreviated():
@@ -419,7 +429,7 @@ def state_abbreviated():
     This function produces just a state abbreviation.
     eg - state_abbreviated() = 'NY'
     """
-    return _query("abbreviation", "states")
+    return query_single("abbreviation", "states")
 
 
 @_utils.deprecated("picka.zipcode(state)")
@@ -433,7 +443,7 @@ def zipcode(state=None):
     """
     range_gen = []
     state = state or state_abbreviated()
-    _range = _query(custom='SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), quantity=True)
+    _range = query_custom('SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state))
 
     for r in _range:
         range_gen += range(r[0], r[1] + 1)
@@ -452,7 +462,7 @@ def zipcode(state=None):
 def country():
     # Todo: Use max row.
     """This function will return a random country."""
-    return _query("name", "countries")
+    return query_single("name", "countries")
 
 
 def salutation():
@@ -462,7 +472,7 @@ def salutation():
 
 def female():
     """Returns a randomly chosen female first name."""
-    return _query("name", "female")
+    return query_single("name", "female")
 
 
 def initial(period=False):
@@ -480,7 +490,11 @@ def initial(period=False):
     True
 
     """
-    return "{0}{1}".format(_utils.random_string(), "." if period else "")
+    return "{0}{1}".format(
+        random.choice(
+            string.ascii_uppercase
+        ), "." if period else ""
+    )
 
 
 def set_of_initials(i=3):
@@ -491,7 +505,7 @@ def set_of_initials(i=3):
 
 def surname():
     """Returns a randomly chosen surname."""
-    return _query("name", "surname")
+    return query_single("name", "surname")
 
 
 def hyphenated_last_name():

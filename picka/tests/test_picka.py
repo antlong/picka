@@ -43,11 +43,8 @@ def test_timezone_offset():
     assert picka.timezone_offset()
 
 
-def test_rbga():
-    assert len(picka.rbga()) == 4
-    assert len(picka.rbga(a=255)) == 4
-    assert picka.rbga(a=0)[3] == 0
-    assert picka.rbga(a=255)[3] == 255
+def test_rgba():
+    assert len(picka.rgba()) == 4
 
 
 def test_language():

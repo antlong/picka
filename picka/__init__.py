@@ -1,4 +1,5 @@
 from picka import *
+from colors import *
 from numbers import *
 from user import *
 from timedate import *
