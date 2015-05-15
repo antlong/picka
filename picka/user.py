@@ -13,7 +13,7 @@ from numbers import birthdate as _birthdate
 _query = db.Queries()
 query_multiple = _query.query_multiple
 query_single = _query.query_single
-query_custom = _query.custom_query
+query_custom = _query.query_custom
 
 
 def name(gender="Male"):
@@ -35,6 +35,7 @@ def name(gender="Male"):
 
 def male():
     return query_single("name", "male")
+
 
 def age():
     return AttrDict(_age())
@@ -415,17 +416,18 @@ def state_abbreviated():
     """
     return query_single("abbreviation", "states")
 
+
 def zipcode(state=None):
     """This function will pick a zipcode randomnly from a list.
     eg - zipcode() = '11221'.
     """
     range_gen = []
     state = state or state_abbreviated()
-    _range = query_custom('SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state))
-
+    _range = query_custom('SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), tups=True)
     for r in _range:
-        range_gen += range(r[0], r[1] + 1)
+        range_gen.extend(range(int(r[0]), int(r[1] + 1)))
 
+    print len(range_gen)
     if hasattr(sys, '_called_from_test'):
         result = "%05d" % random.choice(range_gen)
         return AttrDict({
@@ -500,4 +502,3 @@ def suffix():
     return random.choice([
         'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
     ])
-

@@ -4,6 +4,7 @@ import random
 
 row_counts = {}
 
+
 class Queries(object):
     def __init__(self):
         dbpath = join(abspath(dirname(__file__)), 'data/db.sqlite')
@@ -26,10 +27,11 @@ class Queries(object):
             self.row_counts[table] = self.tups.fetchone()[0]
             return self.row_counts
 
-    def custom_query(self, query=None, output=None):
-        if output:
-            self.dict.execute(query)
-            return self.dict.fetchall()
+    def query_custom(self, query=None, tups=None, *args):
+        if not tups:
+            self.dict.execute(query, *args)
+            return self.dict_from_row(self.dict.fetchall())
+
         else:
             self.tups.execute(query)
             return self.tups.fetchall()
@@ -60,4 +62,3 @@ class Queries(object):
             self.dict.execute('SELECT {} FROM {} WHERE id = {};'.format(name, table, ch))
 
         return self.dict_from_row(self.dict.fetchall()[0])
-

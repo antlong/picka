@@ -1,15 +1,16 @@
-from attrdict import AttrDict
 from datetime import datetime
 from random import randrange, randint
 from calendar import monthrange
+
+from attrdict import AttrDict
 from dateutil.relativedelta import relativedelta
 
-import picka_utils as _utils
 import db as _db
 
 _query = _db.Queries()
 query_single = _query.query_single
 query_multiple = _query.query_multiple
+query_custom = _query.query_custom
 
 
 def birthdate(min_year=1900, max_year=2015, formatted=None):
@@ -28,7 +29,7 @@ def birthdate(min_year=1900, max_year=2015, formatted=None):
 
       >>> print birthdate()
       datetime.datetime(1903, 12, 23, 10, 46, 55, 140438)
-      >>> print birthday(max_year=1950)
+      >>> print birthdate(max_year=1950)
       datetime.datetime(1928, 6, 20, 12, 26, 17, 27057)
       >>> print birthdate(formatted="%m/%d/%Y")
       '07/07/2002'
@@ -53,17 +54,16 @@ def birthdate(min_year=1900, max_year=2015, formatted=None):
     return n
 
 
-def age(min_year=1900, max_year=2015, formatting=None):
-    """Generates an age, and related data.
+def age(min_year=1900, max_year=2015):
+    """
+    Generates an age, and related data.
 
     Args:
       min_year (int): Minimum year to use in range.
       max_year (int): Maximum year to use in range.
-      formatted (str): Applies strftime to the object.
 
     Returns:
-      formatting: A string based on your strftime.
-      no formatting: A dict containing multiple values.
+      A dict containing multiple age related values.
 
     Examples:
       >>> age()
@@ -72,21 +72,21 @@ def age(min_year=1900, max_year=2015, formatting=None):
         'period': 'AM',
         'month_short': 'Jan',
         'month_digit': '1',
-        'age': 99,
+        'years_old': 99,
         'time': '05:01',
         'pretty_date': 'January 05, 1916',
         'datetime': datetime.datetime(1916, 1, 5, 5, 47, 47, 564468),
         'day': '05'
       }
-      >>> age(formatting="%B, %d %Y")
+      >>> age().datetime.strftime("%B, %d %Y")
       'June, 20 2005'
+      >>> age().day
+      '09'
 
     """
     d = {}
     date_now = datetime.now()
     _b = birthdate(min_year, max_year)
-    if formatting:
-        return _b.strftime(formatting)
     d["datetime"] = _b
     d["pretty_date"] = _b.strftime("%B %d, %Y")
     d["time"] = _b.strftime("%I:%m")
@@ -99,73 +99,125 @@ def age(min_year=1900, max_year=2015, formatting=None):
     return d
 
 
-def calling_code():
+def calling_code(country=None):
+    """Returns a calling code from a list of global calling codes.
+
+    Returns:
+      calling code: (str) Variable length calling code.
+
+    Example:
+      >>> calling_code()
+      '377'
     """
-    Returns a calling code from a list of all known calling codes in \
-    the world.
-    """
-    return query_single("calling_code", "countries_and_calling_codes")
+    if country:
+        return query_custom('SELECT country, calling_code FROM calling_codes WHERE country LIKE ?', (country,))
+        # return query_custom("select * from calling_codes where country LIKE {};".format(country), output=True)
+    else:
+        return query_single("calling_code", "calling_codes")
 
 
 def calling_code_with_country():
     """Returns a country, with a calling code as a single string."""
-    return query_multiple("country, calling_code", "countries_and_calling_codes", output=True)
+    return query_multiple(
+        "country, calling_code",
+        "calling_codes",
+        output=True
+    )
 
 
 def area_code(state=False):
+    """Returns a random zipcode from a list of US zipcodes.
+
+    Argument:
+      state: (str) 2 letter state abbreviation.
+
+    Returns:
+      areacode: (str) 3 digit area code.
+
+    Examples:
+      >>> area_code()
+      '810'
+      >>> area_code('NY')
+      '718'
+    """
     if state:
         return query_single("code", "areacodes", "state")
     else:
         return query_single("code", "areacodes")
 
 
-@_utils.deprecated("picka.phone_number(formatting)")
-def fax_number():
-    """
-    :Summary: Returns a fax (phone) number.
-    :Usage: picka.fax_number() >>> 755-463-6544
-    """
+def phone_number(state=None):
+    """Generates a phone number in multiple formats.
+    Conforms to NANP standards.
 
-    return phone_number()
+    Argument:
+      state: String - 2 letter state abbreviation.
 
+    Returns:
+      state: string
+      international: string
+      areacode: string
+      plain: string
+      local: string
+      domestic: string
+      standard: string
 
-def generate(state=None, extended_display=True):
-    """Generate a phone number. Conforms to NANP standards.
-
-      :arg state: Bool
-      :arg formatting: local, domestic, or international
+    Examples:
+      >>> phone_number()
+      AttrDict({
+        'state': u'CA',
+        'international': '+1-562-422-9802',
+        'areacode': '562',
+        'plain': '5624229802',
+        'local': '422-9802',
+        'domestic': '(562) 422-9802',
+        'standard': '562-422-9802'
+      })
+      >>> phone_number().state
+      "NY"
+      >>> phone_number().international
+      '+1-574-720-9722'
     """
     data = {}
+    valid_number = False
+    invalid_prefixes = ["911", "555", "311", "411"]
 
-    def validate(*args):
-        for _ in xrange(11):
-            if args:
-                a = str(area_code(args[0]))
-            b = str(randint(2, 9)) + number(2)
-            if (a, b) not in ["911", "555", "311", "411"]:
-                break
-        return a, b
+    # If the number that we generate appears in the invalid_prefixes
+    # list, then we will regenerate until the chosen number is not.
+    while not valid_number:
+        a = str(area_code(state)) if state else str(area_code())
+        b = str(randint(2, 9)) + str(number(2))
+        if a or b not in invalid_prefixes:
+            break
 
-    a, b = validate(state)
+    # Tack on 4 digits to the end.
     c = number(4)
 
-    if extended_display:
-        data["areacode"] = a
-        data["local"] = "{0}-{1}".format(b, c)
-        data["domestic"] = "({0}) {1}-{2}".format(a, b, c)
-        data["international"] = "+1-{0}-{1}-{2}".format(a, b, c)
-        data["standard"] = "{0}-{1}-{2}".format(a, b, c)
-        data["plain"] = a + b + c
-        data["state"] = query_single("state", "areacodes", "code", a)
+    # Enter our data in to a dict.
+    data["areacode"] = a
+    data["local"] = "{0}-{1}".format(b, c)
+    data["domestic"] = "({0}) {1}-{2}".format(a, b, c)
+    data["international"] = "+1-{0}-{1}-{2}".format(a, b, c)
+    data["standard"] = "{0}-{1}-{2}".format(a, b, c)
+    data["plain"] = a + b + c
+    data["state"] = query_single("state", "areacodes", "code", a)
+
     return AttrDict(data)
 
 
-def phone_number(state=None):
-    return generate(state)
-
-
 def number(length=1):
-    """This function will produce a random number with as many
-    characters as you wish.
+    """Produces a random number or the specified length, from 0-9.
+
+    Argument:
+      length int: The length of the string you want.
+
+    Returns:
+      str: A randomized number that corresponds to your length.
+
+    Examples:
+      >>> number()
+      '9'
+      >>> number(10)
+      '1928520293'
     """
     return ''.join(str(randrange(0, 10)) for _ in range(length))

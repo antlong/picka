@@ -4,13 +4,12 @@ from types import *
 
 import picka
 
-
 def test_phone_number():
     assert len(picka.phone_number().items()) > 1
 
 
 def test_last_name():
-    name = picka.last_name()
+    name = picka.surname()
     assert len(name) >= 1
     assert type(name) is UnicodeType, "%s is not a unicode object." % name
 
@@ -72,8 +71,8 @@ def test_special_characters():
     assert picka.special_characters(8)
 
 
-def test_postal_code():
-    assert picka.postal_code()
+def test_zipcode():
+    assert picka.zipcode()
 
 
 def test_apartment_number():
@@ -92,16 +91,8 @@ def test_creditcard():
     assert picka.creditcard(prefix='visa')
 
 
-def test_male_middle_name():
-    assert picka.male_middle_name()
-
-
 def test_city():
     assert picka.city()
-
-
-def test_male_full_name_w_middle_initial():
-    assert picka.male_full_name_w_middle_initial()
 
 
 def test_state_abbreviated():
@@ -124,24 +115,12 @@ def test_business_title():
     assert picka.business_title()
 
 
-def test_male_middle():
-    assert picka.male_middle()
-
-
 def test_trash():
-    assert picka.trash(picka.male_first)
-
-
-def test_female_first():
-    assert picka.female_first()
+    assert picka.trash(picka.male)
 
 
 def test_calling_code():
     assert picka.calling_code()
-
-
-def test_male_first():
-    assert picka.male_first()
 
 
 def test_timestamp():
@@ -152,20 +131,6 @@ def test_hyphenated_last_name():
     assert picka.hyphenated_last_name()
 
 
-def test_fax_number():
-    assert picka.fax_number()
-
-
-def test_male_full_name():
-    assert picka.male_full_name()
-
-
-def test_password_alphanumeric():
-    assert picka.password_alphanumeric(8)
-
-
-# assert picka.birthday()
-
 def test_social_security_number():
     assert picka.social_security_number()
 
@@ -174,16 +139,8 @@ def test_set_of_initials():
     assert picka.set_of_initials()
 
 
-def test_female_middle():
-    assert picka.female_middle()
-
-
 def test_month_and_day():
     assert picka.month_and_day()
-
-
-def test_password_alphabetical():
-    assert picka.password_alphabetical(8)
 
 
 def test_name():
@@ -210,10 +167,6 @@ def test_email():
     assert picka.email()
 
 
-def test_female_name():
-    assert picka.female_name()
-
-
 def test_street_type():
     assert picka.street_type()
 
@@ -224,10 +177,6 @@ def test_suffix():
 
 def test_url():
     assert picka.url(10)
-
-
-def test_password_numerical():
-    assert picka.password_numerical(10)
 
 
 def test_street_address():
