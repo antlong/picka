@@ -20,7 +20,6 @@ def name(gender="Male"):
     f = [initial(period=True).upper(), set_of_initials(2)[0]]
     m = ["", initial(period=True), set_of_initials(2)[0]]
     s = [surname(), "%s-%s" % (surname(), surname())]
-    st = []
     if gender.startswith("M"):
         f.append(male())
         m.append(male())
@@ -28,9 +27,9 @@ def name(gender="Male"):
         f.append(female())
         m.append(female())
     return AttrDict({
-        "first": random.choice(f),
-        "middle": random.choice(m),
-        "last": random.choice(s)
+        "first": unicode(random.choice(f)),
+        "middle": unicode(random.choice(m)),
+        "last": unicode(random.choice(s))
     })
 
 
@@ -78,21 +77,6 @@ def screename(*service):
         return _make_name(1, 19) + '@googletalk.com'
     else:
         return _make_name(8, 20)
-
-
-@_utils.deprecated("picka.password(format='numbers')")
-def password_alphanumeric(i=8):
-    return password(length=i, format="numbers")
-
-
-@_utils.deprecated("picka.password(format='letters', length=8")
-def password_alphabetical(i=8, case="mixed"):
-    return password(case=case, length=i)
-
-
-@_utils.deprecated("picka.password(format='numeric', length=8")
-def password_numerical(i):
-    return password(length=i)
 
 
 def password(case='mixed', length=6, format='letters', special_chars=False):
@@ -431,12 +415,6 @@ def state_abbreviated():
     """
     return query_single("abbreviation", "states")
 
-
-@_utils.deprecated("picka.zipcode(state)")
-def postal_code():
-    return zipcode()
-
-
 def zipcode(state=None):
     """This function will pick a zipcode randomnly from a list.
     eg - zipcode() = '11221'.
@@ -522,58 +500,4 @@ def suffix():
     return random.choice([
         'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
     ])
-
-
-@_utils.deprecated("picka.name('{surname'}")
-def last_name():
-    return surname()
-
-
-@_utils.deprecated("picka.name('{surname}'")
-def last():
-    return name("{surname}")
-
-
-@_utils.deprecated("picka.name(format='{male}{middle}{last}'")
-def male_full_name():
-    return name("{male} {male} {surname}")
-
-
-@_utils.deprecated("picka.name(format='{male}{initial}{last}', gender='M'")
-def male_full_name_w_middle_initial():
-    return name("{male} {initial}")
-
-
-@_utils.deprecated("picka.name('{female}')")
-def female_first():
-    return female()
-
-
-@_utils.deprecated("picka.name('{female}')")
-def female_middle():
-    return female()
-
-
-@_utils.deprecated("picka.name('{female}')")
-def female_name():
-    """
-     :Summary: Returns a random female name.
-     :Usage: picka.female_name() >>> 'Christy'
-    """
-    return female()
-
-
-@_utils.deprecated("picka.name('{male}')")
-def male_middle_name():
-    return male()
-
-
-@_utils.deprecated("picka.name('{male}')")
-def male_middle():
-    return male()
-
-
-@_utils.deprecated("picka.name('{male}')")
-def male_first():
-    return male()
 

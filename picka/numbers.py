@@ -142,7 +142,7 @@ def generate(state=None, extended_display=True):
             if args:
                 a = str(area_code(args[0]))
             b = str(randint(2, 9)) + number(2)
-            if (a, b) not in ["911", "555"]:
+            if (a, b) not in ["911", "555", "311", "411"]:
                 break
         return a, b
 
