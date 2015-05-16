@@ -6,9 +6,9 @@ from attrdict import AttrDict
 
 import db
 import picka_utils as _utils
-from numbers import age as _age
-from numbers import number
-from numbers import birthdate as _birthdate
+from numerics import age as _age
+from numerics import number
+from numerics import birthdate as _birthdate
 
 _query = db.Queries()
 query_multiple = _query.query_multiple
@@ -16,11 +16,11 @@ query_single = _query.query_single
 query_custom = _query.query_custom
 
 
-def name(gender="Male"):
+def name(sex="Male"):
     f = [initial(period=True).upper(), set_of_initials(2)[0]]
     m = ["", initial(period=True), set_of_initials(2)[0]]
     s = [surname(), "%s-%s" % (surname(), surname())]
-    if gender.startswith("M"):
+    if sex.startswith("M"):
         f.append(male())
         m.append(male())
     else:

@@ -1,15 +1,29 @@
-import warnings
-import functools
-import os
-import random
-import string
-import re
+from warnings import warn
+from functools import wraps
+from os.path import join, dirname
+from random import choice, randint
+from string import ascii_uppercase, ascii_letters, ascii_lowercase
+from re import split, compile
 from itertools import izip
 from functools import partial
+import os
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import class_mapper
 
 __docformat__ = 'restructuredtext en'
 
-#warnings.simplefilter('always', DeprecationWarning)
+path = os.path.join(os.path.dirname(
+    __file__) + "/data/db.sqlite")
+
+
+def engine_connection():
+    return create_engine("sqlite:///" + path, echo=False)
+
+
+def asdict(obj):
+    return dict((col.name, getattr(obj, col.name))
+                for col in class_mapper(obj.__class__).mapped_table.c)
 
 
 def deprecated(replacement=None):
@@ -20,9 +34,9 @@ def deprecated(replacement=None):
         if fun.__doc__ is None:
             fun.__doc__ = msg
 
-        @functools.wraps(fun)
+        @wraps(fun)
         def inner(*args, **kwargs):
-            warnings.warn(msg, category=DeprecationWarning, stacklevel=2)
+            warn(msg, category=DeprecationWarning, stacklevel=2)
             return fun(*args, **kwargs)
 
         return inner
@@ -94,13 +108,13 @@ def random_string(length=1, case='upper'):
     choices = ''
     output = ''
     cases = {
-        'upper': string.ascii_uppercase,
-        'lower': string.ascii_lowercase,
-        'mixed': string.ascii_letters
+        'upper': ascii_uppercase,
+        'lower': ascii_lowercase,
+        'mixed': ascii_letters
     }
     choices += cases[case]
     for _ in xrange(length):
-        output += random.choice(choices)
+        output += choice(choices)
     return output
 
 
@@ -117,7 +131,7 @@ class _Book:
     def __init__(self):
         pass
 
-    _path = os.path.join(os.path.dirname(
+    _path = join(dirname(
         __file__) + "/data/book_sherlock.txt")
     _text = _num_sentences = _sentences = None
 
@@ -140,14 +154,14 @@ class _Book:
         sentences = cls.get_sentences()
         max_index = cls._num_sentences - 1
         for _ in xrange(no_more_than):
-            i = random.randint(0, max_index)
+            i = randint(0, max_index)
             yield sentences[i]
 
 
 def _split_sentences(text):
     # from pyteaser: https://github.com/xiaoxu193/PyTeaser
     # see `pyteaser.split_sentences()`
-    fragments = re.split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
+    fragments = split('(?<![A-Z])([.!?]"?)(?=\s+\"?[A-Z])', text)
     return map("".join, izip(*[iter(fragments[:-1])] * 2))
 
 
@@ -158,7 +172,7 @@ def sentence(num_words=20, chars=''):
     or `num_words` words in length.
     """
     word_list = _Book.get_text().split()
-    words = ' '.join(random.choice(word_list) for _ in
+    words = ' '.join(choice(word_list) for _ in
                      xrange(num_words))
     return words if not chars else words[:chars]
 
@@ -168,7 +182,7 @@ def sentence_actual(min_words=3, max_words=1000):
     Returns a sentence from The Adventures of Sherlock Holmes
     that contains at least `min_words` and no more than `max_words`.
     """
-    _rewhite = re.compile(r"\s+")
+    _rewhite = compile(r"\s+")
     _rewhitesub = partial(_rewhite.sub, "")
     for x in _Book.gen_random_sentences():
         words = _rewhite.split(x)
@@ -180,4 +194,3 @@ def sentence_actual(min_words=3, max_words=1000):
             return x
     raise Exception("Couldn't find a sentence between \
         {0} and {1} words long".format(min_words, max_words))
-

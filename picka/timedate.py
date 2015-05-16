@@ -1,9 +1,10 @@
-import random
-import calendar
-import time
+from random import randrange, randint, choice
+from calendar import month_name
+from time import strftime, localtime
+
 
 def month():
-    return random.choice(calendar.month_name[1:])
+    return choice(month_name[1:])
 
 
 def month_and_day():
@@ -16,11 +17,11 @@ def month_and_day():
         'January', 'March', 'May', 'July', 'August',
         'October', 'December'
     ]:
-        return '%s %s' % (month_choice, random.randrange(1, 32))
+        return '%s %s' % (month_choice, randrange(1, 32))
     if month_choice in 'February':
-        return '%s %s' % (month_choice, random.randrange(1, 29))
+        return '%s %s' % (month_choice, randrange(1, 29))
     else:
-        return '%s %s' % (month_choice, random.randrange(1, 31))
+        return '%s %s' % (month_choice, randrange(1, 31))
 
 
 def month_and_day_and_year(start=1900, end=2010):
@@ -31,7 +32,7 @@ def month_and_day_and_year(start=1900, end=2010):
     last year in your range can be selected. Default is 1900, 2010.
     """
 
-    return '%s %s' % (month_and_day(), random.randrange(start, end + 1))
+    return '%s %s' % (month_and_day(), randrange(start, end + 1))
 
 
 def timestamp(style=False):
@@ -42,9 +43,9 @@ def timestamp(style=False):
     """
 
     if not style:
-        return time.strftime('%H:%M:%S%p %x', time.localtime())
+        return strftime('%H:%M:%S%p %x', localtime())
     else:
-        return time.strftime(style, time.localtime())
+        return strftime(style, localtime())
 
 
 def timezone_offset():
@@ -53,11 +54,11 @@ def timezone_offset():
     such as GMT, GMT+4, etc.
     """
 
-    return random.choice(
+    return choice(
         [
-            ['GMT+' + str(random.randint(1, 12))],
+            ['GMT+' + str(randint(1, 12))],
             ['GMT'],
-            ['GMT' + str(random.randint(-12, -1))]
+            ['GMT' + str(randint(-12, -1))]
         ]
     )[0]
 
@@ -65,7 +66,7 @@ def timezone_offset():
 def timezone_offset_country():
     """This function will select the country part of a timezone."""
 
-    return random.choice(
+    return choice(
         [
             'Eniwetoa',
             'Hawaii',
@@ -109,4 +110,3 @@ def timezone_offset_country():
             'Auckland',
         ]
     )
-

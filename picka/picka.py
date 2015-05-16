@@ -1,23 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Picka is a data generation and randomization module which aims to increase
-coverage by increasing the amount of tests you _dont_ have to write
-by hand.
-By: Anthony Long
-"""
 import string
 from random import choice, randint
-import socket as _socket
-import struct as _struct
+from socket import inet_ntoa
+from struct import pack
 
-from numbers import number
-import db as _db
+from numerics import number
+from picka_utils import engine_connection
 
-_query = _db.Queries()
-query_single = _query.query_single
-query_multiple = _query.query_multiple
-
+engine = engine_connection
 
 def trash(picka_function):
     """
@@ -73,8 +64,6 @@ def image(filepath, length=100, width=100, a=0):
     return filepath
 
 
-
-
 def barcode(specification="EAN-8"):
     """Based on the standard barcode specifications. Valid options are:
     EAN-8 - 8 numerical digits.
@@ -119,6 +108,8 @@ def mime_type():
     """
     return query_multiple("extension,name", "mimes")
 
+class IP(object):
+    @staticmethod
+    def ipv4():
+        return inet_ntoa(pack('>I', randint(1, 0xffffffff)))
 
-def ipv4():
-    return _socket.inet_ntoa(_struct.pack('>I', randint(1, 0xffffffff)))

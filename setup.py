@@ -12,10 +12,10 @@ def read(fname):
 setup(
     name='picka',
     version='0.9.9',
-    install_requires = ['attrdict'],
+    install_requires = ['attrdict', 'sqlalchemy'],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
-    keywords="assert assertions testing test qa",
+    keywords="data generation generate random randomization testing tests test qa",
     author='Anthony Long',
     author_email='antlong@gmail.com',
     license='Apache 2.0',
