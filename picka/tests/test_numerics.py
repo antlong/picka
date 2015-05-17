@@ -83,6 +83,7 @@ def test_phone_number_areacode():
     assert len(a.areacode) == 3
     assert isinstance(a.areacode, unicode)
     assert 201 <= int(a.areacode) <= 989
+    assert bool(match(r"\d{3}", a.areacode))
 
 
 def test_phone_number_areacode_with_state():
@@ -159,11 +160,6 @@ def test_number():
     for i in range(11):
         n = number(i)
         assert len(str(n)) == i
-
-
-def test_phone_number_areacode():
-    a = phone_number()
-    assert bool(match(r"\d{3}", a.areacode))
 
 
 def test_phone_number_domestic():

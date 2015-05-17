@@ -74,12 +74,12 @@ def areacode(state=False):
       '718'
     """
     if state:
-        cmd = 'SELECT areacode, state FROM areacodes WHERE state = :_state ORDER BY RANDOM() LIMIT 1;'
+        cmd = 'SELECT areacode, state FROM areacodes WHERE state = :_state ' \
+              'ORDER BY RANDOM() LIMIT 1;'
         res = engine.execute(text(cmd), _state=state)
     else:
         res = engine.execute(
-            'select areacode, state from areacodes where rowid = (abs(random()) % \
-            (select max(rowid)+1 from areacodes))'
+            'SELECT areacode, state FROM areacodes ORDER BY random() LIMIT 1;'
         )
     return AttrDict([dict(d) for d in res.fetchall()][0])
 
@@ -150,16 +150,17 @@ def calling_code(country=False):
       AttrDict({u'calling_code': '961', 'country': u'Lebanon'})
       >>> calling_code("Denmark")
       AttrDict({u'calling_code': '45', 'country': u'Denmark'})
-      >>> calling_code.country
+      >>> calling_code().country
       u'Guinea'
     """
     if country:
-        cmd = 'SELECT country, calling_code FROM calling_codes WHERE country LIKE :_country LIMIT 1;'
+        cmd = 'SELECT country, calling_code FROM calling_codes WHERE country ' \
+              'LIKE :_country LIMIT 1;'
         res = engine.execute(text(cmd), _country=country)
     else:
         res = engine.execute(
-            "select country, calling_code from calling_codes where rowid = (abs(random()) % \
-            (select max(rowid)+1 from calling_codes))"
+            "SELECT country, calling_code FROM calling_codes ORDER BY random() "
+            "LIMIT 1;"
         )
     return AttrDict([dict(d) for d in res.fetchall()][0])
 
@@ -188,12 +189,14 @@ def phone_number(state=None):
     Conforms to NANP standards.
 
     Argument:
-      state (string): Returns a phone number from an areacode in this specified state.
+      state (string): Returns a phone number from an areacode in this
+      specified state.
 
     Returns:
       areacode (string): 3 digit area code.
       domestic (string): Phone number formatted to the domestic dial standard.
-      international (string): Phone number formatted to the international dial standard.
+      international (string): Phone number formatted to the international
+      dial standard.
       local (string): Phone number formatted to the local dial standard.
       plain (string): Phone number without formatting.
       standard (string): Phone number formatted to the standard dial standard.
@@ -248,3 +251,44 @@ def phone_number(state=None):
             data["state"] = d[0]
 
     return AttrDict(data)
+
+
+def barcode(specification="EAN-8"):
+    """Generates a barcode based on barcode specifications.
+
+    Arguments:
+      EAN-8 (str): 8 numerical digits.
+      EAN-13 (str): 13 numerical digits.
+      UPC-A (str): Used on products at the point of sale
+
+    Notes:
+      Unsupported, but in-progress:
+      UPC-B - Developed for the US National Drug Code; used to identify drugs
+      UPC-E - Used on smaller products where 12 digits dont fit
+      UPC-5 - Used as a supplemental code to indicate the price of retail books
+    """
+    def _gen(i):
+        upc_str = str(i)
+        odd_sum = 0
+        even_sum = 0
+        for i, char in enumerate(upc_str):
+            j = i + 1
+            if j % 2 == 0:
+                even_sum += int(char)
+            else:
+                odd_sum += int(char)
+        total_sum = (odd_sum * 3) + even_sum
+        mod = total_sum % 10
+        check_digit = 10 - mod
+        if check_digit == 10:
+            check_digit = 0
+        return upc_str + str(check_digit)
+
+    if specification == "EAN-8":
+        return _gen(number(7))
+
+    if specification == "EAN-13":
+        return _gen(number(12))
+
+    if specification == "UPC-A":
+        return _gen(number(11))

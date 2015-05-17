@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import string
-from random import choice, randint
-from socket import inet_ntoa
-from struct import pack
+from random import choice
+
+from attrdict import AttrDict
 
 from numerics import number
-from picka_utils import engine_connection
+import picka_utils
 
-engine = engine_connection
+engine = picka_utils.engine_connection()
+
 
 def trash(picka_function):
     """
@@ -62,54 +63,3 @@ def image(filepath, length=100, width=100, a=0):
     draw.text((0, 0), text, fill=rbg())
     im.save(filepath)
     return filepath
-
-
-def barcode(specification="EAN-8"):
-    """Based on the standard barcode specifications. Valid options are:
-    EAN-8 - 8 numerical digits.
-    EAN-13 - 13 numerical digits.
-    UPC-A - Used on products at the point of sale
-
-    Unsupported, but in-progress:
-    UPC-B - Developed for the US National Drug Code; used to identify drugs
-    UPC-E - Used on smaller products where 12 digits don’t fit
-    UPC-5 - Used as a supplemental code to indicate the price of retail books
-    """
-
-    def _gen(i):
-        upc_str = str(i)
-        odd_sum = 0
-        even_sum = 0
-        for i, char in enumerate(upc_str):
-            j = i + 1
-            if j % 2 == 0:
-                even_sum += int(char)
-            else:
-                odd_sum += int(char)
-        total_sum = (odd_sum * 3) + even_sum
-        mod = total_sum % 10
-        check_digit = 10 - mod
-        if check_digit == 10:
-            check_digit = 0
-        return upc_str + str(check_digit)
-
-    if specification == "EAN-8":
-        return _gen(number(7))
-
-    if specification == "EAN-13":
-        return _gen(number(12))
-
-    if specification == "UPC-A":
-        return _gen(number(11))
-
-
-def mime_type():
-    """Returns tuple, left is suffix, right is media type/subtype.
-    """
-    return query_multiple("extension,name", "mimes")
-
-class IP(object):
-    @staticmethod
-    def ipv4():
-        return inet_ntoa(pack('>I', randint(1, 0xffffffff)))
-

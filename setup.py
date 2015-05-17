@@ -12,7 +12,7 @@ def read(fname):
 setup(
     name='picka',
     version='0.9.9',
-    install_requires = ['attrdict', 'sqlalchemy'],
+    install_requires = ['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
     keywords="data generation generate random randomization testing tests test qa",

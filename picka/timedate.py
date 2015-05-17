@@ -1,112 +1,96 @@
-from random import randrange, randint, choice
+"""Functions which generate data in the time and date categories.
+
+Attributes:
+  engine (Engine): The connection to the database.
+
+Notes:
+  Corresponding tests are found in picka/tests/test_timedate.py
+"""
+from random import randrange, choice
 from calendar import month_name
 from time import strftime, localtime
 
+from attrdict import AttrDict
+
+import picka_utils
+
+engine = picka_utils.engine_connection()
+
 
 def month():
+    """Generates a month.
+
+    Returns:
+      month (str): Full month name.
+
+    Example:
+      >>> month()
+      'October'
+    """
     return choice(month_name[1:])
 
 
-def month_and_day():
-    """Selects and month and day for you.
-    There is logic to handle the days in the month correctly.
+def month_day():
+    """Generates a month and day.
+
+    Note:
+      The chosen day will fall within the max days of the chosen month.
+
+    Example:
+      >>> month_day()
+      'June 26'
     """
 
-    month_choice = month()
-    if month_choice in [
-        'January', 'March', 'May', 'July', 'August',
-        'October', 'December'
-    ]:
-        return '%s %s' % (month_choice, randrange(1, 32))
-    if month_choice in 'February':
-        return '%s %s' % (month_choice, randrange(1, 29))
+    data = AttrDict({"month": month()})
+
+    if data.month in ['January', 'March', 'May', 'July', 'August', 'October',
+                      'December']:
+        data["day"] = str(randrange(1, 32))
+    if data.month in 'February':
+        data["day"] = str(randrange(1, 29))
     else:
-        return '%s %s' % (month_choice, randrange(1, 31))
+        data["day"] = str(randrange(1, 31))
+    return data
 
 
-def month_and_day_and_year(start=1900, end=2010):
+def month_day_year(start=1900, end=2010):
+    """Generates a month, day and year.
+
+    Arguments:
+      start (int): Beginning of the range used for choosing a year.
+      end (int): End of the range used for choosing a year.
+
+    Returns:
+      .month (str): The generated month.
+      .day (str): The generated day.
+      .year (str): The generated year.
+
+    Examples:
+      >>> month_day_year(start=1900, end=2015)
+      AttrDict({'month': 'December', 'day': '21', 'year': '2009'})
     """
-    Selects a monday, day and year for you.
-    Logic built in to handle day in month.
-    To change month do (a, b). b has +1 so the
-    last year in your range can be selected. Default is 1900, 2010.
+    data = month_day()
+    data["year"] = str(randrange(start, end + 1))
+    return AttrDict(data)
+
+
+def timestamp(formatting=None):
+    """Generates timestamps based on localtime().
+
+    Note:
+      This will create a timestamp for the current time.
+
+    Argument:
+      formatting (str): The strftime format you would like.
+
+    Examples:
+      >>> timestamp()
+      '12:28:59PM 07/20/10'
+      >>> timestamp("%H:%M:%S")
+      '12:28:59'
     """
 
-    return '%s %s' % (month_and_day(), randrange(start, end + 1))
-
-
-def timestamp(style=False):
-    """
-    This is a convenience function for creating timestamps.
-    Default when empty, is "12:28:59PM 07/20/10" or "%H:%M:%S%p %D".
-    To change this, pass in your format as an arg.
-    """
-
-    if not style:
+    if not formatting:
         return strftime('%H:%M:%S%p %x', localtime())
     else:
-        return strftime(style, localtime())
-
-
-def timezone_offset():
-    """
-    This function will select the value of a timezone offsets,
-    such as GMT, GMT+4, etc.
-    """
-
-    return choice(
-        [
-            ['GMT+' + str(randint(1, 12))],
-            ['GMT'],
-            ['GMT' + str(randint(-12, -1))]
-        ]
-    )[0]
-
-
-def timezone_offset_country():
-    """This function will select the country part of a timezone."""
-
-    return choice(
-        [
-            'Eniwetoa',
-            'Hawaii',
-            'Alaska',
-            'Pacific',
-            'Mountain',
-            'Central',
-            'Eastern',
-            'Atlantic',
-            'Canada',
-            'Brazilia',
-            'Buenos Aries',
-            'Mid-Atlantic',
-            'Cape Verdes',
-            'Greenwich Mean Time',
-            'Dublin',
-            'Berlin',
-            'Rome',
-            'Israel',
-            'Cairo',
-            'Moscow',
-            'Kuwait',
-            'Abu Dhabi',
-            'Muscat',
-            'Islamabad',
-            'Karachi',
-            'Almaty',
-            'Dhaka',
-            'Bangkok, Jakarta',
-            'Hong Kong',
-            'Beijing',
-            'Tokyo',
-            'Osaka',
-            'Sydney',
-            'Melbourne',
-            'Guam',
-            'Magadan',
-            'Soloman Islands',
-            'Fiji',
-            'Wellington',
-            'Auckland',
-        ]
-    )
+        return strftime(formatting, localtime())
