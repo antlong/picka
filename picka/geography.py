@@ -2,8 +2,7 @@ from attrdict import AttrDict
 from sqlalchemy import text
 from math import sqrt, pi, cos, sin
 import random
-from decimal import Decimal
-from LatLon import LatLon, Latitude, Longitude
+from LatLon import LatLon
 
 
 import picka_utils
@@ -67,23 +66,35 @@ def timezone_offset_country():
     return AttrDict({"country": res.fetchall()[0][0]})
 
 
-def lat_long(state="NY", radius=1000000):
+def lat_long(state="NY", radius=150000):
     """Generates a random latitude, and longitude.
 
-    The lat and long will be within the radius of a state of your choice.
+    The lat and long will be within the radius, of the state of your choice.
+
+    Note: The radius seems to need to be over 150,000 to produce a difference
+    from the original lat and long.
 
     Arguments:
       state (str): The 2 letter abbreviation for the state of your choosing.
       radius (int): The radius which will be used to generate a lat and long
       inside of.
 
+    Returns:
+      abbrev (string): The 2 letter abbreviation of the chosen state.
+      lat (string): A generated latitude of varying length.
+      long (string): A generated longetude of varying length.
+
     Examples:
-      >>> lat_long("NY", 1000000)
-      AttrDict({u'lat': 42.15, u'state': u'NY', u'long': -74.94})
-      >>> lat_long("NY", 10000).lat
-      u'lat': 42.15
+      >>> d_gen.lat_long("NY", 150000)
+      AttrDict({
+        u'lat': '41.9656885445',
+        u'abbrev': u'NY',
+        u'long': '-75.9459285158'
+      })
+      >>> lat_long("NY", 175000).lat
+      '43.0438318157'
     """
-    cmd = 'SELECT state,lat,long FROM us_s_ll WHERE state = :_st LIMIT 1;'
+    cmd = 'SELECT abbrev,lat,long FROM us_s_ll WHERE abbrev = :_st LIMIT 1;'
     res = engine.execute(text(cmd), _st=state)
     data = AttrDict([dict(d) for d in res.fetchall()][0])
 
@@ -92,8 +103,8 @@ def lat_long(state="NY", radius=1000000):
     x0 = float(data["long"])
     y0 = float(data["lat"])
 
-    u = round(random.uniform(0.1, 1.0), 4)
-    v = round(random.uniform(0.1, 1.0), 4)
+    u = round(random.uniform(0.1, 1.0), 6)
+    v = round(random.uniform(0.1, 1.0), 6)
 
     w = radius_in_degrees * sqrt(u)
     t = 2 * pi * v

@@ -1,19 +1,17 @@
-import random
-import string
-import sys
+from random import sample
+from string import ascii_letters, ascii_lowercase, \
+    ascii_uppercase, digits, punctuation
+from random import choice, randrange, randint
 
 from attrdict import AttrDict
+from sqlalchemy import text
 
-import db
-import picka_utils as _utils
+import picka_utils
 from numerics import age as _age
 from numerics import number
 from numerics import birthdate as _birthdate
 
-_query = db.Queries()
-query_multiple = _query.query_multiple
-query_single = _query.query_single
-query_custom = _query.query_custom
+engine = picka_utils.engine_connection()
 
 
 def name(sex="Male"):
@@ -27,14 +25,15 @@ def name(sex="Male"):
         f.append(female())
         m.append(female())
     return AttrDict({
-        "first": unicode(random.choice(f)),
-        "middle": unicode(random.choice(m)),
-        "last": unicode(random.choice(s))
+        "first": unicode(choice(f)),
+        "middle": unicode(choice(m)),
+        "last": unicode(choice(s))
     })
 
 
 def male():
-    return query_single("name", "male")
+    res = engine.execute("SELECT name FROM male ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def age():
@@ -46,16 +45,21 @@ def birthdate():
 
 
 def email(length=8, domain='@example.com'):
-    """
-    :Summary: Created a randomized email.
-    :Usage: picka.email(length=8, domain='@foo.com')
-    """
-
-    return ''.join(random.choice(string.ascii_lowercase) for _ in
-                   xrange(length)) + domain
+    # todo: remove args on length and domain.
+    """Generates an email address."""
+    return AttrDict(
+        {
+            "length": length,
+            "domain": domain,
+            "email": ''.join(choice(
+                ascii_lowercase) for _ in range(
+                length)) + domain
+        }
+    )
 
 
 def screename(*service):
+    # Todo: Re-write
     """
     Makes screenames for the service you pick.
     The screenames conform to their rules, such as
@@ -65,8 +69,8 @@ def screename(*service):
     service = "aim" if not service else service
 
     def _make_name(a, b):
-        return ''.join(random.sample(
-            string.ascii_letters, random.choice(
+        return ''.join(sample(
+            ascii_letters, choice(
                 range(a, b)))
         )
 
@@ -80,56 +84,62 @@ def screename(*service):
         return _make_name(8, 20)
 
 
-def password(case='mixed', length=6, format='letters', special_chars=False):
+def password(case='mixed', length=6, output_format='letters',
+             special_chars=False):
     choices = ''
-    if format in ['letters', 'alphanumeric']:
+    if output_format in ['letters', 'alphanumeric']:
         cases = {
-            'upper': string.ascii_uppercase,
-            'mixed': string.ascii_letters,
-            'lower': string.ascii_lowercase
+            'upper': ascii_uppercase,
+            'mixed': ascii_letters,
+            'lower': ascii_lowercase
         }
         choices += cases[case]
-    if format in ['numbers', 'alphanumeric']:
-        choices += string.digits
+    if output_format in ['numbers', 'alphanumeric']:
+        choices += digits
     if special_chars:
-        choices += string.punctuation
+        choices += punctuation
     output = ''
     for _ in xrange(length):
-        output += random.choice(choices)
+        output += choice(choices)
     return output
 
 
 def url(i, extension='.com'):
-    """
-    This function will create a website url, with a default of .com
-    To use another extension, do picka.url(10, ".net")
-    """
-
+    """Produces a URL."""
     return email(i, extension)
 
 
 def mac_address():
+    """Produces a MAC address"""
     mac = [
         0x00, 0x16, 0x3e,
-        random.randint(0x00, 0x7f),
-        random.randint(0x00, 0xff),
-        random.randint(0x00, 0xff)
+        randint(0x00, 0x7f),
+        randint(0x00, 0xff),
+        randint(0x00, 0xff)
     ]
     return ':'.join(map(lambda x: "%02x" % x, mac))
 
 
-def gender():
-    """
-    Returns a random gender.
-    """
+def gender(extended=False):
+    """Returns a random gender.
 
-    return random.choice(['Male', 'Female'])
+    Argument:
+      extended (bool): Returns from Female or Male if False.
+      if True, returns from 50+ genders.
+    """
+    if extended:
+        res = engine.execute("SELECT gender FROM gender_extended "
+                             "ORDER BY random() LIMIT 1;")
+        return AttrDict([dict(x) for x in res.fetchall()][0])
+    else:
+        return choice(['Male', 'Female'])
 
 
 def language():
     """Picks a random language."""
-
-    return query_single("name", "languages")
+    res = engine.execute(
+        "SELECT name FROM languages ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def social_security_number(state="NY"):
@@ -139,11 +149,10 @@ def social_security_number(state="NY"):
       social_security_number() => '112-32-3322'
 
     >>> assert len(social_security_number()) == 11
-
     """
-    x = random.choice(_utils.ssn_prefixes(state))
+    x = choice(picka_utils.ssn_prefixes(state))
     return '{0}-{1}-{2}'.format(
-        random.randrange(x[0], x[1] + 1),
+        randrange(x[0], x[1] + 1),
         number(2),
         number(4)
     )
@@ -166,6 +175,7 @@ def drivers_license(state='NY'):
     >>> assert len(drivers_license("OK")) in [9, 10]
 
     """
+
     lengths = {
         "AL": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
         "AK": [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]],
@@ -236,31 +246,32 @@ def drivers_license(state='NY'):
         "WI": [[1, 13]],
         "WY": [[0, 9], [0, 10]]
     }
+
     if state == "WA":
-        i = random.choice([random.randint(1, 7), 12])
+        i = choice([randint(1, 7), 12])
         return password(
             case="upper",
             length=i,
-            format="alphanumeric",
+            output_format="alphanumeric",
             special_chars=False
         )
-    n = random.choice(lengths[state])
+    n = choice(lengths[state])
     s = ""
-    s += _utils.random_string(length=n[0])
+    s += picka_utils.random_string(length=n[0])
     s += number(length=n[1])
 
     if len(n) > 2:
         if state == "ID":
-            s += _utils.random_string()
+            s += picka_utils.random_string()
         if state == "IA":
-            s += _utils.random_string(length=n[2])
+            s += picka_utils.random_string(length=n[2])
             s += number(n[3])
         if state == "KS":
-            s += _utils.random_string(n[2])
+            s += picka_utils.random_string(n[2])
             s += number(n[3])
-            s += _utils.random_string(n[4])
+            s += picka_utils.random_string(n[4])
         if state == "MO":
-            s += "R" if n[2] == "R" else _utils.random_string(n[2])
+            s += "R" if n[2] == "R" else picka_utils.random_string(n[2])
         if state == "NH":
             s += number(n[3])
 
@@ -289,92 +300,151 @@ def business_title(abbreviated=False):
         'Investor', 'Dynamic', 'International', 'Principal'
     ]
     secondary = [
-        'Supervisor',
-        'Associate',
-        'Executive',
-        'Liason',
-        'Officer',
-        'Manager',
-        'Engineer',
-        'Specialist',
-        'Director',
-        'Coordinator',
-        'Assistant',
-        'Facilitator',
-        'Agent',
-        'Representative',
-        'Strategist',
+        'Supervisor', 'Associate', 'Executive', 'Liason', 'Officer',
+        'Manager', 'Engineer', 'Specialist', 'Director', 'Coordinator',
+        'Assistant', 'Facilitator', 'Agent', 'Representative', 'Strategist',
     ]
-    return ((random.choice(abbs) if abbreviated else '{} {}'.format(
-        random.choice(primary), random.choice(secondary))))
+    return ((choice(abbs) if abbreviated else '{} {}'.format(
+        choice(primary), choice(secondary))))
 
 
 def career():
     """This function will produce a career."""
-    return query_single("name", "careers")
+    res = engine.execute("SELECT name FROM careers ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def company_name():
     """This function will return a company name"""
-    return query_single("name", "companies")
+    res = engine.execute(
+        "SELECT name FROM companies ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
-def creditcard(prefix='visa'):
-    if prefix == 'visa':
-        prefix = ['40240071']
-    elif prefix == 'amex':
-        prefix = ['34', '37']
-    elif prefix == 'discover':
-        prefix = ['6011']
-    elif prefix == 'mastercard':
-        prefix = ['51', '52', '53', '54', '55']
-    while len(prefix) < 15:
-        prefix += str(random.randint(0, 9))
-    return ''.join(prefix) + '0'
+def creditcard(card_type=None):
+    # Todo: docstring and return AttrDict
+    card_types = {
+        'amex': {
+            'prefixes': ['34', '37'],
+            'length': [15]
+        },
+        'diners-carte-blance': {
+            'prefixes': [300, 301, 302, 304, 305],
+            'length': [14],
+        },
+        'diners-international': {
+            'prefixes': [36],
+            'length': [14]
+        },
+        'diners-uscanada': {
+            'prefixes': [54, 55],
+            'length': [16]
+        },
+        'discover': {
+            'prefixes': ['6011'] + [str(i) for i in range(622126, 622926)] + [
+                '644', '645', '646', '647', '648', '649', '65'],
+            'length': [16]
+        },
+        'jcb': {
+            'prefixes': [str(i) for i in range(3528, 3590)],
+            'length': [16]
+        },
+        'laser': {
+            'prefixes': ['6304', '6706', '6771', '6709'],
+            'length': range(16, 20)
+        },
+        'maestro': {
+            'prefixes': ['5018', '5020', '5038', '6304', '6759', '6761', '6762',
+                         '6763'],
+            'length': range(12, 20)
+        },
+        'mastercard': {
+            'prefixes': ['51', '52', '53', '54', '55'],
+            'length': [16]
+        },
+        'solo': {
+            'prefixes': ['6334', '6767'],
+            'length': [16, 18, 19]
+        },
+        'switch': {
+            'prefixes': ['4903', '4905', '4911', '4936', '564182', '633110',
+                         '6333', '6759'],
+            'length': [16, 18, 19]
+        },
+        'visa': {
+            'prefixes': ['4'],
+            'length': [16]
+        },
+        'visa-electron': {
+            'prefixes': ['4026', '417500', '4508', '4844', '4913', '4917'],
+            'length': [16]
+        }
+    }
+
+    def _return_int(*args):
+        return [int(_i) for _i in list(*args)]
+
+    card_name = card_type if card_type else choice(card_type.keys())
+    if not card_type:
+        card_name = choice(card_types.keys())
+
+    length = card_types[card_name]['length'][0]
+    result = choice(card_types[card_name]['prefixes'])
+
+    result += ''.join(
+        str(choice(range(10))) for _ in range(
+            length - len(result) - 1)
+    )
+
+    total = sum(_return_int(result[-2::-2])) + sum(_return_int(
+        ''.join([str(i * 2) for i in _return_int(result[::-2])]))
+    )
+    check_digit = ((total / 10 + 1) * 10 - total) % 10
+    return '%s%s' % (result, check_digit)
 
 
 def cvv(i):
-    """Returns a cvv, based on the length you provide.
-    :Usage: picka.cvv(3) or picka.cvv(4)
-    """
+    """Returns a cvv, based on the length you provide."""
+    return '{}'.format(randint(111, (999 if i == 3 else 9999)))
 
-    return '{}'.format(random.randint(111, (999 if i == 3 else 9999)))
+
+def street_name():
+    """Produces a street name."""
+    res = engine.execute("SELECT name FROM streetnames "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def street_address():
     """This function will produce a complete street address."""
-
-    return random.choice(
+    return choice(
         [
-            '%d-%d %s' % (
-                random.randrange(999),
-                random.randrange(999),
-                street_name()
+            '%d-%d %s %s' % (
+                randrange(999),
+                randrange(999),
+                street_name().name,
+                street_type().name
             ),
-            '%d %s' % (
-                random.randrange(999),
-                street_name()
+            '%d %s %s' % (
+                randrange(999),
+                street_name().name,
+                street_type().name
             ),
-            '%s %d, %s' % (
+            '%s %d, %s %s' % (
                 'P.O. Box',
-                random.randrange(999),
-                street_name()
+                randrange(999),
+                street_name().name,
+                street_type().name
             )
         ]
     )
 
 
-def street_name():
-    """
-    This function will create a street name from either
-    a male or female name, plus a street type.
-    """
-    return "{} {}".format(query_single("name", "streetnames"), str(street_type()))
-
-
 def street_type():
     """This function will return a random street type."""
-    return query_single("name", "us_street_types")
+    res = engine.execute("SELECT name FROM us_street_types "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def apartment_number():
@@ -386,19 +456,25 @@ def apartment_number():
     in using string formatting instead.
 
     """
-    _type = random.choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
-    letter = random.choice(string.ascii_letters).capitalize()
+    _type = choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
+    letter = choice(ascii_letters).capitalize()
     directions = ['E', 'W', 'N', 'S']
-    short = '{} {}'.format(_type, random.randint(1, 999))
-    _long = '{} {}{}'.format(_type, random.randint(1, 999), letter)
-    alt = '{} {}-{}{}'.format(_type, random.choice(directions),
-                              random.randint(1, 999), letter)
-    return random.choice([short, _long, alt])
+    short = '{} {}'.format(_type, randint(1, 999))
+    _long = '{} {}{}'.format(_type, randint(1, 999), letter)
+    alt = '{} {}-{}{}'.format(_type, choice(directions),
+                              randint(1, 999), letter)
+    return AttrDict(
+        {
+            "apartment_number": choice([short, _long, alt])
+        }
+    )
 
 
 def city():
     """This function will produce a city."""
-    return query_single("city", "us_cities")
+    res = engine.execute("SELECT city FROM us_cities "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def city_with_state():
@@ -406,7 +482,9 @@ def city_with_state():
     This function produces a city with a state.
     ie - city_with_state() = 'New York, NY'
     """
-    return ', '.join(query_single("city, state", "us_cities"))
+    res = engine.execute("SELECT city, state FROM us_cities "
+                         "ORDER BY random() LIMIT 1;")
+    return ', '.join(res.fetchall()[0])
 
 
 def state_abbreviated():
@@ -414,7 +492,9 @@ def state_abbreviated():
     This function produces just a state abbreviation.
     eg - state_abbreviated() = 'NY'
     """
-    return query_single("abbreviation", "states")
+    res = engine.execute("SELECT abbreviation FROM states "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def zipcode(state=None):
@@ -422,37 +502,31 @@ def zipcode(state=None):
     eg - zipcode() = '11221'.
     """
     range_gen = []
-    state = state or state_abbreviated()
-    _range = query_custom('SELECT min, max FROM zipcodes WHERE st = "{}";'.format(state), tups=True)
+    state = state or state_abbreviated().abbreviation
+    cmd = 'SELECT min, max FROM zipcodes WHERE st = :_state'
+    res = engine.execute(text(cmd), _state=state)
+    _range = res.fetchall()
     for r in _range:
         range_gen.extend(range(int(r[0]), int(r[1] + 1)))
-
-    print len(range_gen)
-    if hasattr(sys, '_called_from_test'):
-        result = "%05d" % random.choice(range_gen)
-        return AttrDict({
-            "result": result,
-            "computed_range": range_gen,
-            "original_range": _range
-        })
-
-    return '%05d' % random.choice(range_gen)
+    return '%05d' % choice(range_gen)
 
 
 def country():
-    # Todo: Use max row.
     """This function will return a random country."""
-    return query_single("name", "countries")
+    res = engine.execute("SELECT country_name FROM countries "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def salutation():
     """This function will return a 'Mr.' or 'Mrs.'"""
-    return random.choice(['Mr.', 'Mrs.', 'Miss', 'Dr.', 'Prof.', 'Rev.'])
+    return choice(['Mr.', 'Mrs.', 'Miss', 'Dr.', 'Prof.', 'Rev.'])
 
 
 def female():
     """Returns a randomly chosen female first name."""
-    return query_single("name", "female")
+    res = engine.execute("SELECT name FROM female ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def initial(period=False):
@@ -471,21 +545,20 @@ def initial(period=False):
 
     """
     return "{0}{1}".format(
-        random.choice(
-            string.ascii_uppercase
-        ), "." if period else ""
+        choice(ascii_uppercase), "." if period else ""
     )
 
 
 def set_of_initials(i=3):
     """Returns initials with period seperators."""
-
     return [''.join(initial(True) for _ in xrange(i))]
 
 
 def surname():
     """Returns a randomly chosen surname."""
-    return query_single("name", "surname")
+    res = engine.execute("SELECT name FROM surname "
+                         "ORDER BY random() LIMIT 1;")
+    return AttrDict([dict(d) for d in res.fetchall()][0])
 
 
 def hyphenated_last_name():
@@ -499,6 +572,6 @@ def hyphenated_last_name():
 
 def suffix():
     """This returns a suffix from a small list."""
-    return random.choice([
+    return choice([
         'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
     ])
