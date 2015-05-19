@@ -1,9 +1,9 @@
-from attrdict import AttrDict
-from sqlalchemy import text
 from math import sqrt, pi, cos, sin
 import random
-from LatLon import LatLon
 
+from attrdict import AttrDict
+from sqlalchemy import text
+from LatLon import LatLon
 
 import picka_utils
 
@@ -11,6 +11,7 @@ engine = picka_utils.engine_connection()
 
 
 def timezone_offset(dst=True, utc=True):
+    # Todo: Set both to false by default.
     """Generates a random timezone offset.
 
     Arguments:
@@ -34,15 +35,14 @@ def timezone_offset(dst=True, utc=True):
       '-4:30'
     """
     data = {}
-
     if dst:
-        res = engine.execute("select distinct(dst) from timezones where rowid = (abs(random()) % \
-          (select max(rowid)+1 from timezones))")
+        res = engine.execute("SELECT DISTINCT(dst) FROM timezones ORDER BY "
+                             "random() LIMIT 1;")
         data["dst"] = res.fetchall()[0][0]
 
     if utc:
-        res = engine.execute("select distinct(utc) from timezones where rowid = (abs(random()) % \
-          (select max(rowid)+1 from timezones))")
+        res = engine.execute("SELECT DISTINCT(utc) FROM timezones ORDER BY "
+                             "random() LIMIT 1;")
         data["utc"] = res.fetchall()[0][0]
 
     return AttrDict(data)
@@ -60,9 +60,8 @@ def timezone_offset_country():
       >>> timezone_offset_country().country
       AttrDict({'country': u'Maldives'})
     """
-    res = engine.execute("select distinct(country) from timezones \
-                         where rowid = (abs(random()) % \
-        (select max(rowid)+1 from timezones))")
+    res = engine.execute("SELECT country FROM timezones ORDER BY random() "
+                         "LIMIT 1;")
     return AttrDict({"country": res.fetchall()[0][0]})
 
 

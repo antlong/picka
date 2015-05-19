@@ -1,10 +1,12 @@
 """Tests for the user.py module"""
 import datetime
+import pytest
 
+from picka.picka_exceptions import  InvalidRange
 from picka.user import age, apartment_number, birthdate, business_title, \
     career, city, city_with_state, company_name, country, creditcard, cvv, \
     drivers_license, email, female, gender, hyphenated_last_name, initial, \
-    language, mac_address, male, name, password, salutation, screename, \
+    language, mac_address, male, name, password, salutation, \
     set_of_initials, social_security_number, state_abbreviated, street_address,\
     street_name, street_type, suffix, surname, url, zipcode
 
@@ -32,7 +34,18 @@ def test_age():
     assert 1950 == int(age(min_year=1950, max_year=1950).year)
 
     # The minimum year should be greater than the maximum.
-    age(min_year=2000, max_year=1900)
+    with pytest.raises(InvalidRange):
+        age(min_year=2000, max_year=1900)
+
+    assert age().datetime
+    assert 1 <= int(age().day) <= 31
+    assert 1 <= int(age().month_digit) <= 12
+    assert age().month_short
+    assert age().period in ["AM", "PM"]
+    assert age().pretty_date
+    assert age().time
+    assert 1900 <= int(age().year) <= 2015
+    assert 1 <= int(age().years_old) <= 115
 
 
 def test_apartment_number():
@@ -98,9 +111,6 @@ def test_password():
     pass
 
 def test_salutation():
-    pass
-
-def test_screename():
     pass
 
 def test_set_of_initials():

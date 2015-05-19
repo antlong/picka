@@ -12,10 +12,11 @@ def read(fname):
 setup(
     name='picka',
     version='0.9.9',
-    install_requires = ['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
+    install_requires=['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
-    keywords="data generation generate random randomization testing tests test qa",
+    keywords="data generation generate random randomization testing "
+             "tests test qa",
     author='Anthony Long',
     author_email='antlong@gmail.com',
     license='Apache 2.0',
@@ -25,7 +26,7 @@ setup(
         'picka': [
             '*.sqlite',
             'book_sherlock.txt',
-            'readme.rst'
+            'README.rst'
         ]
     },
     classifiers=[

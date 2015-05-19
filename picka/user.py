@@ -35,6 +35,15 @@ def name(sex="Male"):
 
 
 def male():
+    """Generate a 'male' name.
+
+    Returns:
+      A string.
+
+    Example:
+      >>> name()
+      'Anthony'
+    """
     res = engine.execute("SELECT name FROM male ORDER BY random() LIMIT 1;")
     return AttrDict([dict(d) for d in res.fetchall()][0])
 
@@ -97,7 +106,7 @@ def age(min_year=1900, max_year=2015):
 def birthdate(min_year=1900, max_year=2015, formatted=None):
     """Generates a birthdate.
 
-    Args:
+    Arguments:
       min_year (int): Minimum year to use in range.
       max_year (int): Maximum year to use in range.
       formatted (str): Applies strftime to object.
@@ -160,32 +169,6 @@ def email(length=8, domain='@example.com'):
                 length)) + domain
         }
     )
-
-
-def screename(*service):
-    # Todo: Re-write
-    """
-    Makes screenames for the service you pick.
-    The screenames conform to their rules, such as
-    aol screenames are 3-16 in length with @aol.com on the end.
-    Options include: nil, aol, aim, skype, google
-    """
-    service = "aim" if not service else service
-
-    def _make_name(a, b):
-        return ''.join(sample(
-            ascii_letters, choice(
-                range(a, b)))
-        )
-
-    if service in ['aim', 'aol']:
-        return _make_name(3, 16)
-    elif service is 'skype':
-        return _make_name(6, 32)
-    elif service is 'google':
-        return _make_name(1, 19) + '@googletalk.com'
-    else:
-        return _make_name(8, 20)
 
 
 def password(case='mixed', length=6, output_format='letters',

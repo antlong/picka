@@ -2,7 +2,7 @@ from warnings import warn
 from functools import wraps
 from os.path import join, dirname
 from random import choice, randint
-from string import ascii_uppercase, ascii_letters, ascii_lowercase
+from string import ascii_uppercase, ascii_letters, ascii_lowercase, punctuation
 from re import split, compile
 from itertools import izip
 from functools import partial
@@ -194,3 +194,14 @@ def sentence_actual(min_words=3, max_words=1000):
             return x
     raise Exception("Couldn't find a sentence between \
         {0} and {1} words long".format(min_words, max_words))
+
+
+def trash(picka_function):
+    """
+     :Summary: This method takes a function you pass in, and joins\
+     the output with _random punctuation.
+     :Date: Tue Feb 22 15:31:12 EST 2011.
+     :Usage: picka.trash(picka.name) >>> 'D#o}y>l~e^'
+    """
+    return ''.join([str(char) + choice(str(punctuation))
+                    for char in picka_function()])

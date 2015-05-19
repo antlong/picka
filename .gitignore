@@ -56,3 +56,6 @@ docs/_build/
 target/
 
 release_build
+
+docs/source
+docs/Makefile
