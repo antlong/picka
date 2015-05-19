@@ -1,9 +1,6 @@
-from datetime import datetime
 from random import randrange, randint
-from calendar import monthrange
 
 from sqlalchemy import text
-from dateutil.relativedelta import relativedelta
 from attrdict import AttrDict
 
 import picka_utils
@@ -12,53 +9,7 @@ engine = picka_utils.engine_connection()
 asdict = picka_utils.asdict
 
 
-def age(min_year=1900, max_year=2015):
-    """
-    Generates an age, and related data.
-
-    Args:
-      min_year (int): Minimum year to use in range.
-      max_year (int): Maximum year to use in range.
-
-    Returns:
-      A dict containing multiple age related values.
-
-    Examples:
-      >>> age()
-      {
-        'datetime': datetime.datetime(1916, 1, 5, 5, 47, 47, 564468),
-        'day': '05',
-        'month_digit': '1',
-        'month_short': 'Jan',
-        'period': 'AM',
-        'pretty_date': 'January 05, 1916',
-        'time': '05:01',
-        'year': '1916',
-        'years_old': '99',
-      }
-      >>> age().datetime.strftime("%B, %d %Y")
-      'June, 20 2005'
-      >>> age().day
-      '09'
-    """
-    d = {}
-    date_now = datetime.now()
-    _b = birthdate(min_year, max_year, formatted="DTO")
-
-    d["datetime"] = _b
-    d["pretty_date"] = _b.strftime("%B %d, %Y")
-    d["time"] = _b.strftime("%I:%m")
-    d["period"] = _b.strftime("%p")
-    d["years_old"] = str(relativedelta(date_now, _b).years)
-    d["month_short"] = _b.strftime("%b")
-    d["month_digit"] = _b.strftime("%m")
-    d["day"] = _b.strftime("%d")
-    d["year"] = _b.strftime("%Y")
-
-    return AttrDict(d)
-
-
-def areacode(state=False):
+def areacode(state=None):
     """Returns a random zipcode from a list of US zipcodes.
 
     Argument:
@@ -82,60 +33,6 @@ def areacode(state=False):
             'SELECT areacode, state FROM areacodes ORDER BY random() LIMIT 1;'
         )
     return AttrDict([dict(d) for d in res.fetchall()][0])
-
-
-def birthdate(min_year=1900, max_year=2015, formatted=None):
-    """Generates a birthdate.
-
-    Args:
-      min_year (int): Minimum year to use in range.
-      max_year (int): Maximum year to use in range.
-      formatted (str): Applies strftime to object.
-
-    Returns:
-      formatted (str):
-      A string based on your strftime arguments.
-
-      unformatted (AttrDict):
-      A datetime object which includes: datetime, month, day, and year
-
-    Examples:
-      >>> birthdate()
-      datetime.datetime(1903, 12, 23, 10, 46, 55, 140438)
-      >>> birthdate(max_year=1950)
-      datetime.datetime(1928, 6, 20, 12, 26, 17, 27057)
-      >>> birthdate(formatted="%m/%d/%Y")
-      '07/07/2002'
-      >>> x = birthdate()
-      >>> x.month, x.day, x.year
-      (11, 1, 1981)
-      >>> birthdate(formatted="%B")
-      'Februrary'
-    """
-    data = {}
-
-    y = randrange(min_year, max_year + 1)
-    m = randrange(1, 13)
-    d = randrange(1, monthrange(y, m)[1] + 1)
-    h = randint(1, 12)
-    mn = randint(1, 59)
-    s = randint(1, 59)
-    ms = "%.6i" % randint(1, 999999)
-
-    generated_datetime = datetime(y, m, d, h, mn, s, int(ms))
-
-    if formatted:
-        if formatted is not "DTO":
-            return generated_datetime.strftime(formatted)
-        else:
-            return generated_datetime
-
-    data["datetime"] = generated_datetime
-    data["year"] = generated_datetime.strftime("%Y")
-    data["month"] = generated_datetime.strftime("%m")
-    data["day"] = generated_datetime.strftime("%d")
-
-    return AttrDict(data)
 
 
 def calling_code(country=False):
@@ -267,6 +164,7 @@ def barcode(specification="EAN-8"):
       UPC-E - Used on smaller products where 12 digits dont fit
       UPC-5 - Used as a supplemental code to indicate the price of retail books
     """
+
     def _gen(i):
         upc_str = str(i)
         odd_sum = 0
