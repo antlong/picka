@@ -1,8 +1,8 @@
-from random import sample
 from string import ascii_letters, ascii_lowercase, \
     ascii_uppercase, digits, punctuation
 from random import choice, randrange, randint
 from datetime import datetime
+
 from calendar import monthrange
 
 from dateutil.relativedelta import relativedelta
@@ -12,7 +12,6 @@ from sqlalchemy import text
 import picka_utils
 from numerics import number
 from picka_exceptions import InvalidRange
-
 
 engine = picka_utils.engine_connection()
 
@@ -49,8 +48,7 @@ def male():
 
 
 def age(min_year=1900, max_year=2015):
-    """
-    Generates an age, and related data.
+    """Generates an age, and related data.
 
     Arguments:
       min_year (int): Minimum year to use in range.
@@ -257,12 +255,13 @@ def drivers_license(state='NY'):
       str: generated license code.
 
     Examples:
-        print drivers_license() => "I370162546092578729"
-        print drivers_license("AL") => "2405831"
+        >>> drivers_license()
+        "I370162546092578729"
+        >>> drivers_license("AL")
+        "2405831"
 
     >>> assert len(drivers_license()) > 0
     >>> assert len(drivers_license("OK")) in [9, 10]
-
     """
 
     lengths = {
@@ -543,7 +542,6 @@ def apartment_number():
     :tip: There are many different types which could be returned.
     If you are looking for a specific format, you might be interested\
     in using string formatting instead.
-
     """
     _type = choice(['Apt.', 'Apartment', 'Suite', 'Ste.'])
     letter = choice(ascii_letters).capitalize()
@@ -661,6 +659,17 @@ def hyphenated_last_name():
 
 def suffix():
     """This returns a suffix from a small list."""
-    return choice([
-        'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'
-    ])
+    return choice(
+        [
+        'Sr.', 'Jr.', 'II', 'III', 'IV', 'V', 'VI',
+        'VII', 'VIII', 'IX', 'X'
+        ]
+    )
+
+
+def unit_type():
+    res = engine.execute(
+        "SELECT name, abbreviation FROM us_unit_types "
+        "ORDER BY random() LIMIT 1;"
+    )
+    return AttrDict([dict(d) for d in res.fetchall()][0])
