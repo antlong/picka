@@ -1434,3 +1434,6 @@ def image(filepath, length=100, width=100, a=0):
     draw.text((0, 0), text, fill=rbg())
     im.save(filepath)
     return filepath
+
+def color():
+    return choice(["brown", "red", "blue", "green", "white", "black", "purple"])
