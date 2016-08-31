@@ -41,34 +41,24 @@ class InvalidRange(ValueError):
         super(InvalidRange, self).__init__(message, *args)
 
 
-def rgb():
-    """Generates an RGB color.
-
-    Returns:
-      AttrDict: A dictionary with the generated colors.
-
-    Examples:
-      >>> rgb
-      AttrDict({'r': '133', 'g': '12', 'b': '211'})
-    """
-    # todo: change from string?
-    r, g, b = [str(randint(0, 256)) for _ in range(3)]
-    return AttrDict({"r": r, "g": g, "b": b})
+def rgb(format="tuple"):
+    if format == "tuple":
+        return [randint(0, 256) for _ in xrange(3)]
+    else:
+        r, g, b = [str(randint(0, 256)) for _ in range(3)]
+        return AttrDict({"r": r, "g": g, "b": b})
 
 
-def rgba():
-    """Generates an RGBA color.
-
-    Returns:
-      AttrDict: A dictionary with the generated colors.
-
-    Examples:
-      >>> rgba()
-      AttrDict({'r': '133', 'g': '12', 'b': '211', 'a': '0.90'})
-    """
-    _rgb = rgb()
-    _rgb["a"] = str(100 * float(randint(1, 256)) / float(256) / 100)[:4]
-    return _rgb
+def rgba(format="tuple", a=0):
+    if format == "tuple":
+        x = rgb()
+        x.append(a) if isinstance(a, (
+            int, long)) else x.append(randint(0, 256))
+        return x
+    else:
+        _rgb = rgb()
+        _rgb["a"] = str(100 * float(randint(1, 256)) / float(256) / 100)[:4]
+        return _rgb
 
 
 def hex_color():
@@ -190,13 +180,13 @@ def calling_code(country=False):
       u'Guinea'
     """
     if country:
-        cmd = 'SELECT country, calling_code FROM calling_codes WHERE country ' \
-              'LIKE :_country LIMIT 1;'
+        cmd = 'SELECT country, calling_code FROM calling_codes WHERE ' \
+            'country LIKE :_country LIMIT 1;'
         res = engine.execute(text(cmd), _country=country)
     else:
         res = engine.execute(
-            "SELECT country, calling_code FROM calling_codes ORDER BY random() "
-            "LIMIT 1;"
+            'SELECT country, calling_code FROM calling_codes ORDER BY '
+            'random() LIMIT 1;'
         )
     return AttrDict([dict(d) for d in res.fetchall()][0])
 
@@ -264,7 +254,8 @@ def phone_number(state=None):
     # list, then we will regenerate until the chosen number is not.
     a, b, c = (False,) * 3
     while not valid_number:
-        a = str(areacode(state).areacode) if state else str(areacode().areacode)
+        a = str(areacode(state).areacode) if state else str(
+            areacode().areacode)
         b = str(randint(2, 9)) + str(number(2))
         if a or b not in invalid_prefixes:
             break
@@ -360,7 +351,7 @@ def screename(service="any"):
     if service is 'google':
         return _make_name(1, 19) + '@googletalk.com'
 
-    return "any: " + _make_name(8, 20)
+    return "any_make_name(8, 20)"
 
 
 def foreign_characters(i):
@@ -1016,8 +1007,10 @@ def creditcard(card_type=None):
             'length': range(16, 20)
         },
         'maestro': {
-            'prefixes': ['5018', '5020', '5038', '6304', '6759', '6761', '6762',
-                         '6763'],
+            'prefixes': [
+                '5018', '5020', '5038', '6304', '6759',
+                '6761', '6762', '6763'
+            ],
             'length': range(12, 20)
         },
         'mastercard': {
@@ -1029,8 +1022,10 @@ def creditcard(card_type=None):
             'length': [16, 18, 19]
         },
         'switch': {
-            'prefixes': ['4903', '4905', '4911', '4936', '564182', '633110',
-                         '6333', '6759'],
+            'prefixes': [
+                '4903', '4905', '4911', '4936', '564182',
+                '633110', '6333', '6759'
+            ],
             'length': [16, 18, 19]
         },
         'visa': {
@@ -1038,7 +1033,10 @@ def creditcard(card_type=None):
             'length': [16]
         },
         'visa-electron': {
-            'prefixes': ['4026', '417500', '4508', '4844', '4913', '4917'],
+            'prefixes': [
+                '4026', '417500', '4508', '4844', '4913',
+                '4917'
+            ],
             'length': [16]
         }
     }
@@ -1336,8 +1334,8 @@ class _Book:
     def __init__(self):
         pass
 
-    _path = join(dirname(
-        __file__) + "/data/book_sherlock.txt")
+    import os
+    _path = os.path.join(os.path.abspath(os.path.dirname(__file__)) + "/data/book_sherlock.txt")
     _text = _num_sentences = _sentences = None
 
     @classmethod
@@ -1411,11 +1409,11 @@ def trash(picka_function):
     return ''.join([str(char) + choice(str(punctuation))
                     for char in picka_function()])
 
+
 # noinspection PyUnresolvedReferences
-def image(filepath, length=100, width=100, a=0):
+def image(filepath, length=250, width=250, a=0):
     """Generate a _random colored image, with _random text on it.
     Returns filepath for ease of use.
-
         :param: filepath: path to save image to.
         :type filepath: str
         :param length: length of the image
@@ -1429,12 +1427,13 @@ def image(filepath, length=100, width=100, a=0):
     except ImportError as e:
         print e, "Please install PIL to use this functionality."
         return
-    im = Image.new('RGBA', tuple((length, width)), tuple((rbga(a))))
+    im = Image.new('RGBA', tuple((length, width)), tuple((rgba(format="tuple", a=0))))
     draw = ImageDraw.Draw(im)
     text = sentence_actual(1)
-    draw.text((0, 0), text, fill=rbg())
+    draw.text((0, 0), text, fill=tuple(rgb(format="tuple")))
     im.save(filepath)
     return filepath
+
 
 def color():
     return choice(["brown", "red", "blue", "green", "white", "black", "purple"])
@@ -1450,8 +1449,8 @@ def pokemon():
         "Nidoran♂", "Nidorino", "Nidoking", "Clefairy", "Clefable",
         "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff", "Zubat",
         "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect",
-        "Venonat", "Venomoth", "Diglett", "Dugtrio", "Meowth", "Persian",
-        "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe",
+        "Venonat", "Venomoth", "Diglett", "Dugtrio", "Meowth",
+        "Persian", "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe",
         "Arcanine", "Poliwag", "Poliwhirl", "Poliwrath", "Abra",
         "Kadabra", "Alakazam", "Machop", "Machoke", "Machamp", "Bellsprout",
         "Weepinbell", "Victreebel", "Tentacool", "Tentacruel", "Geodude",

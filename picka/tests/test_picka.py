@@ -3,8 +3,13 @@ from re import match
 
 import pytest
 from assertlib import assertEqual, assertTrue, assertIsInstance
+from attrdict import AttrDict
 
-from picka import *
+from picka import age, hex_color, phone_number, areacode, datetime, rgb, \
+    birthdate, rgba, html_name, url, surname, zipcode, calling_code, number, \
+    month, timestamp, business_title, timezone_offset, month_day, \
+    month_day_year, business_title_abbreviation, barcode, timezone_offset_country, \
+    screename, mime_type
 
 current_year = datetime.now().year
 
@@ -445,36 +450,36 @@ def test_timezone_offset_no_utc():
 
 
 def test_phone_number():
-    assert len(picka.phone_number().items()) > 1
+    assert len(phone_number().items()) > 1
 
 
 def test_last_name():
-    _name = picka.surname().name
+    _name = surname().name
     assert len(_name) >= 1
     assert type(_name) is UnicodeType, "%s is not a unicode object." % _name
 
 
 def test_timezone_offset():
-    assert picka.timezone_offset()
+    assert timezone_offset()
 
 
 def test_timezone_offset_country():
-    assert len(picka.timezone_offset_country()) > 0
+    assert len(timezone_offset_country()) > 0
 
 
 def test_screename():
-    assert picka.screename()
+    assert screename()
 
 
 def test_barcode_ean_8():
-    assert len(picka.barcode("EAN-8")) == 8
+    assert len(barcode("EAN-8")) == 8
 
 
 def test_barcode_ean_13():
-    assert len(picka.barcode("EAN-13")) == 13
+    assert len(barcode("EAN-13")) == 13
 
 
 # assert picka.locale()
 
 def test_mime_type():
-    assert picka.mime_type()
+    assert mime_type()
