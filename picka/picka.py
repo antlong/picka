@@ -41,16 +41,16 @@ class InvalidRange(ValueError):
         super(InvalidRange, self).__init__(message, *args)
 
 
-def rgb(format="tuple"):
-    if format == "tuple":
+def rgb(format="list"):
+    if format == "list":
         return [randint(0, 256) for _ in xrange(3)]
     else:
         r, g, b = [str(randint(0, 256)) for _ in range(3)]
         return AttrDict({"r": r, "g": g, "b": b})
 
 
-def rgba(format="tuple", a=0):
-    if format == "tuple":
+def rgba(format="list", a=0):
+    if format == "list":
         x = rgb()
         x.append(a) if isinstance(a, (
             int, long)) else x.append(randint(0, 256))
@@ -1431,11 +1431,11 @@ def image(filepath, length=250, width=250, a=0):
     im = Image.new(
         'RGBA',
         tuple((length, width)),
-        tuple((rgba(format="tuple", a=0)))
+        tuple((rgba(format="list", a=0)))
     )
     draw = ImageDraw.Draw(im)
     text = sentence_actual(1)
-    draw.text((0, 0), text, fill=tuple(rgb(format="tuple")))
+    draw.text((0, 0), text, fill=tuple(rgb(format="list")))
     im.save(filepath)
     return filepath
 
