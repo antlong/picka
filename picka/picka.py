@@ -26,6 +26,7 @@ from attrdict import AttrDict
 from sqlalchemy import text
 from LatLon import LatLon
 from sqlalchemy import engine
+import picka_utils as picka_utils
 
 path = join(dirname(
     __file__) + "/data/db.sqlite")
