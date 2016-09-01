@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='picka',
-    version='0.9.11',
+    version='0.9.12',
     install_requires=['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
@@ -22,6 +22,7 @@ setup(
     license='Apache 2.0',
     packages=['picka'],
     url='http://github.com/antlong/picka',
+    include_package_data=True,
     package_data={
         'picka': [
             '*.sqlite',
