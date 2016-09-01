@@ -29,7 +29,7 @@ from sqlalchemy import engine
 import picka_utils as picka_utils
 
 path = join(dirname(
-    __file__) + "/data/db.sqlite")
+    __file__) + "/db.sqlite")
 engine = engine.create_engine("sqlite:///" + path, echo=False)
 
 
@@ -1336,7 +1336,7 @@ class _Book:
 
     import os
     _path = os.path.join(os.path.abspath(os.path.dirname(
-        __file__)) + "/data/book_sherlock.txt")
+        __file__)) + "/book_sherlock.txt")
     _text = _num_sentences = _sentences = None
 
     @classmethod
