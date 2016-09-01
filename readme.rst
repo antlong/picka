@@ -5,7 +5,7 @@ Picka: A Python module for data generation and randomization.
 	Anthony Long
 
 :Version:
-	1.0
+	1.0.1
 	- Fixed the broken image stuff. Whoops
 
 
