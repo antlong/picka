@@ -25,7 +25,7 @@ setup(
     package_data={
         'picka': [
             '*.sqlite',
-            'book_sherlock.txt',
+            '*.txt',
             'README.rst'
         ]
     },
