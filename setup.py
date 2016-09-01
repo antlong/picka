@@ -13,10 +13,8 @@ setup(
     name='picka',
     version='1.0.1',
     install_requires=['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
-    description='Picka generates randomized, realistic testing \
-        data for use in any application.',
-    keywords="data generation generate random randomization testing "
-             "tests test qa",
+    description='Picka generates randomized, realistic testing data for use in any application.',
+    keywords="data generation generate random randomization testing tests test qa faker fake",
     author='Anthony Long',
     author_email='antlong@gmail.com',
     license='Apache 2.0',
