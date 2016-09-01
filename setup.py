@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='picka',
-    version='0.9.12',
+    version='1.0',
     install_requires=['attrdict', 'sqlalchemy', 'assertlib', "LatLon"],
     description='Picka generates randomized, realistic testing \
         data for use in any application.',
