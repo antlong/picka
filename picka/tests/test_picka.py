@@ -5,7 +5,7 @@ import pytest
 from assertlib import assertEqual, assertTrue, assertIsInstance
 from attrdict import AttrDict
 
-from picka import age, hex_color, phone_number, areacode, datetime, rgb, \
+from picka import age, career, hex_color, phone_number, areacode, datetime, rgb, \
     birthdate, rgba, html_name, url, surname, zipcode, calling_code, number, \
     month, timestamp, business_title, timezone_offset, month_day, \
     month_day_year, business_title_abbreviation, barcode, timezone_offset_country, \
@@ -291,7 +291,7 @@ def test_business_title_abbreviation():
 
 
 def test_career():
-    pass
+    career()
 
 
 def test_city():

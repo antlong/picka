@@ -1195,7 +1195,7 @@ def initial(period=False):
         with_period (bool): Whether or not to add a trailing period.
 
     Example:
-      print picka.initial() => "B"
+      print(picka.initial()) => "B"
 
     >>> initial() in string.ascii_letters
     True
@@ -1426,7 +1426,7 @@ def image(filepath, length=250, width=250, a=0):
         import Image
         import ImageDraw
     except ImportError as e:
-        print e, "Please install PIL to use this functionality."
+        print(e, "Please install PIL to use this functionality.")
         return
     im = Image.new(
         'RGBA',
